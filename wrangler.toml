@@ -1,0 +1,22 @@
+name = "tkstar-dev"
+compatibility_date = "2026-04-27"
+compatibility_flags = ["nodejs_compat"]
+
+main = "./workers/app.ts"
+
+assets = { directory = "./build/client", binding = "ASSETS" }
+
+[observability]
+enabled = true
+
+[env.staging]
+name = "tkstar-dev-staging"
+
+[env.staging.vars]
+APP_ENV = "staging"
+
+[env.production]
+name = "tkstar-dev-production"
+
+[env.production.vars]
+APP_ENV = "production"

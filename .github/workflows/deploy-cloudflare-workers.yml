@@ -1,0 +1,82 @@
+name: Deploy to Cloudflare Workers
+
+on:
+  push:
+    branches:
+      - main
+      - development
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        type: choice
+        options:
+          - production
+          - staging
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      deployments: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve deployment environment
+        id: set-env
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            DEPLOY_ENV="${{ github.event.inputs.environment }}"
+          elif [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            DEPLOY_ENV="production"
+          elif [ "${{ github.ref }}" = "refs/heads/development" ]; then
+            DEPLOY_ENV="staging"
+          else
+            echo "Unknown branch ${{ github.ref }} — aborting deploy."
+            exit 1
+          fi
+          echo "DEPLOY_ENV=$DEPLOY_ENV" >> "$GITHUB_ENV"
+          echo "Deploying to: $DEPLOY_ENV"
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Lint
+        run: bun run lint
+
+      - name: Generate Cloudflare types
+        run: bun run cf:typegen
+
+      - name: Typecheck
+        run: bun run typecheck
+
+      - name: Run tests
+        run: bun run test
+
+      - name: Build project
+        run: bun run build
+        env:
+          CLOUDFLARE_ENV: ${{ env.DEPLOY_ENV }}
+
+      - name: Remove _redirects (Workers SSR does not need it)
+        run: |
+          find build public -name "_redirects" -type f -delete 2>/dev/null || true
+          echo "Removed any stale _redirects files"
+
+      - name: Deploy to Cloudflare Workers
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          packageManager: bun
+          command: deploy --env ${{ env.DEPLOY_ENV }}
