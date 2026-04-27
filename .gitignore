@@ -10,6 +10,9 @@
 /.wrangler/
 /worker-configuration.d.ts
 
+# TypeScript incremental build cache
+*.tsbuildinfo
+
 
 # Claude Code runtime state (auto-managed — do not edit)
 .claude/hook-state.json
