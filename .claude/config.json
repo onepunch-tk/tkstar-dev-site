@@ -1,0 +1,84 @@
+{
+  "$schema": "./config.schema.json",
+  "version": "1.0.0",
+  "_comment": "Harness configuration. All keys are optional; hooks use internal defaults when keys are absent. Edit this file only to override defaults for project-specific needs (e.g. branch name different from main/development, custom test path layout).",
+
+  "protectedBranches": ["main", "development"],
+  "integrationBranch": "development",
+  "productionBranch": "main",
+
+  "testFilePatterns": [
+    "**/__tests__/**",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.test.js",
+    "**/*.test.jsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
+    "**/*.spec.js",
+    "**/*.spec.jsx"
+  ],
+
+  "sourceExtensions": [
+    ".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs"
+  ],
+
+  "allowedDuringPlanPatterns": [
+    "docs/**",
+    "tasks/**",
+    ".claude/**",
+    "**/*.md",
+    "**/*.json",
+    "**/*.yaml",
+    "**/*.yml",
+    "**/*.toml",
+    ".env*",
+    ".gitignore",
+    ".gitattributes"
+  ],
+
+  "biomeConfigs": ["biome.json", "biome.jsonc"],
+  "biomeExtensions": [".js", ".jsx", ".ts", ".tsx", ".json", ".css", ".graphql", ".gql"],
+
+  "packageManager": "auto",
+
+  "reportDirs": {
+    "codeReview": "docs/reports/code-review",
+    "designReview": "docs/reports/design-review",
+    "failures": "docs/reports/failures"
+  },
+
+  "configFilesRequireDocsSync": [
+    "package.json",
+    "tsconfig*.json",
+    "biome.json",
+    "biome.jsonc",
+    "bun.lockb",
+    "bun.lock",
+    "pnpm-lock.yaml",
+    "yarn.lock",
+    "package-lock.json"
+  ],
+
+  "runtimeGitignoreEntries": [
+    ".claude/hook-state.json",
+    ".claude/pipeline-state.json",
+    ".claude/ownership.json",
+    ".claude/agent-memory/",
+    "coverage/"
+  ],
+
+  "implementationIntentKeywords": [
+    "구현",
+    "추가",
+    "만들어",
+    "개발",
+    "작성해",
+    "implement",
+    "add",
+    "build",
+    "create",
+    "write",
+    "develop"
+  ]
+}
