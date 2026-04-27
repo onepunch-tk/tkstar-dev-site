@@ -179,14 +179,14 @@ The pipeline-guardian Stop hook automatically guards TDD Green Phase completion.
 
 **Detection**: Red phase commit (`✅ test:`) exists + Green phase commit (`✨ feat:`) missing → stop blocked
 **Retries**: `FAILURE_RECOVERY_MAX_RETRIES` env variable (default: 20) — configurable in `.claude/settings.json`
-**Reporting**: On final retry, agent is instructed to write failure report to `docs/reports/failures/`
+**Reporting**: On final retry, agent is instructed to write failure report to `.claude/runtime/failures/` (gitignored runtime artifact)
 **Reset**: Retry counters auto-reset on phase transition (tdd → review)
 
 ### Sequential Mode
 Agent stop blocked while Green phase incomplete. Up to 20 retries with increasing context about what to fix. On success (✨ feat: commit detected), stop is immediately allowed regardless of retry count.
 
 ### Team Mode
-Each teammate's retries tracked independently per session. When max retries reached, teammate stops → TeammateIdle hook notifies lead. Failure report written to `docs/reports/failures/{teammate-name}-{timestamp}.md`.
+Each teammate's retries tracked independently per session. When max retries reached, teammate stops → TeammateIdle hook notifies lead. Failure report written to `.claude/runtime/failures/{teammate-name}-{timestamp}.md`.
 
 ---
 

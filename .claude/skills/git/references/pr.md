@@ -32,8 +32,8 @@ Create PR + merge + cleanup. **GitHub Mode only** — requires `Remote Platform:
 - Coverage: {if available}
 
 ## Review
-- Report: `docs/reports/code-review/{report}.md`
 - Issues found: {N}, Issues fixed: {N}
+- (Runtime report at `.claude/runtime/reviews/code/{report}.md` — gitignored, ephemeral; resolved findings summarized in this PR description.)
 
 ---
 Related: #{issue_number}

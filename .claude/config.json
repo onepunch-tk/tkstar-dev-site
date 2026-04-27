@@ -43,9 +43,9 @@
   "packageManager": "auto",
 
   "reportDirs": {
-    "codeReview": "docs/reports/code-review",
-    "designReview": "docs/reports/design-review",
-    "failures": "docs/reports/failures"
+    "codeReview": ".claude/runtime/reviews/code",
+    "designReview": ".claude/runtime/reviews/design",
+    "failures": ".claude/runtime/failures"
   },
 
   "configFilesRequireDocsSync": [
@@ -65,6 +65,7 @@
     ".claude/pipeline-state.json",
     ".claude/ownership.json",
     ".claude/agent-memory/",
+    ".claude/runtime/",
     "coverage/"
   ],
 

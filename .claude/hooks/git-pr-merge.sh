@@ -91,6 +91,8 @@ if [[ -f "$STATE_FILE" ]]; then
     github_mode: $gm,
     issue_number: null,
     ui_involved: false,
+    review_unresolved_count: 0,
+    design_review_unresolved_count: 0,
     updated_at: $now
   }' > "$STATE_FILE"
   echo "pipeline-state.json reset."

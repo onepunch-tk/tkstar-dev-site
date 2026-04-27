@@ -173,7 +173,8 @@ echo '{"last_reminded_phase":"","doc_reminders_sent":{},"workflow_warnings_sent"
 PR title/body is derivable from `git log`/`git diff`, ROADMAP/task
 updates are file-based, and the merge is performed by
 `.claude/hooks/git-pr-merge.sh`. No automatic advisory fires at this
-boundary; `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE=70` handles overflow.
+boundary; the `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` env (set in
+`.claude/settings.json`, when present) handles overflow.
 
 After the PR is merged and the state is reset, running `/clear` is the
 right call before starting an unrelated new task — task outcomes are

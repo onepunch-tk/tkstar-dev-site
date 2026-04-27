@@ -10,9 +10,8 @@ PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$(cd "$SCRIPT_DIR/../.." && pwd)}"
 # shellcheck source=lib/config.sh
 source "$SCRIPT_DIR/lib/config.sh"
 
-# Report directories resolved from config (defaults match legacy paths).
-CODE_REVIEW_DIR="$PROJECT_DIR/$(config_report_dir codeReview)"
-DESIGN_REVIEW_DIR="$PROJECT_DIR/$(config_report_dir designReview)"
+# Failures directory only — review report enforcement moved to phase-gate.sh
+# (state-flag based: review_unresolved_count / design_review_unresolved_count).
 FAILURES_DIR="$PROJECT_DIR/$(config_report_dir failures)"
 
 INPUT=$(cat)
@@ -91,77 +90,6 @@ fi
 
 REMINDERS=()
 
-# ─── Helper: Check review report completeness ───
-# Usage: check_review_report <report_dir> <report_type> <require_exists>
-# Sets REMINDERS array entries if issues found.
-# report_type: "code-review" or "design-review"
-# require_exists: "true" to warn when missing, "false" to silently skip
-#
-# Selection: reports added/modified on this branch (git diff base...HEAD).
-# Alphabetical "latest via find|sort|tail" was unreliable — a stale old
-# report or an unrelated prefix (e.g. "zz-") could trump this PR's work.
-check_review_report() {
-    local report_dir="$1"
-    local report_type="$2"
-    local require_exists="${3:-true}"
-    local label
-    label=$(echo "$report_type" | tr '[:lower:]-' '[:upper:]_')
-
-    if [[ ! -d "$report_dir" ]]; then
-        [[ "$require_exists" == "true" ]] && \
-            REMINDERS+=("[WORKFLOW] ${label} MISSING: No ${report_type} report directory found. Run the appropriate subagent before proceeding.")
-        return
-    fi
-
-    # Resolve base ref (origin/development → development → give up).
-    local base=""
-    if (cd "$PROJECT_DIR" && git rev-parse --verify origin/development >/dev/null 2>&1); then
-        base="origin/development"
-    elif (cd "$PROJECT_DIR" && git rev-parse --verify development >/dev/null 2>&1); then
-        base="development"
-    fi
-
-    local branch_reports=""
-    if [[ -n "$base" ]]; then
-        local rel_dir="${report_dir#"$PROJECT_DIR"/}"
-        branch_reports=$(cd "$PROJECT_DIR" && \
-            git diff --name-only "$base"...HEAD -- "$rel_dir/*.md" 2>/dev/null | grep -v '^$' || true)
-    fi
-
-    if [[ -z "$branch_reports" ]]; then
-        # No branch-scoped report. Only warn if require_exists AND no report
-        # exists anywhere — otherwise this branch just didn't touch reviews.
-        if [[ "$require_exists" == "true" ]]; then
-            local any
-            any=$(find "$report_dir" -name "*.md" -type f 2>/dev/null | head -1)
-            [[ -z "$any" ]] && \
-                REMINDERS+=("[WORKFLOW] ${label} MISSING: No ${report_type} report found in $report_dir. Run the appropriate subagent.")
-        fi
-        return
-    fi
-
-    local rpt full unchecked status_line
-    while IFS= read -r rpt; do
-        [[ -z "$rpt" ]] && continue
-        full="$PROJECT_DIR/$rpt"
-        [[ ! -f "$full" ]] && continue  # deleted on branch
-
-        unchecked=$(grep -c '^- \[ \]' "$full" 2>/dev/null || true)
-        unchecked=$(echo "$unchecked" | tr -cd '0-9')
-        [[ -z "$unchecked" ]] && unchecked=0
-
-        if (( unchecked > 0 )); then
-            REMINDERS+=("[WORKFLOW] ${label} INCOMPLETE: Report has $unchecked unresolved issue(s). Fix each issue and check its checkbox (- [ ] → - [x]). Then update **Status** to Complete. Report: $rpt")
-            continue
-        fi
-
-        status_line=$(grep -m1 '^\*\*Status\*\*:' "$full" 2>/dev/null || echo "")
-        if ! echo "$status_line" | grep -qi "complete"; then
-            REMINDERS+=("[WORKFLOW] ${label} STATUS: All checkboxes checked but Status is not Complete. Update **Status**: Pending → **Status**: Complete in $rpt")
-        fi
-    done <<< "$branch_reports"
-}
-
 # ─── Concern A: Workflow Enforcement ───
 
 case "$PHASE" in
@@ -197,24 +125,12 @@ case "$PHASE" in
         ;;
 
     "review")
-        # Review report completeness — always check (no one-shot dedup)
-        check_review_report "$CODE_REVIEW_DIR" "code-review" "true"
-
-        # Design review report (if UI-involved)
-        UI_INVOLVED=$(jq -r '.ui_involved // false' "$STATE_FILE")
-        if [[ "$UI_INVOLVED" == "true" ]]; then
-            check_review_report "$DESIGN_REVIEW_DIR" "design-review" "true"
-        fi
+        # Review completeness enforcement is owned by phase-gate.sh (state-flag
+        # based). No Stop-hook nag during review phase.
+        :
         ;;
 
     "validate"|"complete")
-        # ─── Retrospective review gate (catch-all for bypassed review phase) ───
-        check_review_report "$CODE_REVIEW_DIR" "code-review" "false"
-
-        UI_INVOLVED=$(jq -r '.ui_involved // false' "$STATE_FILE")
-        if [[ "$UI_INVOLVED" == "true" ]]; then
-            check_review_report "$DESIGN_REVIEW_DIR" "design-review" "false"
-        fi
         # GitHub Mode: Issue/PR enforcement
         GITHUB_MODE=$(jq -r '.github_mode // false' "$STATE_FILE")
         ISSUE_NUMBER=$(jq -r '.issue_number // null' "$STATE_FILE")

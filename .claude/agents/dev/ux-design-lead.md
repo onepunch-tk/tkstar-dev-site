@@ -183,7 +183,7 @@ In REVIEW mode, verify every target file against all 11 criteria:
 10. **Token Bridge Consistency** — bridge file values (tokens.ts / @theme / etc.) match the bundle.
 11. **Reusability Balance** — highly reusable elements are extracted AND no over-engineered fragmentation.
 
-Output: use the review-report skill's `references/design-review-template.md` format and write the report to `docs/reports/design-review/{commit_hash}_{YYYYMMDD}.md` (use `Status: Pending` / `Status: Complete` and `- [ ]` checkboxes for each issue).
+Output: use the review-report skill's `references/design-review-template.md` format and write the report to `.claude/runtime/reviews/design/{commit_hash}_{YYYYMMDD}.md` (use `Status: Pending` / `Status: Complete` and `- [ ]` checkboxes for each issue). The directory is gitignored — do NOT commit the report.
 
 ---
 
@@ -237,7 +237,7 @@ Pick a mode from the trigger. Pre-Work applies to all modes.
 | Priority | Trigger | Mode | Description |
 |----------|---------|------|-------------|
 | 1 | harness-pipeline Phase 2 context (`ui_involved=true`, post-Green) | **APPLY** | Apply design tokens and aesthetic to implemented components using the bundle as a 1:1 reference |
-| 2 | harness-pipeline Phase 3 context (`ui_involved=true`) | **REVIEW** | Run the 11-point design review and generate a report at `docs/reports/design-review/...` |
+| 2 | harness-pipeline Phase 3 context (`ui_involved=true`) | **REVIEW** | Run the 11-point design review and generate a report at `.claude/runtime/reviews/design/...` |
 | 3 | Requests like "design system" / "bootstrap" / "create tokens" / "setup tokens" | **BOOTSTRAP** | First-time creation of bridge files + install required libraries; reflect bundle analysis |
 | 4 | Requests like "review" / "audit" / "check design" | **REVIEW** | Same as above |
 | 5 | Other design modification / addition requests | **MODIFY** | Targeted change against the bundle and the existing bridge |
@@ -273,7 +273,7 @@ Run Pre-Work steps 1–8 end to end. Outputs:
 2. Run all **11 criteria** on the target Presentation-layer files, with special weight on:
    - Criterion **9 (Design Fidelity)** — line-by-line 1:1 comparison at page, component, and token granularity against the referenced bundle artifacts. Call out every omission, substitution, or approximation.
    - Criterion **10 (Token Bridge Consistency)** — bridge values must 1:1 match the bundle; report any drift.
-3. Load the review-report skill and generate the report at `docs/reports/design-review/{commit_hash}_{YYYYMMDD}.md` using its template format. **Follow the skill's Step 7 (Stage and Commit the Report)** — `git add` + `git commit -m "📝 docs(review): design-review report for ${COMMIT_HASH}"` immediately after writing, so the report becomes branch-scoped and the `phase-gate.sh` Gate 2 hook can surface unchecked items on subsequent fix commits. If RBAC blocks the commit, return the report path + commit message to the parent agent with an explicit commit request.
+3. Load the review-report skill and generate the report at `.claude/runtime/reviews/design/{commit_hash}_{YYYYMMDD}.md` using its template format. **Follow the skill's Step 7 (Return Tool Result Summary)** — return `report_path`, `issue_count`, `severity_breakdown`, and `top_issues` in your final assistant message. The parent agent uses `issue_count` to set `pipeline-state.json.design_review_unresolved_count` so `phase-gate.sh` can hard-block Phase 4 transition until all design issues are resolved. Do NOT commit the report; the directory is gitignored (`.claude/runtime/`).
 4. File each issue as a `- [ ]` checkbox with a concrete code suggestion and cite the bundle reference it diverged from.
 
 ### Mode: MODIFY

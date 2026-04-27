@@ -90,9 +90,9 @@ Use Opus for all teammates. Require plan approval.
 ## Context Tip (End of Phase 2)
 
 Tests, implementation, and commits are all on disk — the reviewer subagent
-reads them fresh. No automatic advisory fires at this boundary;
-`CLAUDE_AUTOCOMPACT_PCT_OVERRIDE=70` handles overflow. Before continuing,
-verify the persistence rule in SKILL.md `## Context Management` — skipped
-tests / Red→Green surprises / reviewer hand-off notes / ad-hoc user
-directives must all be recorded to disk (TODO comments, commit body Why,
-task file).
+reads them fresh. No automatic advisory fires at this boundary; the
+`CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` env (set in `.claude/settings.json`, when
+present) handles overflow. Before continuing, verify the persistence rule
+in SKILL.md `## Context Management` — skipped tests / Red→Green surprises
+/ reviewer hand-off notes / ad-hoc user directives must all be recorded to
+disk (TODO comments, commit body Why, task file).

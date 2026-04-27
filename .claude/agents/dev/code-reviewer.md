@@ -206,10 +206,10 @@ For NestJS:
 - [ ] Tree-shaking and dynamic import opportunities
 
 ### Phase 7: Report Generation
-**Before writing the report**, ensure the output directory exists by running: `mkdir -p docs/reports/code-review/`
-Then load the `review-report` skill and generate a unified report at `docs/reports/code-review/`.
+**Before writing the report**, ensure the output directory exists by running: `mkdir -p .claude/runtime/reviews/code/`
+Then load the `review-report` skill and generate a unified report at `.claude/runtime/reviews/code/`.
 
-**MANDATORY — follow the skill's Step 7 (Stage and Commit the Report)**: `git add` the report and commit it with `📝 docs(review): code-review report for ${COMMIT_HASH}` immediately after writing. The `phase-gate.sh` Gate 2 hook scans `git diff --name-only origin/development...HEAD` to enumerate branch-scoped reports; an untracked report is invisible to it, so the review-phase commit reminder will not fire and unchecked `- [ ]` items may only be caught at the hard block (`review → validate`). If RBAC denies the commit, return the report path + intended commit message to the parent agent with an explicit request to commit.
+**MANDATORY — follow the skill's Step 7 (Return Tool Result Summary)**: along with writing the file, return a structured summary in your final assistant message containing `report_path`, `issue_count`, `severity_breakdown`, and `top_issues`. The parent agent uses this summary to set `pipeline-state.json.review_unresolved_count = issue_count` and begin fixing — without it, Phase 4 transition will be hard-blocked by `phase-gate.sh` until the counter is manually set. Do NOT commit the report; the directory is gitignored (`.claude/runtime/`).
 
 ## Confidence-Based Filtering
 

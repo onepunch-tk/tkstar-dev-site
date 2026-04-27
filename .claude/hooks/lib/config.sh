@@ -91,9 +91,9 @@ config_report_dir() {
   local kind="$1"
   local default=""
   case "$kind" in
-    codeReview)    default="docs/reports/code-review" ;;
-    designReview)  default="docs/reports/design-review" ;;
-    failures)      default="docs/reports/failures" ;;
+    codeReview)    default=".claude/runtime/reviews/code" ;;
+    designReview)  default=".claude/runtime/reviews/design" ;;
+    failures)      default=".claude/runtime/failures" ;;
     *)             default="docs/reports/$kind" ;;
   esac
   config_get ".reportDirs.$kind" "$default"
