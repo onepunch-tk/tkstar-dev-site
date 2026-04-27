@@ -55,7 +55,7 @@ jobs:
         run: bun run lint
 
       - name: Generate Cloudflare types
-        run: bun run cf:typegen
+        run: bun run cf-typegen
 
       - name: Typecheck
         run: bun run typecheck

@@ -6,12 +6,20 @@
 /.react-router/
 /build/
 
+# Cloudflare Workers
+/.wrangler/
+/worker-configuration.d.ts
+
 
 # Claude Code runtime state (auto-managed — do not edit)
 .claude/hook-state.json
 .claude/pipeline-state.json
 .claude/ownership.json
 .claude/agent-memory/
+
+.mcp.json
+
+hook-metrics.jsonl
 
 # Claude Code orchestration ephemera
 .claude/scheduled_tasks.lock
