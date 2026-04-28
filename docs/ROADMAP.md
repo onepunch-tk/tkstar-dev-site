@@ -132,7 +132,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
   - 검증 가정 A004 해소 (splat 라우트 채택 — F018/F019의 차등 인덱싱 정책 지원)
   - PR 1개 / 브랜치: `feature/issue-N-route-skeleton`
 
-- [ ] **Task 005: 디자인 토큰 이식 + Tailwind v4 `@theme` + `[data-theme]` dark variant + 다크모드 (F010)**
+- [x] **Task 005: 디자인 토큰 이식 + Tailwind v4 `@theme` + `[data-theme]` dark variant + 다크모드 (F010)** ✅ 2026-04-28 (Issue #19, branch `feature/issue-19-theme-tokens`)
   - **Must** Read: [tasks/T005-theme-tokens.md](tasks/T005-theme-tokens.md)
   - blockedBy: Task 003
   - blocks: Task 010, Task 011, Task 012, Task 013, Task 014, Task 015
