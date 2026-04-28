@@ -197,7 +197,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
   - 후속 follow-up (deferred from review): Medium #3 `project.schema.ts` date 약한 검증 (T006 owner), Medium #4 legal seed placeholder 본문, Low #5 tsconfig include velite.config.ts (별도 `tsconfig.node.json` 필요), Low #7 shiki rehype `as any` 좁히기
   - PR 1개 / 브랜치: `feature/issue-27-velite-content-pipeline` / Issue #27
 
-- [ ] **Task 008: Application Ports + Content Repositories (Infrastructure 구현)**
+- [x] **Task 008: Application Ports + Content Repositories (Infrastructure 구현)**
   - **Must** Read: [tasks/T008-content-ports-repos.md](tasks/T008-content-ports-repos.md)
   - blockedBy: Task 002, Task 006, Task 007
   - blocks: Task 009, Task 010, Task 011, Task 012, Task 013, Task 014, Task 015, Task 016, Task 017
@@ -221,7 +221,8 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
       - `velite-project.repository.ts`, `velite-post.repository.ts`, `velite-legal.repository.ts`
       - `mappers/{project,post,legal}.mapper.ts` (velite raw → Domain Entity)
     - 각 모듈에 `__tests__/` colocated
-  - PR 1개 / 브랜치: `feature/issue-N-content-ports-repos`
+  - 진행 메모: 4-cycle TDD (Project → Post → Legal → Refactor). velite 0.3.1 typegen이 Zod 3 internal 타입을 노출시켜 TS4082 폭발 → `scripts/patch-velite-types.mjs`로 `.velite/index.d.ts` clean override (velite:build에 chained). vitest `resolve.tsconfigPaths` 활성화로 `~` alias 동작. 공통 헬퍼 3개(`assertExists`, `sortByDateDesc`, `findAdjacent`) 추출. code-reviewer Medium fix: cache `Object.freeze` + defensive copy(`[...cache]`).
+  - PR 1개 / 브랜치: `feature/issue-29-content-ports-repos` / Issue #29
 
 - [ ] **Task 009: DI Container (Composition Root) + workers/app.ts wiring + getLoadContext**
   - **Must** Read: [tasks/T009-di-container.md](tasks/T009-di-container.md)
