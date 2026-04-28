@@ -37,12 +37,13 @@
 - **Self-host**: `/public/fonts/JetBrainsMono-*.woff2` + `@font-face` (Workers SSR FOIT 방지)
 
 ### Content Pipeline
-- **velite** — MDX 컬렉션 빌더 (Project / Post / AppLegalDoc)
-- **MDX** — 콘텐츠 작성 포맷
-- **shiki** — 코드블록 syntax highlight
-- **Satori** — 빌드/SSR 동적 OG 이미지 생성 (1200×630)
-- **Zod 4.3.6** — Domain schema 검증 (Project / Post / AppLegalDoc / ContactSubmission) + velite frontmatter 검증 (단일 정본을 양쪽이 공유)
-- **rehype-slug** — on-this-page TOC 헤딩 anchor
+- **velite 0.3.1** — MDX 컬렉션 빌더 (Project / Post / AppLegalDoc). collection schema는 velite 자체 `s` 헬퍼(Zod 3 internal) 사용 — Domain Zod 4.3.6과 버전 충돌 회피를 위해 schema shape을 velite 측에 미러링 (T007 D1)
+- **MDX** — 콘텐츠 작성 포맷. velite `s.mdx()` function-body 출력은 SSR/CSR에서 `evaluateMdxBody` (`new Function(code)({Fragment, jsx, jsxs})`)로 평가 — `app/presentation/components/content/MdxRenderer.tsx`
+- **shiki 4.0.2 + @shikijs/rehype 4.0.2** — 빌드 타임 코드블록 syntax highlight (theme: `github-dark` 단일, MVP). 클라이언트 번들 영향 0 (devDependency)
+- **rehype-slug 6.0.0** — 헤딩 anchor 자동 부여 (한국어 anchor 지원)
+- **Satori** — 빌드/SSR 동적 OG 이미지 생성 (1200×630, T018)
+- **velite lifecycle hooks** — `predev` / `prebuild` / `prestart` / `pretest`가 모두 `velite build`를 호출 → fresh clone / CI에서 stale `.velite/` 캐시 회귀 차단
+- **Path alias `#content` → `./.velite`** — `tsconfig.cloudflare.json`에 등록
 
 ### Search Index (F016 Cmd+K)
 - velite collection JSON을 클라이언트 번들 import → in-memory 토큰 검색 (별도 라이브러리 없이 includes/score)
@@ -106,12 +107,13 @@
 ### Test & Quality
 | Command | Description |
 |---------|-------------|
-| `bun run test` | Run all unit tests once |
+| `bun run test` | Run all unit tests once. `pretest` lifecycle가 먼저 `velite build`를 호출해 `.velite/` 산출물을 보장 |
 | `bun run test:watch` | Run tests in watch mode |
-| `bun run test:coverage` | Run tests with coverage report (threshold enforced via `coverageThreshold` in jest.config.js) |
-| `bun run typecheck` | TypeScript type checking (`babel.config.js` / `metro.config.js` excluded via `tsconfig.json`) |
+| `bun run test:coverage` | Run tests with coverage report (threshold: lines 80, branches 75, functions 80, statements 80 — `vitest.setup.ts`) |
+| `bun run typecheck` | TypeScript type checking (wrangler types + react-router typegen + `tsc -b`) |
 | `bun run lint` | Biome lint & format check |
 | `bun run format` | Biome auto-format |
+| `bun run velite:build` | Build velite collections (`content/**/*.mdx` → `.velite/{projects,posts,legal}.json`). 일반적으로 `pre*` lifecycle hook이 자동 호출하므로 직접 실행할 일 드묾 |
 
 **Presentation test notes**: Vitest + jsdom + `@testing-library/react`. `vitest.setup.ts`는 `@testing-library/jest-dom/vitest`를 import하여 `toBeInTheDocument`/`toHaveClass` 등 matcher를 등록한다. 이 matcher 타입이 `app/**/*.test.tsx`에서 인식되려면 `tsconfig.cloudflare.json`의 `include`에 `vitest.setup.ts`가 포함되어 있어야 한다 (T004에서 추가).
 
