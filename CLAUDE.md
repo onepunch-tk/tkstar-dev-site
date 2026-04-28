@@ -92,6 +92,10 @@
 - **Trivial doc-only changes**: GitHub Issue may be skipped (open a PR only). All other changes must create an Issue first.
 - **Plan phase on `chore/*` and `docs/*` branches**: the harness-pipeline's Phase 1 (Plan) and Phase 2 (TDD) are **not required** for these branch types. They carry non-behavioral changes (harness tooling, documentation, chores) that do not warrant a full Red/Green cycle. `plan-enforcement.sh` detects the branch prefix and suppresses its reminder; `abac-phase-policy.sh` already permits `.claude/**` / `docs/**` / `**/*.md` edits without `plan_approved`. PR review remains the safety net on these paths. `feature/*` and `fix/*` still follow the full 5-phase pipeline.
 - **Merge method**: `gh pr merge <N> --squash --delete-branch`. After merge, sync locally with `git checkout development && git pull --ff-only`.
+- **PR base = `development` (mandatory)**: every PR opened from a `feature/*` / `fix/*` / `docs/*` / `chore/*` branch MUST target `--base development`. The repo's GitHub default branch is `main` (production), and `gh pr create` without `--base` silently falls back to it — that is exactly how PR #22 (T006) leaked onto `main` and never reached `development`. Two-layer enforcement:
+  1. **Wrapper (preferred)**: `.claude/hooks/git-pr-create.sh` pins `--base $(config integrationBranch)` automatically. Always use it.
+  2. **Hook gate (defense-in-depth)**: `.claude/hooks/pre-pr-base-guard.sh` (PreToolUse:Bash) denies any direct `gh pr create` whose `--base` is missing or not equal to `development`.
+  - **Release flow exception**: `development → main` (production sync) is the only legitimate non-`development` base. It is performed by `.claude/hooks/git-release.sh`, which prefixes its `gh pr create` call with `HARNESS_PR_BASE_MAIN_OK=1` to opt in. Do NOT set this env var manually for routine work; it exists so release tooling has a sanctioned escape hatch.
 - **Self-check before a direct push**: "Is this really an exception?" — the answer is always "No". There are no exceptions.
 
 ## Workflow
