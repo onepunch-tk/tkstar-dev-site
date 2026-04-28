@@ -16,11 +16,11 @@
 		"test": "vitest run",
 		"test:watch": "vitest",
 		"test:coverage": "vitest run --coverage",
-		"velite:build": "velite build",
-		"predev": "velite build",
-		"prebuild": "velite build",
-		"prestart": "velite build",
-		"pretest": "velite build",
+		"velite:build": "velite build && node scripts/patch-velite-types.mjs",
+		"predev": "bun run velite:build",
+		"prebuild": "bun run velite:build",
+		"prestart": "bun run velite:build",
+		"pretest": "bun run velite:build",
 		"postinstall": "wrangler types"
 	},
 	"dependencies": {
