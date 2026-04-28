@@ -3,11 +3,13 @@ set -euo pipefail
 
 # docs-sync-gate — PreToolUse Bash hook
 # Blocks `gh pr create` / `.claude/hooks/git-pr.sh` on a feature/* branch when
-# downstream docs derived from ROADMAP are out of sync. Three OR-gated conditions:
+# downstream docs derived from ROADMAP are out of sync. Four OR-gated conditions:
 #   1. ROADMAP.md not updated on the branch.
 #   2. Config files changed (package.json / tsconfig*.json / biome.json(c) /
 #      bun.lockb) without a corresponding CLAUDE.md update.
 #   3. doc-structure-linter reports HIGH- or MED-severity drift (when the tool exists).
+#   4. ROADMAP `[x]` marks ↔ docs/tasks/TNNN-*.md `**Status**` field drift
+#      (Phase 4 Step 14b enforcement — see scripts/check-task-status-sync.mjs).
 #
 # Scope: feature/* branches only. fix/docs/chore/refactor/test are exempt
 # (they're not supposed to complete ROADMAP tasks).
@@ -176,6 +178,42 @@ MSG
     fi
     # LINT_EC >= 2 is a linter error (missing STRUCTURE_FILE, awk failure, …).
     # Treat as silent skip — consistent with the "tool missing" fallback.
+fi
+
+# ── Condition 4: ROADMAP [x] ↔ task file Status drift (Step 14b enforcement) ──
+# Catches the recurring failure mode: ROADMAP gets `[x]` checked but the
+# corresponding `docs/tasks/TNNN-*.md` keeps `**Status** | Not Started`.
+# Validator: scripts/check-task-status-sync.mjs (exit 0 = sync, 1 = drift).
+SYNC_SCRIPT="$PROJECT_DIR/scripts/check-task-status-sync.mjs"
+if [[ -f "$SYNC_SCRIPT" ]]; then
+    set +e
+    SYNC_OUT=$(node "$SYNC_SCRIPT" 2>&1)
+    SYNC_EC=$?
+    set -e
+    SYNC_SKIP=0
+    if echo "$COMMAND" | grep -qE '(^|[[:space:]])DOCS_SYNC_SKIP=1([[:space:]]|$)'; then
+        SYNC_SKIP=1
+    fi
+    if (( SYNC_EC != 0 )) && (( SYNC_SKIP == 0 )); then
+        REASON=$(cat <<MSG
+[DOC-SYNC GATE] Blocked: ROADMAP \`[x]\` 체크와 task 파일 \`**Status**\` 필드가 불일치합니다.
+
+$SYNC_OUT
+
+Phase 4 Step 14b에 따라 ROADMAP에 \`[x]\`로 마킹된 task는 \`docs/tasks/TNNN-*.md\`의
+\`**Status**\` 필드도 \`✅ Done\` (또는 \`Done\` / \`Completed\`)으로 동기화되어야 합니다.
+
+해결:
+  1. 위 drift 목록의 task 파일을 열어 \`**Status**\` 필드를 갱신.
+  2. \`📝 docs: sync\` 커밋에 포함.
+  3. PR 명령 재시도.
+
+Override (last resort): prefix the PR command with DOCS_SYNC_SKIP=1.
+MSG
+)
+        jq -n --arg reason "$REASON" '{ decision: "block", reason: $reason }'
+        exit 0
+    fi
 fi
 
 exit 0

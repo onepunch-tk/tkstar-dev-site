@@ -5,13 +5,13 @@
 | **Task ID** | T008 |
 | **Phase** | Phase 2 — Content Pipeline |
 | **Layer** | Application (`ports/services/`) + Infrastructure (`content/`) |
-| **Branch** | `feature/issue-N-content-ports-repos` |
+| **Branch** | `feature/issue-29-content-ports-repos` |
 | **Depends on** | T002, T006, T007 |
 | **Blocks** | T009, T010, T011, T012, T013, T014a, T014b, T015, T016, T017 |
 | **PRD Features** | F004, F005, F006, F007, F014, F017 |
 | **PRD AC** | — (read-side 정확성은 unit test로 충분) |
 | **예상 작업 시간** | 2d |
-| **Status** | Not Started |
+| **Status** | ✅ Done |
 
 ## Goal
 Application Layer에 3개 Repository Port + 6개 Service(유스케이스)를 정의하고, Infrastructure Layer에 velite read-side adapter 3개 + mapper를 구현한다. 이 task가 Done이면 페이지 task가 호출할 모든 read-side 유스케이스가 가동된다.
