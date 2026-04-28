@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<meta name="theme-color" content="#0d0f12" />
+<title>tkstar.dev — Prototype</title>
+<link rel="stylesheet" href="styles.css" />
+<link rel="stylesheet" href="prototype.css" />
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body class="proto">
+<div id="root"></div>
+
+<script type="text/babel" src="proto/data.jsx"></script>
+<script type="text/babel" src="proto/shell.jsx"></script>
+<script type="text/babel" src="proto/pages-1.jsx"></script>
+<script type="text/babel" src="proto/pages-2.jsx"></script>
+<script type="text/babel" src="proto/legal.jsx"></script>
+
+<script type="text/babel" data-presets="react">
+(() => {
+const { useState, useEffect, useCallback } = React;
+
+function App() {
+  const [route, nav] = window.useRoute();
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem('proto-theme') || 'dark';
+  });
+
+  // apply theme to root
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    document.documentElement.setAttribute('data-sketch', 'neat');
+    localStorage.setItem('proto-theme', theme);
+    document.querySelector('meta[name=theme-color]')?.setAttribute('content', theme === 'dark' ? '#0d0f12' : '#f4f1ea');
+  }, [theme]);
+
+  const toggleTheme = () => setTheme(t => t === 'dark' ? 'light' : 'dark');
+
+  // global ⌘K / Ctrl+K
+  useEffect(() => {
+    const onKey = (e) => {
+      if ((e.metaKey || e.ctrlKey) && (e.key === 'k' || e.key === 'K')) {
+        e.preventDefault();
+        setPaletteOpen(o => !o);
+      } else if (e.key === '/' && !paletteOpen) {
+        const tag = (e.target?.tagName || '').toUpperCase();
+        if (tag !== 'INPUT' && tag !== 'TEXTAREA') {
+          e.preventDefault();
+          setPaletteOpen(true);
+        }
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [paletteOpen]);
+
+  const onPick = (path) => {
+    setPaletteOpen(false);
+    nav(path);
+  };
+
+  // route → page
+  const renderPage = () => {
+    // legal mobile webview routes — no chrome
+    const legalMatch = route.match(/^\/legal\/apps\/([^\/]+)\/(terms|privacy)$/);
+    if (legalMatch) {
+      return { chrome: false, node: <window.LegalDoc app={legalMatch[1]} kind={legalMatch[2]} /> };
+    }
+    const pdMatch = route.match(/^\/projects\/([^\/]+)$/);
+    if (pdMatch) return { chrome: true, node: <window.ProjectDetailPage slug={pdMatch[1]} nav={nav} /> };
+    const bdMatch = route.match(/^\/blog\/([^\/]+)$/);
+    if (bdMatch) return { chrome: true, node: <window.BlogDetailPage slug={bdMatch[1]} nav={nav} /> };
+
+    if (route === '/' || route === '') return { chrome: true, node: <window.HomePage nav={nav} onOpenPalette={() => setPaletteOpen(true)} /> };
+    if (route === '/about') return { chrome: true, node: <window.AboutPage nav={nav} /> };
+    if (route === '/projects') return { chrome: true, node: <window.ProjectsPage nav={nav} /> };
+    if (route === '/blog') return { chrome: true, node: <window.BlogPage nav={nav} /> };
+    if (route === '/contact') return { chrome: true, node: <window.ContactPage nav={nav} /> };
+    if (route === '/legal') return { chrome: true, node: <window.LegalIndexPage nav={nav} /> };
+
+    return {
+      chrome: true,
+      node: (
+        <>
+          <window.PromptLine cmd={`cd ${route}`} />
+          <p className="body">cd: no such route: <span style={{color:'var(--warn)'}}>{route}</span></p>
+          <a className="btn" href="#/" onClick={(e)=>{e.preventDefault();nav('/');}}>← /home</a>
+        </>
+      ),
+    };
+  };
+
+  const { chrome, node } = renderPage();
+
+  // legal webview-style: render with NO chrome (no topbar, no footer)
+  if (!chrome) {
+    return (
+      <div className="app">
+        {node}
+        <window.Palette open={paletteOpen} onClose={() => setPaletteOpen(false)} onPick={onPick} />
+      </div>
+    );
+  }
+
+  return (
+    <div className="app">
+      <window.Topbar
+        route={route}
+        onNav={nav}
+        onOpenPalette={() => setPaletteOpen(true)}
+        theme={theme}
+        onToggleTheme={toggleTheme}
+      />
+      <main className="page-main" id="main">
+        {node}
+      </main>
+      <window.FootBar />
+      <window.Palette open={paletteOpen} onClose={() => setPaletteOpen(false)} onPick={onPick} />
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+})();
+</script>
+</body>
+</html>
