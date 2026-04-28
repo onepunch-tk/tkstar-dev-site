@@ -41,7 +41,7 @@
 - **MDX** — 콘텐츠 작성 포맷
 - **shiki** — 코드블록 syntax highlight
 - **Satori** — 빌드/SSR 동적 OG 이미지 생성 (1200×630)
-- **Zod** — frontmatter 스키마 검증 (velite 내장)
+- **Zod 4.3.6** — Domain schema 검증 (Project / Post / AppLegalDoc / ContactSubmission) + velite frontmatter 검증 (단일 정본을 양쪽이 공유)
 - **rehype-slug** — on-this-page TOC 헤딩 anchor
 
 ### Search Index (F016 Cmd+K)

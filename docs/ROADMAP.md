@@ -149,7 +149,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
   - TDD: `useTheme.test.ts` (system 추종 / 강제 전환 / localStorage persist) — `__tests__/`
   - PR 1개 / 브랜치: `feature/issue-N-theme-tokens`
 
-- [ ] **Task 006: Domain Schemas — Project / Post / AppLegalDoc / ContactSubmission / ThemePreference**
+- [x] **Task 006: Domain Schemas — Project / Post / AppLegalDoc / ContactSubmission / ThemePreference**
   - **Must** Read: [tasks/T006-domain-schemas.md](tasks/T006-domain-schemas.md)
   - blockedBy: Task 002
   - blocks: Task 007, Task 008, Task 009
