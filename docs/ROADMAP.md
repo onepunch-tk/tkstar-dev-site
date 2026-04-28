@@ -113,7 +113,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
 > **진입 조건**: Phase 0 완료
 > **완료 조건 (DoD)**: 모든 PRD 페이지에 해당하는 빈 라우트 파일이 존재하여 `wrangler dev`로 직접 URL 입력 시 404가 아닌 placeholder 응답. Domain `__tests__/` 안 Zod 스키마 테스트가 모두 Green. `[data-theme]` 토글이 시스템/localStorage 추종으로 동작.
 
-- [ ] **Task 004: 라우트 스켈레톤 13개 + chrome / chrome-free 레이아웃**
+- [x] **Task 004: 라우트 스켈레톤 13개 + chrome / chrome-free 레이아웃**
   - **Must** Read: [tasks/T004-route-skeleton.md](tasks/T004-route-skeleton.md)
   - blockedBy: Task 002, Task 003
   - blocks: Task 010, Task 011, Task 012, Task 013, Task 014, Task 015
