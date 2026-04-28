@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const setThemeSpy = vi.fn();
 vi.mock("../../../hooks/useTheme", () => ({
-	useTheme: () => ({ theme: "dark", setTheme: setThemeSpy, isSystem: false }),
+	useTheme: () => ({ theme: "dark", setTheme: setThemeSpy }),
 }));
 
 import ThemeToggle from "../ThemeToggle";

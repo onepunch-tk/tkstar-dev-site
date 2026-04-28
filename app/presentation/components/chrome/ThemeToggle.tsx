@@ -6,10 +6,12 @@ export default function ThemeToggle() {
 	return (
 		<button
 			type="button"
-			aria-label="Toggle theme"
-			aria-pressed={isDark ? "true" : "false"}
+			aria-label={
+				isDark ? "Toggle theme — switch to light mode" : "Toggle theme — switch to dark mode"
+			}
+			aria-pressed={isDark}
 			onClick={() => setTheme(isDark ? "light" : "dark")}
-			className="rounded-sm p-1.5 text-muted transition hover:bg-bg-elev hover:text-fg"
+			className="rounded-sm p-1.5 text-muted transition hover:bg-bg-elev hover:text-fg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
 		>
 			{isDark ? <SunIcon /> : <MoonIcon />}
 		</button>

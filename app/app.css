@@ -17,6 +17,11 @@
 	--font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
 	--radius-sm: 6px;
+
+	/* layout rhythm — 디자인 정본의 prototype.css 1:1 */
+	--spacing-gutter: 18px;
+	--container-measure: 720px;
+	--height-topbar: 52px;
 }
 
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));

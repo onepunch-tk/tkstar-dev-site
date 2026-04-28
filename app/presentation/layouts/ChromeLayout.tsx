@@ -6,7 +6,9 @@ export default function ChromeLayout({ children }: { children: ReactNode }) {
 	return (
 		<>
 			<Topbar />
-			{children}
+			<main id="main" tabIndex={-1} className="focus:outline-none">
+				{children}
+			</main>
 			<Footer />
 		</>
 	);

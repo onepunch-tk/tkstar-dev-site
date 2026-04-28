@@ -11,10 +11,10 @@ export const TOPBAR_LINKS: ChromeLink[] = [
 	{ label: "now", href: "/now" },
 ];
 
-// TODO: X / RSS / Contact placeholder — T015(legal) 또는 별도 task에서 실 URL로 교체
+// TODO: X / RSS placeholder — T0xx에서 실 URL 확정 시 교체. external: true로 두어 SPA navigation 회피.
 export const FOOTER_LINKS: ChromeLink[] = [
 	{ label: "GitHub", href: "https://github.com/onepunch-tk", external: true },
-	{ label: "X", href: "#" },
-	{ label: "RSS", href: "#" },
+	{ label: "X", href: "#", external: true },
+	{ label: "RSS", href: "#", external: true },
 	{ label: "Contact", href: "/contact" },
 ];
