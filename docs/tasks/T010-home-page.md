@@ -38,13 +38,13 @@ Home(`/`) 페이지에 PRD `F001 Hero (whoami + 검색 + 빠른 링크)` + `F017
 - 페이지별 meta export(F018) — T019
 
 ## Acceptance Criteria
-- [ ] `/` 진입 시 Hero / Featured / Recent 3 섹션이 순서대로 렌더
-- [ ] Hero의 [/about] 클릭 시 `/about`으로 네비게이션
-- [ ] Hero의 [/projects] 클릭 시 `/projects`로 네비게이션
-- [ ] [검색해서 이동] 클릭 시 `useCommandPalette().open()` 호출 (T016 마운트 후 palette 오픈)
-- [ ] Featured Project가 존재할 때 `<FeaturedProjectCard />` 렌더, 없을 때 미렌더 (전체 섹션 conditional)
-- [ ] `<RecentPostsList />`가 정확히 3개 `<PostRow>`를 렌더 + "모두 보기 →" 링크
-- [ ] DOM 구조 snapshot/selector assertion으로 위 3 섹션 순서 보장
+- [x] `/` 진입 시 Hero / Featured / Recent 3 섹션이 순서대로 렌더
+- [x] Hero의 [/about] 클릭 시 `/about`으로 네비게이션
+- [x] Hero의 [/projects] 클릭 시 `/projects`로 네비게이션
+- [x] [검색해서 이동] 클릭 시 `useCommandPalette().open()` 호출 (T016 마운트 후 palette 오픈)
+- [x] Featured Project가 존재할 때 `<FeaturedProjectCard />` 렌더, 없을 때 미렌더 (전체 섹션 conditional)
+- [x] `<RecentPostsList />`가 정확히 3개 `<PostRow>`를 렌더 + "모두 보기 →" 링크
+- [x] DOM 구조 snapshot/selector assertion으로 위 3 섹션 순서 보장
 
 ## Implementation Plan (TDD Cycle)
 
