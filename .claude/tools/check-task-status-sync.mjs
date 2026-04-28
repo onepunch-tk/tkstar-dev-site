@@ -1,12 +1,41 @@
 #!/usr/bin/env node
-import { readFileSync, readdirSync } from "node:fs";
-import { join } from "node:path";
+// Portable validator (harness-pipeline tool). Lives under .claude/tools/ and
+// must work in any project that follows the harness ROADMAP/task convention.
+//
+// Project root: resolved via `git rev-parse --show-toplevel` so the script can
+// be invoked from any cwd. Paths are overridable via env so projects with a
+// non-default docs layout (e.g. documentation/, planning/) still work:
+//   HARNESS_ROADMAP_PATH   default: docs/ROADMAP.md
+//   HARNESS_TASKS_DIR      default: docs/tasks
+import { execSync } from "node:child_process";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { isAbsolute, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const __dirname = fileURLToPath(new URL(".", import.meta.url));
-const ROOT = join(__dirname, "..");
-const ROADMAP = join(ROOT, "docs/ROADMAP.md");
-const TASKS_DIR = join(ROOT, "docs/tasks");
+const detectRoot = () => {
+	try {
+		return execSync("git rev-parse --show-toplevel", { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
+	} catch {
+		// Fallback: this file lives at <root>/.claude/tools/check-task-status-sync.mjs
+		const here = fileURLToPath(new URL(".", import.meta.url));
+		return join(here, "..", "..");
+	}
+};
+const ROOT = detectRoot();
+const resolvePath = (envVar, fallback) => {
+	const v = process.env[envVar];
+	if (!v) return join(ROOT, fallback);
+	return isAbsolute(v) ? v : join(ROOT, v);
+};
+const ROADMAP = resolvePath("HARNESS_ROADMAP_PATH", "docs/ROADMAP.md");
+const TASKS_DIR = resolvePath("HARNESS_TASKS_DIR", "docs/tasks");
+
+if (!existsSync(ROADMAP) || !existsSync(TASKS_DIR)) {
+	// Project does not use the harness ROADMAP convention — silent no-op
+	// (keeps the docs-sync-gate hook backward-compatible).
+	console.log(`[task-status-sync] skip — ROADMAP or tasks dir not found (ROADMAP=${ROADMAP})`);
+	process.exit(0);
+}
 
 const DONE_PATTERNS = [/✅\s*Done/i, /^Done$/i, /^Completed$/i];
 

@@ -9,7 +9,7 @@ set -euo pipefail
 #      bun.lockb) without a corresponding CLAUDE.md update.
 #   3. doc-structure-linter reports HIGH- or MED-severity drift (when the tool exists).
 #   4. ROADMAP `[x]` marks ↔ docs/tasks/TNNN-*.md `**Status**` field drift
-#      (Phase 4 Step 14b enforcement — see scripts/check-task-status-sync.mjs).
+#      (Phase 4 Step 14b enforcement — see .claude/tools/check-task-status-sync.mjs).
 #
 # Scope: feature/* branches only. fix/docs/chore/refactor/test are exempt
 # (they're not supposed to complete ROADMAP tasks).
@@ -183,8 +183,9 @@ fi
 # ── Condition 4: ROADMAP [x] ↔ task file Status drift (Step 14b enforcement) ──
 # Catches the recurring failure mode: ROADMAP gets `[x]` checked but the
 # corresponding `docs/tasks/TNNN-*.md` keeps `**Status** | Not Started`.
-# Validator: scripts/check-task-status-sync.mjs (exit 0 = sync, 1 = drift).
-SYNC_SCRIPT="$PROJECT_DIR/scripts/check-task-status-sync.mjs"
+# Validator: .claude/tools/check-task-status-sync.mjs (exit 0 = sync, 1 = drift).
+SYNC_SCRIPT="$PROJECT_DIR/.claude/tools/check-task-status-sync.mjs"
+[[ -x "$SYNC_SCRIPT" ]] || SYNC_SCRIPT=""
 if [[ -f "$SYNC_SCRIPT" ]]; then
     set +e
     SYNC_OUT=$(node "$SYNC_SCRIPT" 2>&1)
