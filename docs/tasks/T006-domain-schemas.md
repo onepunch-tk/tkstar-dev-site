@@ -11,7 +11,7 @@
 | **PRD Features** | F002, F004, F005, F006, F007, F008, F010, F014, F017 (read-side 데이터 모델) |
 | **PRD AC** | AC-F008-2 (RFC 5322), AC-F008-3 (메시지 10~5000자) — `ContactSubmission` schema에 정의 |
 | **예상 작업 시간** | 1d |
-| **Status** | Not Started |
+| **Status** | ✅ Done |
 
 ## Goal
 Clean Architecture의 가장 안쪽 레이어인 Domain에 5개 콘텐츠/입력 모델의 Zod 스키마를 정의한다. 이 스키마는 velite frontmatter 검증(T007)과 Application 유스케이스(T008/T017) 양쪽이 단일 정본으로 공유한다. A001(About 자격증), A003(AppLegalDoc version/effective_date) 가정도 이 단계에서 해소.
@@ -38,14 +38,14 @@ Clean Architecture의 가장 안쪽 레이어인 Domain에 5개 콘텐츠/입력
 - ContactSubmission을 사용하는 Form/Action (T017)
 
 ## Acceptance Criteria
-- [ ] `app/domain/project/project.schema.ts`가 정상 frontmatter (slug/title/summary/date/tags/stack/metrics/featured?/cover?)를 통과시킨다
-- [ ] `app/domain/post/post.schema.ts`가 정상 frontmatter (slug/title/lede/date/tags/read)를 통과시킨다
-- [ ] `app/domain/legal/app-legal-doc.schema.ts`가 정상 frontmatter (app_slug/doc_type/version/effective_date)를 통과시킨다
-- [ ] `app/domain/contact/contact-submission.schema.ts`가 RFC 5322 위반 이메일을 reject (AC-F008-2)
-- [ ] `app/domain/contact/contact-submission.schema.ts`가 메시지 10자 미만 / 5000자 초과를 reject (AC-F008-3)
-- [ ] `app/domain/theme/theme-preference.vo.ts`가 `"dark" | "light"` literal type을 export
-- [ ] 모든 5개 모듈의 `__tests__/`가 정상값 통과 + 이상값 reject 케이스를 포함하여 100% Green
-- [ ] `bun run test` + `bun run typecheck` 통과
+- [x] `app/domain/project/project.schema.ts`가 정상 frontmatter (slug/title/summary/date/tags/stack/metrics/featured?/cover?)를 통과시킨다
+- [x] `app/domain/post/post.schema.ts`가 정상 frontmatter (slug/title/lede/date/tags/read)를 통과시킨다
+- [x] `app/domain/legal/app-legal-doc.schema.ts`가 정상 frontmatter (app_slug/doc_type/version/effective_date)를 통과시킨다
+- [x] `app/domain/contact/contact-submission.schema.ts`가 RFC 5322 위반 이메일을 reject (AC-F008-2)
+- [x] `app/domain/contact/contact-submission.schema.ts`가 메시지 10자 미만 / 5000자 초과를 reject (AC-F008-3)
+- [x] `app/domain/theme/theme-preference.vo.ts`가 `"dark" | "light"` literal type을 export
+- [x] 모든 5개 모듈의 `__tests__/`가 정상값 통과 + 이상값 reject 케이스를 포함하여 100% Green (28/28 pass)
+- [x] `bun run test` + `bun run typecheck` 통과
 
 ## Implementation Plan (TDD Cycle)
 
@@ -158,4 +158,4 @@ Clean Architecture의 가장 안쪽 레이어인 Domain에 5개 콘텐츠/입력
 ## Change History
 | Date | Changes | Author |
 |------|---------|--------|
-| - | - | - |
+| 2026-04-28 | T006 완료 — Project / Post / AppLegalDoc / ContactSubmission / ThemePreference 5종 Zod 스키마 + entity/errors. AC-F008-2 (RFC 5322 reject) / AC-F008-3 (10~5000자) 단위 테스트 직접 매핑. A001 / A003 가정 해소. `_shared/zod-helpers.ts`로 zNonEmptyString / zIso8601Date 공통 추출 (zRfc5322Email은 P1 review에서 인라인화). 28/28 tests Green. Branch `feature/issue-21-domain-schemas`. Issue #21. | TaekyungHa |
