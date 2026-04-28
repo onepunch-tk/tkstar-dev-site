@@ -11,7 +11,7 @@
 | **PRD Features** | — (toolchain) |
 | **PRD AC** | — |
 | **예상 작업 시간** | 0.5d |
-| **Status** | Not Started |
+| **Status** | Done |
 
 ## Goal
 빈 git 저장소에 Bun + TypeScript + Biome 기반의 빈 프로젝트 셸을 깔아, 이후 모든 phase의 진입 조건인 `bun --version` / `bun run typecheck` / `bun run lint` / `bun run format`을 무오류 통과시킨다.
@@ -37,12 +37,12 @@
 - 도메인 스키마 / 라우트 / 콘텐츠 (Phase 1+ task)
 
 ## Acceptance Criteria
-- [ ] `bun --version`이 1.x 출력
-- [ ] `bun install` 후 `bun.lock` 생성됨
-- [ ] `bun run typecheck` 무오류 통과 (빈 프로젝트라도 tsc가 path alias 인식)
-- [ ] `bun run lint`가 Biome 룰로 동작 (`No files to check.`도 OK)
-- [ ] `bun run format`이 Biome formatter 호출
-- [ ] `.gitignore`에 5개 항목(`.velite/`, `.react-router/`, `node_modules/`, `dist/`, `.wrangler/`) 모두 존재
+- [x] `bun --version`이 1.x 출력
+- [x] `bun install` 후 `bun.lock` 생성됨
+- [x] `bun run typecheck` 무오류 통과 (빈 프로젝트라도 tsc가 path alias 인식)
+- [x] `bun run lint`가 Biome 룰로 동작 (`No files to check.`도 OK)
+- [x] `bun run format`이 Biome formatter 호출
+- [x] `.gitignore`에 5개 항목(`.velite/`, `.react-router/`, `node_modules/`, `dist/`, `.wrangler/`) 모두 존재
 
 ## Implementation Plan (TDD Cycle)
 **N/A — chore branch policy.** `chore/*` 브랜치는 CLAUDE.md 정책상 Plan/TDD phase가 면제되며, PR 리뷰가 안전망. 단, 위 AC는 모두 명령어 수준에서 검증 가능해야 한다.
@@ -54,7 +54,7 @@
 |------|---------------|
 | `/Users/tkstart/Desktop/project/tkstar-dev/package.json` | 의존성 매니페스트 + scripts. dependencies: `react@19.2.4`, `react-dom@19.2.4`, `react-router@7.14.0`. devDependencies: `typescript@5.9.3`, `@biomejs/biome@2.4.13` |
 | `/Users/tkstart/Desktop/project/tkstar-dev/tsconfig.json` | TS 진입점 — `extends` / `references` 분리 (`tsconfig.app.json` + `tsconfig.node.json`로 분기 가능) |
-| `/Users/tkstart/Desktop/project/tkstar-dev/tsconfig.app.json` | 앱 코드용 — `strict: true`, `paths: { "~/*": ["./app/*"] }`, `moduleResolution: "bundler"` |
+| `/Users/tkstart/Desktop/project/tkstar-dev/tsconfig.app.json` | 앱 코드용 — `strict: true`, `paths: { "~/*": ["./app/*"] }`, `moduleResolution: "bundler"`. **Note**: 본 프로젝트에서는 platform context를 명확히 드러내기 위해 `tsconfig.cloudflare.json` 명칭을 채택. path alias `~/* → ./app/*`는 그곳에 정의됨. |
 | `/Users/tkstart/Desktop/project/tkstar-dev/biome.json` | Biome lint + format 설정. `formatter.indentStyle = "tab"`(또는 프로젝트 합의), `linter.rules.recommended = true` |
 | `/Users/tkstart/Desktop/project/tkstar-dev/.gitignore` | 기존 항목에 `.velite/`, `.react-router/`, `node_modules/`, `dist/`, `.wrangler/` 추가 |
 
@@ -84,7 +84,7 @@
 
 ## Risks & Mitigations
 - **Risk**: bun + Biome + TypeScript 5.9 조합의 path alias 인식 차이.
-  - **Mitigation**: T001 PR에서 빈 `app/index.ts`를 임시 추가하여 `import "~/index"` 가짜 경로로 path alias 동작을 1회 검증한 뒤 제거.
+  - **Mitigation**: T001 PR에서 빈 `app/index.ts`를 임시 추가하여 `import "~/index"` 가짜 경로로 path alias 동작을 1회 검증한 뒤 제거. **Note**: 본 PR 시점엔 이미 `app/root.tsx` / `app/entry.server.tsx` / `app/routes.ts`가 구동 중이라 typecheck로 path alias가 자동 검증됨 → 임시 파일 미생성.
 
 ## References
 - CLAUDE.md `Tech Stack` (bun / TypeScript / Biome)
@@ -96,4 +96,4 @@
 ## Change History
 | Date | Changes | Author |
 |------|---------|--------|
-| - | - | - |
+| 2026-04-28 | T001 PR — `.gitignore`에 `/.velite/` + `/dist/` 추가, `biome.json`에 `!**/docs/**` lint 제외, `tsconfig.cloudflare.json` 명칭 사유 명시, Status=Done | TaekyungHa |
