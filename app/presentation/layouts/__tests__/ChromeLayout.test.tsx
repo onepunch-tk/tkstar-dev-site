@@ -1,60 +1,56 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("../../components/chrome/Topbar", () => ({
+	default: () => <header data-testid="topbar-mock" />,
+}));
+vi.mock("../../components/chrome/Footer", () => ({
+	default: () => <footer data-testid="footer-mock" />,
+}));
+
 import ChromeLayout from "../ChromeLayout";
 
 describe("ChromeLayout", () => {
-	it("topbar-slot header를 렌더링한다", () => {
-		// Arrange & Act
+	it("Topbar를 렌더링한다", () => {
 		render(
 			<ChromeLayout>
 				<p>main content</p>
 			</ChromeLayout>,
 		);
 
-		// Assert
-		const header = screen.getByTestId("topbar-slot");
-		expect(header).toBeInTheDocument();
-		expect(header.tagName).toBe("HEADER");
+		expect(screen.getByTestId("topbar-mock")).toBeInTheDocument();
 	});
 
-	it("footer-slot footer를 렌더링한다", () => {
-		// Arrange & Act
+	it("Footer를 렌더링한다", () => {
 		render(
 			<ChromeLayout>
 				<p>main content</p>
 			</ChromeLayout>,
 		);
 
-		// Assert
-		const footer = screen.getByTestId("footer-slot");
-		expect(footer).toBeInTheDocument();
-		expect(footer.tagName).toBe("FOOTER");
+		expect(screen.getByTestId("footer-mock")).toBeInTheDocument();
 	});
 
 	it("children를 렌더링한다", () => {
-		// Arrange & Act
 		render(
 			<ChromeLayout>
 				<p>main content</p>
 			</ChromeLayout>,
 		);
 
-		// Assert
 		expect(screen.getByText("main content")).toBeInTheDocument();
 	});
 
-	it("header → children → footer 순서로 렌더링한다", () => {
-		// Arrange & Act
+	it("Topbar → children → Footer 순서로 렌더링한다", () => {
 		render(
 			<ChromeLayout>
 				<p>main content</p>
 			</ChromeLayout>,
 		);
 
-		// Assert
-		const header = screen.getByTestId("topbar-slot");
+		const header = screen.getByTestId("topbar-mock");
 		const content = screen.getByText("main content");
-		const footer = screen.getByTestId("footer-slot");
+		const footer = screen.getByTestId("footer-mock");
 
 		expect(header.compareDocumentPosition(content) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 		expect(content.compareDocumentPosition(footer) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();

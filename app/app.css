@@ -1,10 +1,65 @@
 @import "tailwindcss";
 
+@theme {
+	/* default = dark (PRD: 시스템 dark 우선) */
+	--color-bg: #0d0f12;
+	--color-bg-elev: #15181d;
+	--color-bg-card: #1a1e24;
+	--color-fg: #e8ebef;
+	--color-muted: #8a93a0;
+	--color-faint: #4a525e;
+	--color-line: #2a3038;
+	--color-line-strong: #3a424d;
+	--color-accent: oklch(72% 0.14 155);
+	--color-accent-warm: oklch(72% 0.14 65);
+	--color-warn: oklch(72% 0.14 30);
+
+	--font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+	--radius-sm: 6px;
+}
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+[data-theme="light"] {
+	--color-bg: #f4f1ea;
+	--color-bg-elev: #ebe7dd;
+	--color-bg-card: #f9f7f1;
+	--color-fg: #1a1c20;
+	--color-muted: #5a6068;
+	--color-faint: #a8aab0;
+	--color-line: #c8c2b3;
+	--color-line-strong: #8a8678;
+	--color-accent: oklch(48% 0.14 155);
+	--color-accent-warm: oklch(55% 0.14 65);
+	--color-warn: oklch(55% 0.14 30);
+}
+
+@font-face {
+	font-family: "JetBrains Mono";
+	font-weight: 400;
+	font-style: normal;
+	font-display: swap;
+	src: url("/fonts/JetBrainsMono-Regular.woff2") format("woff2");
+}
+@font-face {
+	font-family: "JetBrains Mono";
+	font-weight: 500;
+	font-style: normal;
+	font-display: swap;
+	src: url("/fonts/JetBrainsMono-Medium.woff2") format("woff2");
+}
+@font-face {
+	font-family: "JetBrains Mono";
+	font-weight: 700;
+	font-style: normal;
+	font-display: swap;
+	src: url("/fonts/JetBrainsMono-Bold.woff2") format("woff2");
+}
+
 html,
 body {
-	@apply bg-white dark:bg-gray-950;
-
-	@media (prefers-color-scheme: dark) {
-		color-scheme: dark;
-	}
+	background: var(--color-bg);
+	color: var(--color-fg);
+	font-family: var(--font-mono);
 }

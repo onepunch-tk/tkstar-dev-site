@@ -1,11 +1,13 @@
 import type { ReactNode } from "react";
+import Footer from "../components/chrome/Footer";
+import Topbar from "../components/chrome/Topbar";
 
 export default function ChromeLayout({ children }: { children: ReactNode }) {
 	return (
 		<>
-			<header data-testid="topbar-slot" />
+			<Topbar />
 			{children}
-			<footer data-testid="footer-slot" />
+			<Footer />
 		</>
 	);
 }

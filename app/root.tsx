@@ -15,12 +15,18 @@ import "./app.css";
 
 const CHROME_FREE_PATHNAME = /^\/legal\/[^/]+\/(terms|privacy)$/;
 
+const themeScript = `(()=>{try{var s=localStorage.getItem('proto-theme');var t=s||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.dataset.theme=t;}catch(e){document.documentElement.dataset.theme='dark';}})();`;
+
 export function Layout({ children }: { children: React.ReactNode }) {
 	return (
 		<html lang="en">
 			<head>
 				<meta charSet="utf-8" />
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
+				<script
+					// biome-ignore lint/security/noDangerouslySetInnerHtml: FOIT 방지를 위한 동기 inline 부트 스크립트
+					dangerouslySetInnerHTML={{ __html: themeScript }}
+				/>
 				<Meta />
 				<Links />
 			</head>
