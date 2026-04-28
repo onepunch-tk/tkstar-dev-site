@@ -249,7 +249,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
 > **진입 조건**: Phase 2 완료 (Repository + DI 가동)
 > **완료 조건 (DoD)**: `wrangler dev`로 7개 콘텐츠 페이지(Home/About/Projects/Project Detail/Blog/Blog Detail/Legal Index)가 seed 데이터로 정상 렌더. Project Detail/Blog Detail 데스크탑 880px+ sticky sidebar 동작. About `[⎙ PDF]` 버튼 → `window.print()` AC-F003-1/2/3 통과.
 
-- [ ] **Task 010: Home Page (F001 Hero + F017 Featured/Recent)**
+- [x] **Task 010: Home Page (F001 Hero + F017 Featured/Recent)** ✅
   - **Must** Read: [tasks/T010-home-page.md](tasks/T010-home-page.md)
   - blockedBy: Task 005, Task 008, Task 009
   - blocks: Task 016
