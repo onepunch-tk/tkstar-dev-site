@@ -5,13 +5,13 @@
 | **Task ID** | T005 |
 | **Phase** | Phase 1 — Foundation |
 | **Layer** | Presentation (`components/chrome`, `hooks`, `app.css`) |
-| **Branch** | `feature/issue-N-theme-tokens` |
+| **Branch** | `feature/issue-19-theme-tokens` |
 | **Depends on** | T003 |
 | **Blocks** | T010, T011, T012, T013, T014a, T014b, T015 |
 | **PRD Features** | **F010** (다크모드 토글) |
 | **PRD AC** | — (UI 표시 위주, Page-by-Page Key Features로 검증) |
 | **예상 작업 시간** | 1d |
-| **Status** | Not Started |
+| **Status** | ✅ Done |
 
 ## Goal
 디자인 정본의 oklch/JetBrains Mono 토큰을 Tailwind v4 `@theme` 블록으로 이식하고, `[data-theme]` HTML 속성 셀렉터 + `@variant dark` 커스텀 변형으로 다크/라이트 모드를 SSR-safe하게 구현한다. Topbar/Footer/ThemeToggle 골격까지 포함하여 후속 페이지 task가 chrome 본체를 신경쓰지 않도록 한다.
@@ -39,13 +39,13 @@
 - Satori OG용 `JetBrainsMono-Regular.ttf` (T018)
 
 ## Acceptance Criteria
-- [ ] 시스템 dark 설정 → 첫 진입 시 dark 테마 자동 적용 (FOIT 없음)
-- [ ] 토글 클릭 → `<html>`의 `data-theme` 속성이 `dark` ↔ `light` 토글 + 색상 즉시 전환
-- [ ] localStorage `proto-theme = "dark" | "light"` 저장됨
-- [ ] 새로고침 시 localStorage 값으로 강제 모드 복원
-- [ ] Topbar에 `tkstar.dev` 브랜드 + 현재 경로 표시 + 검색 트리거 placeholder + ThemeToggle 노출
-- [ ] Footer에 © + GitHub / X / RSS / Contact 링크 노출 (Legal 링크는 T015에서 조건부 추가)
-- [ ] JetBrains Mono가 모든 본문/UI에 적용 (network 패널에서 woff2 fetch 확인)
+- [x] 시스템 dark 설정 → 첫 진입 시 dark 테마 자동 적용 (FOUC 없음, 부트 스크립트가 `<head>` 동기 inline)
+- [x] 토글 클릭 → `<html>`의 `data-theme` 속성이 `dark` ↔ `light` 토글 + 색상 즉시 전환
+- [x] localStorage `proto-theme = "dark" | "light"` 저장됨 (화이트리스트 가드 적용)
+- [x] 새로고침 시 localStorage 값으로 강제 모드 복원
+- [x] Topbar에 `tkstar.dev` 브랜드(`.dev` accent 적용) + 현재 경로(`$ /…`) + 검색 트리거 disabled placeholder(플랫폼별 ⌘K/Ctrl+K) + ThemeToggle 노출
+- [x] Footer에 © + GitHub(실 URL) / X / RSS / Contact 링크 노출 (Legal 링크는 T015에서 조건부 추가)
+- [x] JetBrains Mono가 모든 본문/UI에 적용 (Regular preload + Medium/Bold @font-face)
 
 ## Implementation Plan (TDD Cycle)
 
@@ -146,4 +146,4 @@
 ## Change History
 | Date | Changes | Author |
 |------|---------|--------|
-| - | - | - |
+| 2026-04-28 | T005 완료 — useTheme(ThemeProvider Context) / Topbar / Footer / ThemeToggle / app.css `@theme` + `@custom-variant dark` / SSR blocking script / JetBrains Mono self-host. Code+Design review P0/P1 수정(focus-visible, skip-link, brand `.dev` accent, lang="ko", aria-label 동적, ⌘K disabled+platform, motion-reduce, NavLink underline+aria-current, layout 토큰 promote, 부트 화이트리스트, font preload). Branch `feature/issue-19-theme-tokens`. Issue #19. | TaekyungHa |
