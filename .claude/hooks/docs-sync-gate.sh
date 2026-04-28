@@ -3,13 +3,16 @@ set -euo pipefail
 
 # docs-sync-gate — PreToolUse Bash hook
 # Blocks `gh pr create` / `.claude/hooks/git-pr.sh` on a feature/* branch when
-# downstream docs derived from ROADMAP are out of sync. Four OR-gated conditions:
+# downstream docs derived from ROADMAP are out of sync. Five OR-gated conditions:
 #   1. ROADMAP.md not updated on the branch.
 #   2. Config files changed (package.json / tsconfig*.json / biome.json(c) /
 #      bun.lockb) without a corresponding CLAUDE.md update.
 #   3. doc-structure-linter reports HIGH- or MED-severity drift (when the tool exists).
 #   4. ROADMAP `[x]` marks ↔ docs/tasks/TNNN-*.md `**Status**` field drift
 #      (Phase 4 Step 14b enforcement — inline bash, no external dependencies).
+#   5. ROADMAP `[x]` marks ↔ task file body `- [ ]` checkbox drift
+#      (Phase 4 Step 14b (3) enforcement — Acceptance Criteria / step boxes
+#      must all be `[x]` once the task is marked done in ROADMAP).
 #
 # Scope: feature/* branches only. fix/docs/chore/refactor/test are exempt
 # (they're not supposed to complete ROADMAP tasks).
@@ -197,7 +200,7 @@ if [[ -f "$ROADMAP_FILE" && -d "$TASKS_DIR_PATH" ]]; then
         # Find matching task file: docs/tasks/T<NNN>[a-z]?-*.md
         task_file=$(find "$TASKS_DIR_PATH" -maxdepth 1 -name "${task_id}-*.md" -print -quit 2>/dev/null)
         if [[ -z "$task_file" ]]; then
-            DRIFT_LINES+="  $task_id: ROADMAP=[x] 이지만 task 파일이 없음"$'\n'
+            DRIFT_LINES+="  $task_id: ROADMAP=[x] but no matching task file found"$'\n'
             continue
         fi
         # Extract Status field value: `| **Status** | <value> |`
@@ -209,7 +212,7 @@ if [[ -f "$ROADMAP_FILE" && -d "$TASKS_DIR_PATH" ]]; then
         status_clean=$(echo "$status_raw" | sed -E 's/\([^)]*\)//g' | sed -E 's/^[[:space:]]+|[[:space:]]+$//g')
         # Match Done / Completed / ✅ Done (case-insensitive)
         if ! echo "$status_clean" | grep -iqE '(^✅[[:space:]]*Done$|^Done$|^Completed$)'; then
-            DRIFT_LINES+="  $task_id ($(basename "$task_file")): ROADMAP=[x] 이지만 Status=\"$status_raw\" → ✅ Done 으로 동기화 필요"$'\n'
+            DRIFT_LINES+="  $task_id ($(basename "$task_file")): ROADMAP=[x] but Status=\"$status_raw\" → sync to ✅ Done"$'\n'
         fi
     done < <(grep -oE '^- \[x\][[:space:]]+\*\*Task[[:space:]]+[0-9]{3}[a-z]?:' "$ROADMAP_FILE" \
         | sed -E 's/^- \[x\][[:space:]]+\*\*Task[[:space:]]+([0-9]{3}[a-z]?):.*/T\1/')
@@ -221,18 +224,73 @@ if [[ -f "$ROADMAP_FILE" && -d "$TASKS_DIR_PATH" ]]; then
         fi
         if (( SYNC_SKIP == 0 )); then
             REASON=$(cat <<MSG
-[DOC-SYNC GATE] Blocked: ROADMAP \`[x]\` 체크와 task 파일 \`**Status**\` 필드가 불일치합니다.
+[DOC-SYNC GATE] Blocked: ROADMAP \`[x]\` mark and task file \`**Status**\` field are out of sync.
 
 $DRIFT_LINES
-Phase 4 Step 14b에 따라 ROADMAP에 \`[x]\`로 마킹된 task는 task 파일의
-\`**Status**\` 필드도 \`✅ Done\` (또는 \`Done\` / \`Completed\`)으로 동기화되어야 합니다.
+Phase 4 Step 14b requires that any task marked \`[x]\` in ROADMAP must also have
+its \`**Status**\` field synced to \`✅ Done\` (or \`Done\` / \`Completed\`) in the
+corresponding task file.
 
-해결:
-  1. 위 drift 목록의 task 파일을 열어 \`**Status**\` 필드를 갱신.
-  2. \`📝 docs: sync\` 커밋에 포함.
-  3. PR 명령 재시도.
+Resolve:
+  1. Open the task file(s) listed above and update the \`**Status**\` field.
+  2. Include the change in a \`📝 docs: sync\` commit.
+  3. Retry the PR command.
 
 Override (last resort): prefix the PR command with DOCS_SYNC_SKIP=1.
+MSG
+)
+            jq -n --arg reason "$REASON" '{ decision: "block", reason: $reason }'
+            exit 0
+        fi
+    fi
+fi
+
+# ── Condition 5: ROADMAP [x] ↔ task file body `- [ ]` checkbox drift ──
+# Catches the Step 14b (3) failure mode: ROADMAP marks a task `[x]` and the
+# `**Status**` field gets updated, but Acceptance Criteria / step box `- [ ]`
+# checkboxes inside the task file body are left unchecked. Status alone is not
+# sufficient evidence of completion — the body checklist is the AC contract.
+#
+# Same path/env conventions as Condition 4 (HARNESS_ROADMAP_PATH / HARNESS_TASKS_DIR).
+if [[ -f "$ROADMAP_FILE" && -d "$TASKS_DIR_PATH" ]]; then
+    BOX_DRIFT=""
+    while IFS= read -r task_id; do
+        [[ -z "$task_id" ]] && continue
+        task_file=$(find "$TASKS_DIR_PATH" -maxdepth 1 -name "${task_id}-*.md" -print -quit 2>/dev/null)
+        [[ -z "$task_file" ]] && continue
+        # Count unchecked checkboxes anywhere in the body (no anchor restriction).
+        # Pattern matches `- [ ]` and `* [ ]` at start of a list item.
+        unchecked=$(grep -cE '^[[:space:]]*[-*][[:space:]]+\[[[:space:]]\][[:space:]]' "$task_file" || true)
+        if [[ "$unchecked" -gt 0 ]]; then
+            BOX_DRIFT+="  $task_id ($(basename "$task_file")): ROADMAP=[x] but ${unchecked} unchecked \`- [ ]\` item(s) remain in task file body"$'\n'
+        fi
+    done < <(grep -oE '^- \[x\][[:space:]]+\*\*Task[[:space:]]+[0-9]{3}[a-z]?:' "$ROADMAP_FILE" \
+        | sed -E 's/^- \[x\][[:space:]]+\*\*Task[[:space:]]+([0-9]{3}[a-z]?):.*/T\1/')
+
+    if [[ -n "$BOX_DRIFT" ]]; then
+        BOX_SKIP=0
+        if echo "$COMMAND" | grep -qE '(^|[[:space:]])DOCS_SYNC_SKIP=1([[:space:]]|$)'; then
+            BOX_SKIP=1
+        fi
+        if (( BOX_SKIP == 0 )); then
+            REASON=$(cat <<MSG
+[DOC-SYNC GATE] Blocked: ROADMAP \`[x]\` task has unchecked \`- [ ]\` items remaining in task file body.
+
+$BOX_DRIFT
+Phase 4 Step 14b (3) requires that for any task marked \`[x]\` in ROADMAP,
+all body checklists (Acceptance Criteria / Implementation Plan / Verification
+Steps) must be synced to \`- [x]\`. The \`**Status**\` field alone is not
+sufficient evidence of completion — the body checklist is the AC contract.
+
+Resolve:
+  1. Open the task file(s) listed above and flip met \`- [ ]\` items to \`- [x]\`.
+     If an item is genuinely not met, remove it from the scope of this task or
+     split it to a follow-up task before merging.
+  2. Include the change in a \`📝 docs: sync\` commit.
+  3. Retry the PR command.
+
+Override (last resort): prefix the PR command with DOCS_SYNC_SKIP=1.
+Use only when there is a justified, deliberately deferred unchecked item.
 MSG
 )
             jq -n --arg reason "$REASON" '{ decision: "block", reason: $reason }'
