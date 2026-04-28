@@ -5,13 +5,13 @@
 | **Task ID** | T009 |
 | **Phase** | Phase 2 — Content Pipeline |
 | **Layer** | Infrastructure (`config/`) + Platform Adapter (`workers/`) |
-| **Branch** | `feature/issue-N-di-container` |
+| **Branch** | `feature/issue-31-di-container` |
 | **Depends on** | T008 |
 | **Blocks** | T010, T011, T012, T013, T014a, T014b, T015, T016, T017 |
 | **PRD Features** | 전반 (모든 유스케이스 주입 통로) |
 | **PRD AC** | — |
 | **예상 작업 시간** | 0.5d |
-| **Status** | Not Started |
+| **Status** | ✅ Done |
 
 ## Goal
 PROJECT-STRUCTURE D2 결정에 따라 수제 Plain object DI Container를 `app/infrastructure/config/container.ts`에 구현하고, `workers/app.ts`의 `getLoadContext`로 페이지 loader/action에서 유스케이스를 꺼내 쓸 수 있게 한다.
