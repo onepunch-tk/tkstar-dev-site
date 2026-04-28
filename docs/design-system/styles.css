@@ -1,0 +1,311 @@
+/* ──────────────────────────────────────────────────────────
+   tkstar.dev — wireframe styles
+   Technical/Terminal vibe + sketchy hand-drawn overlay
+   ────────────────────────────────────────────────────────── */
+
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Caveat:wght@400;600;700&family=Gaegu:wght@400;700&display=swap');
+
+:root {
+  /* dark (default per PRD) */
+  --bg: #0d0f12;
+  --bg-elev: #15181d;
+  --bg-card: #1a1e24;
+  --ink: #e8ebef;
+  --ink-dim: #8a93a0;
+  --ink-faint: #4a525e;
+  --line: #2a3038;
+  --line-strong: #3a424d;
+  --accent: oklch(72% 0.14 155);     /* terminal green */
+  --accent-2: oklch(72% 0.14 65);    /* amber for warning/highlight */
+  --warn: oklch(72% 0.14 30);
+  --hatch: rgba(232, 235, 239, 0.04);
+
+  --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --hand: 'Gaegu', 'Caveat', cursive;
+  --hand-tight: 'Caveat', cursive;
+
+  --r: 6px;
+}
+
+[data-theme='light'] {
+  --bg: #f4f1ea;
+  --bg-elev: #ebe7dd;
+  --bg-card: #f9f7f1;
+  --ink: #1a1c20;
+  --ink-dim: #5a6068;
+  --ink-faint: #a8aab0;
+  --line: #c8c2b3;
+  --line-strong: #8a8678;
+  --accent: oklch(48% 0.14 155);
+  --accent-2: oklch(55% 0.14 65);
+  --warn: oklch(55% 0.14 30);
+  --hatch: rgba(26, 28, 32, 0.05);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: var(--mono);
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── sketch intensity (controlled via [data-sketch] on root) ── */
+[data-sketch='neat'] .wf,
+[data-sketch='neat'] .wf-card,
+[data-sketch='neat'] .wf-btn,
+[data-sketch='neat'] .wf-input,
+[data-sketch='neat'] .wf-box {
+  border-style: solid !important;
+}
+[data-sketch='neat'] .hand,
+[data-sketch='neat'] .scribble,
+[data-sketch='neat'] .annot {
+  font-family: var(--mono) !important;
+  transform: none !important;
+}
+
+[data-sketch='sketchy'] .wf-card,
+[data-sketch='sketchy'] .wf-btn,
+[data-sketch='sketchy'] .wf-input,
+[data-sketch='sketchy'] .wf-box {
+  border-style: dashed;
+}
+
+/* ── core wireframe primitives ── */
+.wf-frame {
+  background: var(--bg);
+  color: var(--ink);
+  border: 1.5px solid var(--line-strong);
+  border-radius: var(--r);
+  position: relative;
+  overflow: hidden;
+}
+
+.wf-card {
+  background: var(--bg-card);
+  border: 1.5px dashed var(--line-strong);
+  border-radius: var(--r);
+  padding: 14px;
+}
+
+.wf-box {
+  border: 1.5px dashed var(--line-strong);
+  border-radius: var(--r);
+  background: transparent;
+}
+
+.wf-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: 1.5px dashed var(--line-strong);
+  border-radius: var(--r);
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 12px;
+  cursor: pointer;
+}
+.wf-btn.solid {
+  background: var(--ink);
+  color: var(--bg);
+  border-style: solid;
+}
+.wf-btn.accent {
+  background: var(--accent);
+  color: #0d0f12;
+  border-style: solid;
+  border-color: var(--accent);
+}
+.wf-btn.ghost { color: var(--ink-dim); }
+
+.wf-input {
+  display: block;
+  width: 100%;
+  padding: 9px 12px;
+  border: 1.5px dashed var(--line-strong);
+  border-radius: var(--r);
+  background: transparent;
+  color: var(--ink-dim);
+  font-family: var(--mono);
+  font-size: 12px;
+}
+
+/* placeholder image — diagonal stripes */
+.wf-img {
+  background:
+    repeating-linear-gradient(
+      45deg,
+      var(--hatch) 0 8px,
+      transparent 8px 16px
+    ),
+    var(--bg-elev);
+  border: 1.5px dashed var(--line-strong);
+  border-radius: var(--r);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-faint);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+}
+
+/* hand-written overlay text */
+.hand {
+  font-family: var(--hand);
+  font-weight: 400;
+  color: var(--accent);
+  letter-spacing: 0.01em;
+}
+.hand-tight {
+  font-family: var(--hand-tight);
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.annot {
+  font-family: var(--hand);
+  color: var(--ink-dim);
+  font-size: 13px;
+  letter-spacing: 0.02em;
+}
+
+.scribble {
+  font-family: var(--hand);
+  color: var(--accent-2);
+  font-size: 14px;
+}
+
+/* arrows */
+.arrow {
+  position: absolute;
+  pointer-events: none;
+}
+
+/* tag */
+.wf-tag {
+  display: inline-block;
+  padding: 2px 7px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  font-size: 10px;
+  color: var(--ink-dim);
+  font-family: var(--mono);
+  letter-spacing: 0.04em;
+}
+
+/* terminal prompt prefix */
+.prompt::before {
+  content: '$ ';
+  color: var(--accent);
+}
+.prompt-c::before {
+  content: '> ';
+  color: var(--ink-faint);
+}
+
+/* mono label */
+.label {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--ink-faint);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* divider line — wobbly */
+.wobble {
+  height: 2px;
+  background: var(--line-strong);
+  border-radius: 2px;
+  position: relative;
+}
+
+/* phone-style frame chrome (header bar mock) */
+.chrome {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-bottom: 1.5px dashed var(--line);
+  background: var(--bg-elev);
+}
+.chrome .dot {
+  width: 8px; height: 8px; border-radius: 999px;
+  background: var(--line-strong);
+}
+
+/* visible only at small zoom — simple text */
+.muted { color: var(--ink-dim); }
+.faint { color: var(--ink-faint); }
+.strong { color: var(--ink); }
+.green { color: var(--accent); }
+.amber { color: var(--accent-2); }
+
+/* small util */
+.row { display: flex; gap: 12px; }
+.col { display: flex; flex-direction: column; gap: 12px; }
+.center { display: flex; align-items: center; justify-content: center; }
+.between { display: flex; align-items: center; justify-content: space-between; }
+
+/* artboard inner page padding */
+.page {
+  padding: 24px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+/* sidebar shell */
+.shell-sidebar {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  height: 100%;
+  background: var(--bg);
+}
+.shell-sidebar > aside {
+  border-right: 1.5px dashed var(--line);
+  padding: 24px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.shell-sidebar > main {
+  padding: 28px 32px;
+  overflow: hidden;
+}
+
+/* topbar shell */
+.shell-top {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--bg);
+}
+.shell-top > header {
+  border-bottom: 1.5px dashed var(--line);
+  padding: 14px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.shell-top > main {
+  padding: 28px;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* SVG strokes use var(--line-strong) */
+svg .stroke { stroke: var(--line-strong); fill: none; stroke-width: 1.5; }
+svg .stroke-accent { stroke: var(--accent); fill: none; stroke-width: 1.5; }
+svg .fill-faint { fill: var(--ink-faint); }

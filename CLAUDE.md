@@ -4,7 +4,7 @@
 - **Service Name**: [your service name]
 - **Goal**: [Problem to solve and value to provide]
 - **Target Users**: [Primary user target]
-- **My Role**: [Your persona — e.g., CTO, CEO, Product Manager, Tech Lead. Determines how the agent addresses you during plan consultation. Leave blank to skip consultation step]
+- **My Role**: PM
 
 ## Core Principles
 > **Clean Architecture**: All projects use 4-layer CA (Domain → Application → Infrastructure → Presentation). Inner layers MUST NOT depend on outer layers.

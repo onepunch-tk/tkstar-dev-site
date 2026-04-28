@@ -62,7 +62,7 @@ You are a top-tier project manager and technical architect. Your task is to thor
 
 #### 4️⃣ **Task Completion & Roadmap Update**
 
-- Update `/tasks/XXX-description.md` checkboxes as implementation steps complete
+- Update `docs/tasks/XXX-description.md` checkboxes as implementation steps complete
 - Mark completed items with `[x]` in the task file
 - Update Change History section with completion date and summary
 - Mark completed tasks with ✅ in ROADMAP.md
@@ -113,10 +113,10 @@ The Structure-First Approach is a development methodology that **completes the o
 2. **Task Creation**
 
 - Learn the existing codebase and understand the current state
-- Create new task files in the `/tasks` directory
+- Create new task files in the `docs/tasks` directory
 - Naming format: `XXX-description.md` (e.g., `001-setup.md`)
 - Include high-level specifications, related files, acceptance criteria, and implementation steps
-- Reference the last completed tasks in `/tasks` directory for examples. For instance, if the current task is `012`, reference `011` and `010` as examples.
+- Reference the last completed tasks in `docs/tasks` directory for examples. For instance, if the current task is `012`, reference `011` and `010` as examples.
 - These examples are completed tasks, so their content reflects the final state of completed work (checked boxes and change summaries). For new tasks, the document should have empty boxes and no change summaries. Refer to `000-sample.md` for an initial state sample.
 
 3. **Task Implementation**
@@ -128,11 +128,11 @@ The Structure-First Approach is a development methodology that **completes the o
 
 4. **Task Completion & Roadmap Update**
 
-- Update `/tasks/XXX-description.md` task file:
+- Update `docs/tasks/XXX-description.md` task file:
   - Mark completed items with `[x]` checkboxes
   - Fill in the Change History table with date and changes summary
 - Mark completed tasks with ✅ in ROADMAP.md
-- Add `**Must** Read:` reference link to completed tasks
+- The `**Must** Read:` link is already present from creation time — leave it intact (do NOT add it here)
 
 ## Development Phases
 
@@ -141,6 +141,7 @@ The Structure-First Approach is a development methodology that **completes the o
 - **Task 001: Project Structure and Routing Setup** - Priority
   - blockedBy: none
   - blocks: Task 002, Task 003
+  - **Must** Read: [001-route-structure.md](/docs/tasks/001-route-structure.md)
   - Create entire route structure based on Next.js App Router
   - Create empty shell files for all major pages
   - Implement common layout component skeleton
@@ -148,6 +149,7 @@ The Structure-First Approach is a development methodology that **completes the o
 - **Task 002: Type Definitions and Interface Design**
   - blockedBy: Task 001
   - blocks: Task 003, Task 005
+  - **Must** Read: [002-type-definitions.md](/docs/tasks/002-type-definitions.md)
   - Create TypeScript interface and type definition files
   - Design database schema (implementation excluded)
   - Define API response types
@@ -157,7 +159,7 @@ The Structure-First Approach is a development methodology that **completes the o
 - **Task 003: Common Component Library Implementation** ✅ - Completed
   - blockedBy: Task 001, Task 002
   - blocks: Task 004
-  - **Must** Read: [003-component-library.md](/tasks/003-component-library.md)
+  - **Must** Read: [003-component-library.md](/docs/tasks/003-component-library.md)
   - ✅ Implement common components based on shadcn/ui
   - ✅ Apply design system and style guide
   - ✅ Write dummy data generation and management utilities
@@ -165,7 +167,7 @@ The Structure-First Approach is a development methodology that **completes the o
 - **Task 004: Complete All Page UIs** ✅ - Completed
   - blockedBy: Task 003
   - blocks: Task 005, Task 006
-  - **Must** Read: [004-page-ui.md](/tasks/004-page-ui.md)
+  - **Must** Read: [004-page-ui.md](/docs/tasks/004-page-ui.md)
   - ✅ Implement all page component UIs (using hardcoded dummy data)
   - ✅ Responsive design and mobile optimization
   - ✅ User flow verification and navigation completion
@@ -175,6 +177,7 @@ The Structure-First Approach is a development methodology that **completes the o
 - **Task 005: Database and API Development** - Priority
   - blockedBy: Task 002, Task 004
   - blocks: Task 006, Task 007
+  - **Must** Read: [005-database-api.md](/docs/tasks/005-database-api.md)
   - Build database and configure ORM
   - Implement RESTful API or GraphQL API
   - Replace dummy data with actual API calls
@@ -182,6 +185,7 @@ The Structure-First Approach is a development methodology that **completes the o
 - **Task 006: Authentication and Authorization System Implementation**
   - blockedBy: Task 004, Task 005
   - blocks: Task 007
+  - **Must** Read: [006-auth-system.md](/docs/tasks/006-auth-system.md)
   - Build user authentication system
   - Implement role-based access control
   - Security middleware and session management
@@ -191,6 +195,7 @@ The Structure-First Approach is a development methodology that **completes the o
 - **Task 007: Additional Features and User Experience Enhancement**
   - blockedBy: Task 005, Task 006
   - blocks: Task 008
+  - **Must** Read: [007-advanced-features.md](/docs/tasks/007-advanced-features.md)
   - Implement advanced user features
   - Real-time features (WebSocket, SSE, etc.)
   - File upload and media processing
@@ -198,6 +203,7 @@ The Structure-First Approach is a development methodology that **completes the o
 - **Task 008: Performance Optimization and Deployment**
   - blockedBy: Task 007
   - blocks: none
+  - **Must** Read: [008-perf-deploy.md](/docs/tasks/008-perf-deploy.md)
   - Implement performance optimization and caching strategies
   - Build CI/CD pipeline
   - Configure monitoring and logging system
@@ -236,7 +242,7 @@ The Structure-First Approach is a development methodology that **completes the o
 2. **Scope**: Break down into units completable within 1-2 weeks
 3. **Independence**: Maintain minimal dependencies with other Tasks
 4. **Specificity**: Specify concrete features rather than abstract expressions
-5. **Language**: Task files (`/tasks/XXX-description.md`) should be written in **English**
+5. **Language**: Task files (`docs/tasks/XXX-description.md`) should be written in **English**
    - All sections including Overview, Acceptance Criteria, Implementation Steps, and Notes should be in English
 6. **Dependency Management**:
    - **blockedBy**: List tasks that MUST be completed before this task can start
@@ -251,7 +257,8 @@ The Structure-First Approach is a development methodology that **completes the o
   - **Phase Title Only**: In-progress or pending Phase
 
 - **Task Status**:
-  - **✅ - Completed**: Completed task (add `**Must** Read: [filename](/tasks/XXX-xxx.md)` reference when completed)
+  - **Every task** (regardless of status) MUST include `**Must** Read: [filename](/docs/tasks/XXX-xxx.md)` as the FIRST sub-bullet, immediately after `blocks:`. This is added at ROADMAP creation time, not at completion.
+  - **✅ - Completed**: Completed task
   - **- Priority**: Task that should start immediately
   - **No Status**: Pending task
 
@@ -307,17 +314,28 @@ Verify that the generated ROADMAP.md meets the following criteria:
 
 You MUST generate the following files in this exact order:
 
+#### ⚠️ Path Resolution (READ FIRST)
+
+All paths below are **relative to the repository root** (the directory containing `package.json` / `CLAUDE.md`), NOT the filesystem root (`/`).
+
+- `<repo-root>/docs/ROADMAP.md` ✅
+- `<repo-root>/docs/tasks/000-sample.md` ✅ — `tasks/` lives **inside `docs/`**
+- `/tasks/...` ❌ — never write to filesystem root
+- `<repo-root>/tasks/...` ❌ — legacy location, do not use
+
+If `docs/tasks/` does not exist, create it. Use `Write` with the absolute path resolved from the current working directory.
+
 #### 1. ROADMAP.md
-- Path: `/docs/ROADMAP.md`
+- Path: `<repo-root>/docs/ROADMAP.md`
 - Follow the structure and guidelines defined above
 
 #### 2. Task Template File
-- Path: `/tasks/000-sample.md`
+- Path: `<repo-root>/docs/tasks/000-sample.md`
 - Create an English-language template file that new tasks can reference
 - Include all sections: Overview, Related Features, Related Files, Acceptance Criteria, Implementation Steps, Notes, Change History
 
 #### 3. Individual Task Files
-- Path: `/tasks/XXX-description.md` for each task defined in ROADMAP.md
+- Path: `<repo-root>/docs/tasks/XXX-description.md` for each task defined in ROADMAP.md
 - Generate a task file for **every** task declared in ROADMAP.md Development Phases — none may be skipped
 - Each task file must:
   - Be written in English following the 000-sample.md template structure
@@ -327,12 +345,27 @@ You MUST generate the following files in this exact order:
   - Leave Change History empty (to be filled when completed)
 
 **Example**: If ROADMAP.md defines Task 001 through Task 017, you must create:
-- `/tasks/001-route-structure.md`
-- `/tasks/002-type-definitions.md`
+- `<repo-root>/docs/tasks/001-route-structure.md`
+- `<repo-root>/docs/tasks/002-type-definitions.md`
 - ... (continue for all tasks)
-- `/tasks/017-final-qa.md`
+- `<repo-root>/docs/tasks/017-final-qa.md`
 
 **IMPORTANT**: Do NOT stop after creating ROADMAP.md. Continue generating ALL task files before completing the task.
+
+#### 🔍 Self-Verification Before Reporting Completion (MANDATORY)
+
+Before returning your final response, you MUST execute this verification loop:
+
+1. Run `Glob` with pattern `docs/tasks/*.md` from the repository root.
+2. Count the returned files. Expected count = (number of tasks defined in ROADMAP.md Development Phases) + 1 (for `000-sample.md`).
+3. If count < expected:
+   - Identify which task files are missing by cross-referencing ROADMAP.md task IDs against the Glob results.
+   - **Resume generation immediately** — create the missing task files using `Write`.
+   - Re-run the Glob check.
+4. If count matches expected, run a final `Glob` on `tasks/*.md` (repo root) to confirm NO files were accidentally created in the legacy location. If any exist, move their contents to `docs/tasks/` and delete the misplaced files.
+5. Only after both checks pass, report completion to the user with a summary listing every generated file path.
+
+**Do NOT** report "ROADMAP.md and task files generated" without performing this verification. Context budget pressure is not a valid reason to skip task file generation — if the budget is tight, generate task files in smaller batches across multiple tool calls, but NEVER terminate early with task files missing.
 
 ---
 
