@@ -224,20 +224,21 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
   - 진행 메모: 4-cycle TDD (Project → Post → Legal → Refactor). velite 0.3.1 typegen이 Zod 3 internal 타입을 노출시켜 TS4082 폭발 → `scripts/patch-velite-types.mjs`로 `.velite/index.d.ts` clean override (velite:build에 chained). vitest `resolve.tsconfigPaths` 활성화로 `~` alias 동작. 공통 헬퍼 3개(`assertExists`, `sortByDateDesc`, `findAdjacent`) 추출. code-reviewer Medium fix: cache `Object.freeze` + defensive copy(`[...cache]`).
   - PR 1개 / 브랜치: `feature/issue-29-content-ports-repos` / Issue #29
 
-- [ ] **Task 009: DI Container (Composition Root) + workers/app.ts wiring + getLoadContext**
+- [x] **Task 009: DI Container (Composition Root) + workers/app.ts wiring + AppLoadContext**
   - **Must** Read: [tasks/T009-di-container.md](tasks/T009-di-container.md)
   - blockedBy: Task 008
   - blocks: Task 010, Task 011, Task 012, Task 013, Task 014, Task 015, Task 016, Task 017
   - Layer: Infrastructure (config) + Platform Adapter (workers/)
   - 관련 Feature: 전반 (모든 유스케이스 주입 통로)
   - 관련 AC: 없음 (유스케이스 주입 정확성 → Phase 3 라우트 테스트로 간접 검증)
-  - 검증: `app/infrastructure/config/__tests__/container.test.ts` — 모든 등록 service가 의도한 인터페이스를 만족함을 type-level + runtime으로 확인. `wrangler dev`에서 페이지 loader가 container 호출 성공.
+  - 검증: `app/infrastructure/config/__tests__/container.test.ts` — 6개 service 위임 + ProjectNotFoundError 전파 확인. `bun run test` 94 passed / typecheck / lint Green.
   - 산출물:
-    - `app/infrastructure/config/container.ts` — `type Container = {...}` + `function buildContainer(env): Container` (수제 Plain object)
-    - `workers/app.ts` — `getLoadContext: () => ({ container: buildContainer(env) })`
-    - `app/env.d.ts` — `interface AppLoadContext { container: Container }`
+    - `app/infrastructure/config/container.ts` — `type Container = {...}` + `buildContainer(env): Container` (수제 Plain object)
+    - `workers/app.ts` — `requestHandler(request, { cloudflare, container: buildContainer(env) })`
+    - `app/env.d.ts` — `interface AppLoadContext { cloudflare; container }` (SSOT)
   - 가정 해소: D2 확인 (수제 DI 채택)
-  - PR 1개 / 브랜치: `feature/issue-N-di-container`
+  - 진행 메모: task spec의 `getLoadContext`는 Vite 플러그인 패턴이고 본 프로젝트는 Workers `fetch` 핸들러 패턴이라 두 번째 인자 객체에 직접 주입. AppLoadContext SSOT를 `app/env.d.ts`로 이전 (workers/app.ts inline declare 제거). Velite repo는 task spec 약식 표기(`new ...Repository()`)와 달리 singleton const라 직접 import. `_env` prefix는 T017(Resend/Turnstile/KV) 도입 시 활성화 예정.
+  - PR 1개 / 브랜치: `feature/issue-31-di-container` / Issue #31
 
 ---
 
