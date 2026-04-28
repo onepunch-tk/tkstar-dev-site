@@ -1,9 +1,12 @@
-# ClaudeCode & React Router Framework Starterkit
+# tkstarDev — 1인 기업 개인 브랜드 사이트
 
 ## Project Overview
-- **Service Name**: [your service name]
-- **Goal**: [Problem to solve and value to provide]
-- **Target Users**: [Primary user target]
+- **Service Name**: tkstarDev (`tkstar.dev`)
+- **Goal**: 1인 기업(개발자)의 개인 브랜드 웹사이트로, 사이트 자체가 이력서 역할을 하며 B2B(기업/HR) 채용 제안과 B2C(프리랜서 플랫폼) 의뢰 모두를 단일 도메인에서 수렴. 주 네비게이션은 검색 중심(Cmd+K Command Palette)이며, 청중 분기는 별도 CTA가 아닌 콘텐츠 라우팅(About → B2B / Projects → B2C)으로 자연 수렴.
+- **Target Users**:
+  - **B2B**: 기업 채용/HR 담당자, B2B 프리랜서 PM (이력·기술 깊이·신뢰성 검토)
+  - **B2C**: 크몽 등 프리랜서 플랫폼 유입 클라이언트 (결과물·후기·문제 해결 능력 검토)
+- **Scope Note**: 콘텐츠 100% static (DB 없음). 한국어 only (i18n 없음). 결제/가격 페이지 없음 (메일 문의로 대체). 모든 콘텐츠는 velite + MDX로 빌드 타임 정적 생성.
 - **My Role**: PM
 
 ## Core Principles
@@ -17,9 +20,60 @@
 > **Goal-Driven Execution**: Transform tasks into verifiable success criteria. Reject weak criteria like "make it work" — request clarification. Multi-step tasks: state a brief plan with per-step verification. Domain applications: tdd/SKILL.md (Red/Green/Refactor), harness-pipeline phase gates.
 
 ## Tech Stack
-- **Package Manager**: bun
-- **Language**: TypeScript
-- **Lint & Formatter**: biome
+
+### Frontend Framework
+- **React Router 7.14.0** (Framework mode, SSR) — 정적 콘텐츠도 SEO/OG 미리보기를 위해 SSR 사용
+- **React 19.2.4 / React DOM 19.2.4**
+- **TypeScript 5.9.3**
+
+### Styling & UI
+- **TailwindCSS 4.2.2** (`@tailwindcss/vite` 4.2.2) — 디자인 토큰은 `docs/design-system/styles.css`를 `@theme { --color-*, --font-* }`로 이식
+- **다크모드**: `[data-theme='dark|light']` HTML 속성 셀렉터 전략 (Tailwind 클래스 전략 X). `@variant dark (&:where([data-theme='dark'], [data-theme='dark'] *))`
+- **Color**: `oklch()` / `color-mix(in oklab, ...)` native 사용
+- **Animation**: CSS-only (`@keyframes` + `transition: 120ms ease`). Motion 라이브러리 MVP 보류
+
+### Typography
+- **JetBrains Mono** — primary mono 폰트 (전 페이지 본문/UI/코드)
+- **Self-host**: `/public/fonts/JetBrainsMono-*.woff2` + `@font-face` (Workers SSR FOIT 방지)
+
+### Content Pipeline
+- **velite** — MDX 컬렉션 빌더 (Project / Post / AppLegalDoc)
+- **MDX** — 콘텐츠 작성 포맷
+- **shiki** — 코드블록 syntax highlight
+- **Satori** — 빌드/SSR 동적 OG 이미지 생성 (1200×630)
+- **Zod** — frontmatter 스키마 검증 (velite 내장)
+- **rehype-slug** — on-this-page TOC 헤딩 anchor
+
+### Search Index (F016 Cmd+K)
+- velite collection JSON을 클라이언트 번들 import → in-memory 토큰 검색 (별도 라이브러리 없이 includes/score)
+
+### SEO & Indexing
+- **sitemap.xml / robots.txt** — RR7 resource route로 동적 생성
+- **JSON-LD** — schema.org (Person / BlogPosting / CreativeWork / BreadcrumbList)
+- **Meta Tags** — RR7 `meta` export (per-page title/description/canonical/OG/Twitter Card)
+- **Search Engine Verification** — `GOOGLE_SITE_VERIFICATION` / `NAVER_SITE_VERIFICATION` env로 root layout 조건부 렌더
+- **Indexing Policy** — App Terms/Privacy: `noindex, follow` / 404 splat: `noindex, nofollow`
+
+### Forms & Email
+- **React Email** — Contact 자동응답 메일 템플릿
+- **Resend** — Contact form 발신 (`hello@tkstar.dev` → 본인 메일 + 제출자 자동응답). env: `RESEND_API_KEY`
+- **Cloudflare Turnstile** — 스팸 방지. env: `TURNSTILE_SECRET`
+- **Rate Limit** — Workers KV 기반 (`RATE_LIMIT_KV` binding)
+
+### Hosting / Edge
+- **Cloudflare Workers (SSR)** — `wrangler 4.85.0` + `@cloudflare/vite-plugin 1.33.2`
+- **Cloudflare Email Routing** — `hello@tkstar.dev` → 개인 Gmail forward
+- **Cloudflare Web Analytics** — 쿠키 없는 분석 스니펫
+- **Domain**: `tkstar.dev`
+
+### Build / Dev / Quality
+- **Vite 8.0.3** + `@vitejs/plugin-react 6.0.1`
+- **Vitest 4.1.5** + `jsdom 29.1.0` + `@testing-library/react 16.3.2` + `@testing-library/jest-dom 6.9.1` + `@testing-library/dom 10.4.1`
+- **Biome 2.4.13** — Lint & Format
+- **isbot 5.1.36** — SSR 봇 분기
+
+### Package Management
+- **bun** (`bun.lock`)
 
 ## Critical Documents
 - Project Structure [docs/PROJECT-STRUCTURE.md](docs/PROJECT-STRUCTURE.md): **MANDATORY** - Reference before ANY task
