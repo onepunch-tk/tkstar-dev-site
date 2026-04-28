@@ -314,30 +314,44 @@ export default flatRoutes({ rootDirectory: "presentation/routes" }) satisfies Ro
 ```
 
 **Route file conventions (React Router v7 file-based, rootDirectory=presentation/routes)**:
+
+> **그룹화 컨벤션**: 동일 URL prefix를 공유하는 라우트가 **2개 이상**이면 동일 이름의 **디렉토리로 묶는다** (`projects/`, `blog/`, `legal/`, `og/`). 디렉토리 내부에서는 `_index.tsx` (해당 prefix의 인덱스 페이지) / `$slug.tsx` (동적 세그먼트) / 추가 자식 라우트를 평면 구조로 배치한다. 단일 라우트(파일 1개)는 디렉토리로 감싸지 않고 평면 파일로 둔다 (`about.tsx`, `contact.tsx`). 리소스 라우트 중 prefix를 공유하지 않는 것(`rss[.xml].tsx`, `sitemap[.xml].tsx`, `robots[.txt].tsx`)도 평면 파일로 유지한다.
+>
+> **flatRoutes 호환성**: `@react-router/fs-routes`의 `flatRoutes`는 도트 컨벤션(`projects.$slug.tsx`)과 동일한 의미로 **디렉토리 분기**(`projects/$slug.tsx`)를 인식한다. 디렉토리 그룹화는 라우팅 동작을 바꾸지 않으며 순수히 정리용이다 ([React Router File Route Conventions](https://reactrouter.com/how-to/file-route-conventions)).
+
 ```
 app/presentation/routes/
 ├── _index.tsx                        # Home (`/`) — Hero whoami + Featured + Recent Posts
-├── about.tsx                         # `/about` — 이력서 + PDF 인쇄 듀얼 레이아웃
-├── projects._index.tsx               # `/projects` — ls-style 행 리스트 + 태그 필터
-├── projects.$slug.tsx                # `/projects/:slug` — Case Study + sticky sidebar
-├── blog._index.tsx                   # `/blog` — 발행일 역순 + 태그 필터
-├── blog.$slug.tsx                    # `/blog/:slug` — sticky sidebar (TOC + share)
-├── contact.tsx                       # `/contact` — Form + Resend + Turnstile
-├── legal._index.tsx                  # `/legal` — 출시 앱 목록 (chrome 노출)
-├── legal.$app.terms.tsx              # `/legal/:app/terms` — chrome-free
-├── legal.$app.privacy.tsx            # `/legal/:app/privacy` — chrome-free
-├── rss[.xml].tsx                     # `/rss.xml` — RSS 2.0 XML resource route
-├── sitemap[.xml].tsx                 # `/sitemap.xml` — F018 sitemap resource route
-├── robots[.txt].tsx                  # `/robots.txt` — F018 robots resource route
-├── og.projects.$slug[.png].tsx       # `/og/projects/:slug.png` — Satori PNG resource route
-├── og.blog.$slug[.png].tsx           # `/og/blog/:slug.png` — Satori PNG resource route
+├── about.tsx                         # `/about` — 이력서 + PDF 인쇄 듀얼 레이아웃 (단일 라우트 → 평면)
+├── contact.tsx                       # `/contact` — Form + Resend + Turnstile (단일 라우트 → 평면)
+├── projects/                         # `/projects` 그룹 (라우트 2개 → 디렉토리)
+│   ├── _index.tsx                    # `/projects` — ls-style 행 리스트 + 태그 필터
+│   └── $slug.tsx                     # `/projects/:slug` — Case Study + sticky sidebar
+├── blog/                             # `/blog` 그룹 (라우트 2개 → 디렉토리)
+│   ├── _index.tsx                    # `/blog` — 발행일 역순 + 태그 필터
+│   └── $slug.tsx                     # `/blog/:slug` — sticky sidebar (TOC + share)
+├── legal/                            # `/legal` 그룹 (라우트 3개 → 디렉토리)
+│   ├── _index.tsx                    # `/legal` — 출시 앱 목록 (chrome 노출)
+│   ├── $app.terms.tsx                # `/legal/:app/terms` — chrome-free
+│   └── $app.privacy.tsx              # `/legal/:app/privacy` — chrome-free
+├── og/                               # `/og/*` 리소스 그룹 (PNG 2개 → 디렉토리)
+│   ├── projects.$slug[.png].tsx      # `/og/projects/:slug.png` — Satori PNG resource route
+│   └── blog.$slug[.png].tsx          # `/og/blog/:slug.png` — Satori PNG resource route
+├── rss[.xml].tsx                     # `/rss.xml` — RSS 2.0 XML resource route (단일 → 평면)
+├── sitemap[.xml].tsx                 # `/sitemap.xml` — F018 sitemap resource route (단일 → 평면)
+├── robots[.txt].tsx                  # `/robots.txt` — F018 robots resource route (단일 → 평면)
 └── $.tsx                             # splat — Not Found Fallback (터미널 메타포)
 ```
+
+**Migration rule (라우트 추가 시)**:
+1. 기존 평면 라우트(예: `about.tsx`)에 두 번째 자식 라우트가 추가되는 순간 → 동명 디렉토리(`about/`)로 승격하고 기존 파일을 `about/_index.tsx`로 이동한다.
+2. 디렉토리 내부에서 다시 손자 prefix가 2개 이상 누적되면 동일 규칙을 재귀적으로 적용한다 (예: `legal/$app/terms.tsx` + `legal/$app/privacy.tsx` → 추후 `legal/$app/` 디렉토리 분리).
+3. **단일 그룹은 디렉토리로 감싸지 않는다**. 일관성보다 시각적 노이즈 최소화를 우선.
 
 **loader / action 패턴**:
 - `loader({ context })`에서 `context.container.get('listProjects')` 등으로 유스케이스를 꺼내 실행
 - `action({ context, request })`에서 `context.container.get('submitContactForm')` 호출 (Contact)
-- 리소스 라우트(`rss[.xml]`, `og.*[.png]`)는 컴포넌트 export 없이 `loader`만 export하여 Response를 직접 반환
+- 리소스 라우트(`rss[.xml]`, `og/*[.png]`)는 컴포넌트 export 없이 `loader`만 export하여 Response를 직접 반환
 
 ---
 
@@ -500,7 +514,7 @@ content/
 
 **Usage example**:
 ```typescript
-// app/presentation/routes/projects.$slug.tsx
+// app/presentation/routes/projects/$slug.tsx
 import type { Project } from "~/domain/project/project.entity";
 import { ProjectMetaSidebar } from "~/presentation/components/project/ProjectMetaSidebar";
 // loader에서 context.container.get("getProjectDetail") 호출
@@ -551,7 +565,7 @@ Infrastructure (infrastructure/)  ← workers/app.ts (Composition Root) wires ev
 | Concern | Layer | Module |
 |---------|-------|--------|
 | F010 다크모드 (`[data-theme]` + `proto-theme` localStorage) | Presentation | `presentation/hooks/useTheme.ts` + `root.tsx` |
-| F011 Satori OG 이미지 | Application Port + Infrastructure 구현 (Asset Binding) + Resource Route | `application/og/` + `infrastructure/og/satori-og-renderer.ts` (env.ASSETS Fetcher 주입) + `presentation/routes/og.*[.png].tsx` |
+| F011 Satori OG 이미지 | Application Port + Infrastructure 구현 (Asset Binding) + Resource Route | `application/og/` + `infrastructure/og/satori-og-renderer.ts` (env.ASSETS Fetcher 주입) + `presentation/routes/og/*[.png].tsx` |
 | F012 RSS | Application 유스케이스 + Resource Route | `application/feed/services/build-rss-feed.service.ts` + `presentation/routes/rss[.xml].tsx` |
 | F013 Cloudflare Web Analytics | Presentation 스니펫 | `root.tsx` |
 | F016 Cmd+K Command Palette | Application 빌드 서비스 + Presentation(UI) | `application/search/services/build-search-index.service.ts` (→ `public/search-index.json`) + `presentation/components/palette/CommandPalette.tsx` (lazy fetch) |
@@ -568,6 +582,7 @@ Infrastructure (infrastructure/)  ← workers/app.ts (Composition Root) wires ev
 ### D1. 라우트 디렉토리: `app/presentation/routes/` (CA Presentation 내부)
 - `app/routes.ts`에서 `flatRoutes({ rootDirectory: "presentation/routes" })`로 등록 — file convention 자동 추론 + CA 가시성 둘 다 확보
 - 라우트 모듈은 반드시 `appDirectory`(=`app/`) 내부에 위치 — typegen 정상 동작 조건 ([Issue #12993](https://github.com/remix-run/react-router/issues/12993))
+- **그룹화 규칙**: 동일 prefix를 공유하는 라우트가 2개 이상이면 동명 디렉토리로 묶고, 내부에서 `_index.tsx` / `$slug.tsx` 등 file convention을 그대로 사용한다. 단일 라우트는 평면 파일로 유지 (시각 노이즈 최소화)
 - **근거**: [React Router File Route Conventions](https://reactrouter.com/how-to/file-route-conventions), [Type Safety](https://reactrouter.com/explanation/type-safety)
 
 ### D2. DI 컨테이너: 수제 Plain object/Map
