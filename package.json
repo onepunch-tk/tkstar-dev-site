@@ -16,6 +16,11 @@
 		"test": "vitest run",
 		"test:watch": "vitest",
 		"test:coverage": "vitest run --coverage",
+		"velite:build": "velite build",
+		"predev": "velite build",
+		"prebuild": "velite build",
+		"prestart": "velite build",
+		"pretest": "velite build",
 		"postinstall": "wrangler types"
 	},
 	"dependencies": {
@@ -30,6 +35,7 @@
 		"@cloudflare/vite-plugin": "^1.33.2",
 		"@react-router/dev": "7.14.0",
 		"@react-router/fs-routes": "7.14.0",
+		"@shikijs/rehype": "^4.0.2",
 		"@tailwindcss/vite": "^4.2.2",
 		"@testing-library/dom": "^10.4.1",
 		"@testing-library/jest-dom": "^6.9.1",
@@ -40,8 +46,11 @@
 		"@vitejs/plugin-react": "^6.0.1",
 		"@vitest/coverage-v8": "4.1.5",
 		"jsdom": "^29.1.0",
+		"rehype-slug": "^6.0.0",
+		"shiki": "^4.0.2",
 		"tailwindcss": "^4.2.2",
 		"typescript": "^5.9.3",
+		"velite": "^0.3.1",
 		"vite": "^8.0.3",
 		"vitest": "^4.1.5",
 		"wrangler": "^4.85.0"

@@ -1,0 +1,27 @@
+---
+slug: example-project
+title: Example Project
+summary: Phase 2 진입을 검증하기 위한 seed 프로젝트.
+date: 2026-04-28
+tags: [seed, infra]
+stack: [TypeScript, React Router, Cloudflare Workers]
+metrics:
+  - [Build, "0 errors"]
+  - [Tests, "All Green"]
+featured: true
+---
+
+## Problem
+
+콘텐츠 파이프라인이 동작하는지 1차 검증한다.
+
+## Approach
+
+velite + shiki + rehype-slug 를 도입하여 `.velite/projects.json` 산출물을 만든다.
+
+## Results
+
+```ts
+const result: Project = veliteOutput.projects[0];
+console.log(result.slug); // "example-project"
+```

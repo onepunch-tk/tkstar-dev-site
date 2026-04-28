@@ -24,7 +24,9 @@
 			"~/domain/*": ["./app/domain/*"],
 			"~/application/*": ["./app/application/*"],
 			"~/infrastructure/*": ["./app/infrastructure/*"],
-			"~/presentation/*": ["./app/presentation/*"]
+			"~/presentation/*": ["./app/presentation/*"],
+			"#content": ["./.velite"],
+			"#content/*": ["./.velite/*"]
 		},
 		"esModuleInterop": true,
 		"resolveJsonModule": true

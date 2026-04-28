@@ -175,23 +175,27 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
 > **진입 조건**: Phase 1 완료 (Domain schema 확정)
 > **완료 조건 (DoD)**: `bunx velite build` 성공 → `.velite/{projects,posts,legal}.json` 생성 → Infrastructure Repository가 Domain Entity 배열 반환 → Application service `__tests__/` 모두 Green. seed 콘텐츠 (프로젝트 1개, 포스트 1개, legal/apps/moai 1쌍) 작성.
 
-- [ ] **Task 007: velite 설치 + 컬렉션 정의 + seed 콘텐츠 + shiki 코드블록**
+- [x] ✅ **Task 007: velite 설치 + 컬렉션 정의 + seed 콘텐츠 + shiki 코드블록**
   - **Must** Read: [tasks/T007-velite-content-pipeline.md](tasks/T007-velite-content-pipeline.md)
   - blockedBy: Task 006
   - blocks: Task 008
   - Layer: Infrastructure (build-time ETL) + content/
   - 관련 Feature: F004, F005, F006, F007, F014 (콘텐츠 정본)
   - 관련 AC: 없음 (빌드 산출물 검증은 정상 build로 충분)
-  - 검증: `bunx velite build` 성공, `.velite/projects.json` `.velite/posts.json` `.velite/legal.json` 생성, frontmatter Zod 위반 콘텐츠 추가 시 build 실패
+  - 검증: `bunx velite build` 성공, `.velite/projects.json` `.velite/posts.json` `.velite/legal.json` 생성, frontmatter Zod 위반 콘텐츠 추가 시 build 실패 ("Expected array, received string" 검증 완료)
   - 산출물:
-    - `velite.config.ts` — Domain `*.schema.ts`를 그대로 import하여 컬렉션 정의 (스키마 1개 정본)
-    - rehype 플러그인: `rehype-slug` (헤딩 anchor — A002 해소 1단계), shiki(code highlight)
+    - `velite.config.ts` — D1: Domain Zod 4 ↔ velite Zod 3 internal 충돌 회피를 위해 `s` 헬퍼로 schema shape 미러링 (스키마 중복 OK, T008 mapper에서 drift 재검증)
+    - rehype 플러그인: `rehype-slug` (헤딩 anchor — A002 해소 1단계), `@shikijs/rehype` (theme: github-dark, MVP 단일)
     - `content/projects/example-project.mdx` (seed)
     - `content/posts/2026-04-shipping-solo.mdx` (seed)
-    - `content/legal/apps/moai/{terms.mdx, privacy.mdx}` (seed, 빈 본문 + frontmatter만)
-    - `app/presentation/components/content/{MdxRenderer.tsx, CodeBlock.tsx}` (shiki 결과 외곽 컨테이너)
+    - `content/legal/apps/moai/{terms.mdx, privacy.mdx}` (seed, placeholder 본문 + frontmatter)
+    - `app/presentation/components/content/MdxRenderer.tsx` (D2: 자체 `evaluateMdxBody` 12 LOC, mdx-bundler 회피)
+    - `package.json` lifecycle scripts (`predev`/`prebuild`/`prestart`/`pretest`) — stale `.velite/` 회귀 차단
+    - `tsconfig.cloudflare.json` `#content` / `#content/*` path alias
+    - `wrangler.toml` 운영 노트 — `new Function` SSR / 향후 CSP unsafe-eval 영향 cross-link
   - 가정 해소: A006(velite/shiki 설치), A002 1단계(rehype-slug), A007(검색 인덱스는 별도 라이브러리 미사용 — Task 016에서 확정)
-  - PR 1개 / 브랜치: `feature/issue-N-velite-content-pipeline`
+  - 후속 follow-up (deferred from review): Medium #3 `project.schema.ts` date 약한 검증 (T006 owner), Medium #4 legal seed placeholder 본문, Low #5 tsconfig include velite.config.ts (별도 `tsconfig.node.json` 필요), Low #7 shiki rehype `as any` 좁히기
+  - PR 1개 / 브랜치: `feature/issue-27-velite-content-pipeline` / Issue #27
 
 - [ ] **Task 008: Application Ports + Content Repositories (Infrastructure 구현)**
   - **Must** Read: [tasks/T008-content-ports-repos.md](tasks/T008-content-ports-repos.md)

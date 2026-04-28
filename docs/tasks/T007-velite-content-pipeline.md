@@ -5,13 +5,14 @@
 | **Task ID** | T007 |
 | **Phase** | Phase 2 — Content Pipeline |
 | **Layer** | Infrastructure (build-time ETL) + `content/` |
-| **Branch** | `feature/issue-N-velite-content-pipeline` |
+| **Branch** | `feature/issue-27-velite-content-pipeline` |
+| **GitHub Issue** | #27 |
 | **Depends on** | T006 |
 | **Blocks** | T008 |
 | **PRD Features** | F004, F005, F006, F007, F014 (콘텐츠 정본) |
 | **PRD AC** | — (빌드 산출물 정상 build로 검증) |
 | **예상 작업 시간** | 1d |
-| **Status** | Not Started |
+| **Status** | ✅ Done |
 
 ## Goal
 velite를 도입하여 `content/{projects,posts,legal/apps}/**/*.mdx`를 빌드 타임에 Zod 검증 → `.velite/` JSON 출력하는 ETL 파이프라인을 가동시키고, shiki + rehype-slug 플러그인으로 코드블록 highlight + 헤딩 anchor를 동시에 갖춘다. seed 콘텐츠 3종을 작성한다 (가정 A002 1단계, A006 해소).
@@ -38,13 +39,13 @@ velite를 도입하여 `content/{projects,posts,legal/apps}/**/*.mdx`를 빌드 
 - Satori OG 이미지 (T018)
 
 ## Acceptance Criteria
-- [ ] `bunx velite build` 성공 → `.velite/{projects,posts,legal}.json` 생성
-- [ ] `.velite/projects.json`에 seed `example-project`가 포함되고 frontmatter 필드(slug/title/summary/date/tags/stack/metrics)가 모두 매핑됨
-- [ ] frontmatter Zod 위반 콘텐츠(예: `metrics`를 string으로 작성)를 추가하면 `velite build`가 실패
-- [ ] seed MDX의 코드블록(```ts ... ```)이 shiki로 highlight되어 `<pre>` HTML 안에 토큰별 `<span style="color: ...">`가 들어감
-- [ ] seed MDX의 `## ...` 헤딩에 rehype-slug가 `id` 속성을 자동 부여
-- [ ] `MdxRenderer` 컴포넌트가 velite body(`code` HTML 또는 `MDXComponent`)를 React로 렌더 가능
-- [ ] `bun run typecheck` + `bun run lint` 통과
+- [x] `bunx velite build` 성공 → `.velite/{projects,posts,legal}.json` 생성 (3+1+2 entries)
+- [x] `.velite/projects.json`에 seed `example-project`가 포함되고 frontmatter 필드(slug/title/summary/date/tags/stack/metrics)가 모두 매핑됨
+- [x] frontmatter Zod 위반 콘텐츠(`tags: "not-an-array"`)를 추가하면 `velite build`가 "Expected array, received string"으로 실패
+- [x] seed MDX의 코드블록이 shiki로 highlight되어 body function-body에 13개 color token (`color:"#...."`) 포함
+- [x] seed MDX의 `## ...` 헤딩에 rehype-slug가 `id` 속성을 자동 부여 (한국어 anchor `id:"제1조-수집-항목"` 검증)
+- [x] `MdxRenderer` 컴포넌트가 velite body function-body를 React로 렌더 (`evaluateMdxBody`로 평가)
+- [x] `bun run typecheck` + `bun run lint` + `bun run test` (44/44 Green) 통과
 
 ## Implementation Plan (TDD Cycle)
 
@@ -135,4 +136,4 @@ velite를 도입하여 `content/{projects,posts,legal/apps}/**/*.mdx`를 빌드 
 ## Change History
 | Date | Changes | Author |
 |------|---------|--------|
-| - | - | - |
+| 2026-04-28 | T007 완료 — velite 0.3.1 + shiki 4.0.2 + @shikijs/rehype 4.0.2 + rehype-slug 6.0.0 도입. D1: Domain Zod 4 ↔ velite Zod 3 internal 충돌 회피를 위해 schema shape 미러링. D2: 자체 `evaluateMdxBody` 12 LOC로 mdx-bundler 회피. D3: predev/prebuild/prestart/pretest lifecycle hooks. D4: `#content` path alias. D5: shiki theme `github-dark` 단일 (MVP). seed 4개 (project 1, post 1, legal 2). Manual verify: `tags: "not-an-array"` 주입 → "Expected array, received string" reject. lint/typecheck/test (44/44) Green. Code review verdict: Approve with minor changes — High #1 (wrangler.toml 운영 노트), Medium #2 (CodeBlock dead code 삭제), Low #6 (`useMDXComponent` → `evaluateMdxBody`), Low #8 (velite script dedupe) 즉시 반영. Medium #3/#4 + Low #5/#7 follow-up 등록. 가정 A002 1단계 + A006 해소. Branch `feature/issue-27-velite-content-pipeline`. Issue #27. | TaekyungHa |
