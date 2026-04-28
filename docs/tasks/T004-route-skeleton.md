@@ -11,7 +11,7 @@
 | **PRD Features** | F014 (chrome-free), F018/F019 (root layout meta 자리), Not Found Fallback (splat) |
 | **PRD AC** | — (라우트 placeholder 단계) |
 | **예상 작업 시간** | 1d |
-| **Status** | Not Started |
+| **Status** | Completed |
 
 ## Goal
 PRD의 모든 라우트 13개에 빈 placeholder 모듈을 깔고, chrome / chrome-free 두 레이아웃을 도입하여 후속 페이지 task가 콘텐츠에만 집중할 수 있게 한다. splat(`$.tsx`) 라우트로 Not Found Fallback의 위치를 확정 (가정 A004 해소).
@@ -38,12 +38,12 @@ PRD의 모든 라우트 13개에 빈 placeholder 모듈을 깔고, chrome / chro
 - Resource route 실제 응답 (RSS는 T014a, OG는 T018, Sitemap/Robots는 T019)
 
 ## Acceptance Criteria
-- [ ] `wrangler dev`에서 다음 13개 URL 직접 입력 시 모두 placeholder 응답 (404 아님): `/`, `/about`, `/projects`, `/projects/foo`, `/blog`, `/blog/foo`, `/contact`, `/legal`, `/legal/moai/terms`, `/legal/moai/privacy`, `/rss.xml`, `/sitemap.xml`, `/robots.txt`
-- [ ] 2개 OG resource route URL (`/og/projects/foo.png`, `/og/blog/foo.png`)이 200 응답 (placeholder)
-- [ ] 미존재 경로(`/random-not-exist`) 접속 시 splat이 동작하여 터미널 메타포 placeholder 렌더 (404 페이지가 아님)
-- [ ] `/legal/moai/terms`, `/legal/moai/privacy`만 chrome-free 레이아웃(임시 div로 래핑된) 사용. 나머지는 chrome 레이아웃 (Topbar/Footer placeholder slot 노출)
-- [ ] `bun run typecheck` 통과 (RR7 typegen `.react-router/types/`가 모든 라우트 모듈에 대해 생성)
-- [ ] `bun run lint` 통과
+- [x] `wrangler dev`에서 다음 13개 URL 직접 입력 시 모두 placeholder 응답 (404 아님): `/`, `/about`, `/projects`, `/projects/foo`, `/blog`, `/blog/foo`, `/contact`, `/legal`, `/legal/moai/terms`, `/legal/moai/privacy`, `/rss.xml`, `/sitemap.xml`, `/robots.txt`
+- [x] 2개 OG resource route URL (`/og/projects/foo.png`, `/og/blog/foo.png`)이 200 응답 (placeholder)
+- [x] 미존재 경로(`/random-not-exist`) 접속 시 splat이 동작하여 터미널 메타포 placeholder 렌더 (404 페이지가 아님)
+- [x] `/legal/moai/terms`, `/legal/moai/privacy`만 chrome-free 레이아웃(임시 div로 래핑된) 사용. 나머지는 chrome 레이아웃 (Topbar/Footer placeholder slot 노출)
+- [x] `bun run typecheck` 통과 (RR7 typegen `.react-router/types/`가 모든 라우트 모듈에 대해 생성)
+- [x] `bun run lint` 통과
 
 ## Implementation Plan (TDD Cycle)
 
@@ -137,4 +137,4 @@ PRD의 모든 라우트 13개에 빈 placeholder 모듈을 깔고, chrome / chro
 ## Change History
 | Date | Changes | Author |
 |------|---------|--------|
-| - | - | - |
+| 2026-04-28 | T004 Phase 1~4 완료. 17 라우트 + 2 레이아웃 + root.tsx 분기 구현. 평면 도트 컨벤션으로 라우트 명명 (디렉토리 그룹화는 `@react-router/fs-routes` flatRoutes에서 typegen 누락되어 평면화). 가정 A004 해소 (splat 채택). Issue #16. | TaekyungHa |

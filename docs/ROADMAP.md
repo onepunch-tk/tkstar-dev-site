@@ -54,7 +54,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
 > **진입 조건**: PRD/PROJECT-STRUCTURE 정본 확정 (현재 시점)
 > **완료 조건 (DoD)**: `bun run typecheck`, `bun run lint`, `bun run test`, `bun run dev`(또는 `bun run start`), `bunx wrangler dev`가 모두 무오류 통과. `app/{domain,application,infrastructure,presentation}/` 4-layer 디렉토리가 placeholder index와 함께 존재.
 
-- [ ] **Task 001: 프로젝트 스캐폴딩 + Bun + TypeScript + Biome 셋업**
+- [x] **Task 001: 프로젝트 스캐폴딩 + Bun + TypeScript + Biome 셋업** ✅
   - **Must** Read: [tasks/T001-scaffold-bun-rr7-biome.md](tasks/T001-scaffold-bun-rr7-biome.md)
   - blockedBy: none
   - blocks: Task 002, Task 003
@@ -69,7 +69,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
     - `.gitignore` 보강 (`.velite/`, `.react-router/`, `node_modules/`, `dist/`, `.wrangler/`)
   - PR 1개 / 브랜치: `chore/scaffold-bun-rr7-biome`
 
-- [ ] **Task 002: Clean Architecture 4-layer 디렉토리 골격 + path alias**
+- [x] **Task 002: Clean Architecture 4-layer 디렉토리 골격 + path alias** ✅
   - **Must** Read: [tasks/T002-ca-4layer-skeleton.md](tasks/T002-ca-4layer-skeleton.md)
   - blockedBy: Task 001
   - blocks: Task 004, Task 006, Task 007, Task 008, Task 009
@@ -85,7 +85,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
     - `test/{fixtures,utils}/` 빈 디렉토리
   - PR 1개 / 브랜치: `chore/ca-4layer-skeleton`
 
-- [ ] **Task 003: Vite + React Router v7 Framework + Cloudflare Workers + Tailwind v4 빌드 파이프라인**
+- [x] ✅ **Task 003: Vite + React Router v7 Framework + Cloudflare Workers + Tailwind v4 빌드 파이프라인** (2026-04-28, PR #14)
   - **Must** Read: [tasks/T003-vite-rr7-workers-tailwind-pipeline.md](tasks/T003-vite-rr7-workers-tailwind-pipeline.md)
   - blockedBy: Task 001
   - blocks: Task 004, Task 005, Task 016
@@ -113,7 +113,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
 > **진입 조건**: Phase 0 완료
 > **완료 조건 (DoD)**: 모든 PRD 페이지에 해당하는 빈 라우트 파일이 존재하여 `wrangler dev`로 직접 URL 입력 시 404가 아닌 placeholder 응답. Domain `__tests__/` 안 Zod 스키마 테스트가 모두 Green. `[data-theme]` 토글이 시스템/localStorage 추종으로 동작.
 
-- [ ] **Task 004: 라우트 스켈레톤 13개 + chrome / chrome-free 레이아웃**
+- [x] **Task 004: 라우트 스켈레톤 13개 + chrome / chrome-free 레이아웃**
   - **Must** Read: [tasks/T004-route-skeleton.md](tasks/T004-route-skeleton.md)
   - blockedBy: Task 002, Task 003
   - blocks: Task 010, Task 011, Task 012, Task 013, Task 014, Task 015
@@ -132,7 +132,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
   - 검증 가정 A004 해소 (splat 라우트 채택 — F018/F019의 차등 인덱싱 정책 지원)
   - PR 1개 / 브랜치: `feature/issue-N-route-skeleton`
 
-- [ ] **Task 005: 디자인 토큰 이식 + Tailwind v4 `@theme` + `[data-theme]` dark variant + 다크모드 (F010)**
+- [x] **Task 005: 디자인 토큰 이식 + Tailwind v4 `@theme` + `[data-theme]` dark variant + 다크모드 (F010)** ✅ 2026-04-28 (Issue #19, branch `feature/issue-19-theme-tokens`)
   - **Must** Read: [tasks/T005-theme-tokens.md](tasks/T005-theme-tokens.md)
   - blockedBy: Task 003
   - blocks: Task 010, Task 011, Task 012, Task 013, Task 014, Task 015
@@ -149,7 +149,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
   - TDD: `useTheme.test.ts` (system 추종 / 강제 전환 / localStorage persist) — `__tests__/`
   - PR 1개 / 브랜치: `feature/issue-N-theme-tokens`
 
-- [ ] **Task 006: Domain Schemas — Project / Post / AppLegalDoc / ContactSubmission / ThemePreference**
+- [x] **Task 006: Domain Schemas — Project / Post / AppLegalDoc / ContactSubmission / ThemePreference**
   - **Must** Read: [tasks/T006-domain-schemas.md](tasks/T006-domain-schemas.md)
   - blockedBy: Task 002
   - blocks: Task 007, Task 008, Task 009
@@ -624,7 +624,7 @@ Phase 6: Task 021 (QA) → Task 022 (Deploy)
 
 ## 진행 현황 요약
 
-- [ ] Phase 0: Setup & Toolchain (Task 001~003)
+- [x] Phase 0: Setup & Toolchain (Task 001~003) ✅ 완료 (2026-04-28)
 - [ ] Phase 1: Foundation — Routing Skeleton + Domain Schemas + Theme (Task 004~006)
 - [ ] Phase 2: Content Pipeline — velite + MDX + shiki + Repository (Task 007~009)
 - [ ] Phase 3: Core Pages UI (Task 010~013, 014a, 014b, 015)

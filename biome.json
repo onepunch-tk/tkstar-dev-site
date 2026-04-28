@@ -6,7 +6,7 @@
 		"useIgnoreFile": true
 	},
 	"files": {
-		"includes": ["**", "!**/.react-router", "!**/build", "!**/node_modules"]
+		"includes": ["**", "!**/.react-router", "!**/build", "!**/node_modules", "!**/docs"]
 	},
 	"assist": { "actions": { "source": { "organizeImports": "on" } } },
 	"formatter": {

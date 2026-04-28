@@ -5,6 +5,10 @@
 # React Router
 /.react-router/
 /build/
+/dist/
+
+# Velite
+/.velite/
 
 # Cloudflare Workers
 /.wrangler/
