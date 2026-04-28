@@ -1,7 +1,19 @@
-import { Links, Meta, Outlet, Scripts, ScrollRestoration, isRouteErrorResponse } from "react-router";
+import {
+	Links,
+	Meta,
+	Outlet,
+	Scripts,
+	ScrollRestoration,
+	isRouteErrorResponse,
+	useLocation,
+} from "react-router";
 
 import type { Route } from "./+types/root";
+import ChromeFreeLayout from "./presentation/layouts/ChromeFreeLayout";
+import ChromeLayout from "./presentation/layouts/ChromeLayout";
 import "./app.css";
+
+const CHROME_FREE_PATHNAME = /^\/legal\/[^/]+\/(terms|privacy)$/;
 
 export function Layout({ children }: { children: React.ReactNode }) {
 	return (
@@ -22,7 +34,19 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-	return <Outlet />;
+	const { pathname } = useLocation();
+	if (CHROME_FREE_PATHNAME.test(pathname)) {
+		return (
+			<ChromeFreeLayout>
+				<Outlet />
+			</ChromeFreeLayout>
+		);
+	}
+	return (
+		<ChromeLayout>
+			<Outlet />
+		</ChromeLayout>
+	);
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {

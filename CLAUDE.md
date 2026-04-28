@@ -109,7 +109,9 @@
 | `bun run lint` | Biome lint & format check |
 | `bun run format` | Biome auto-format |
 
-**Presentation test notes**: the `app` project in `jest.config.js` uses `setupFilesAfterEnv` (not `setupFiles`) so `@testing-library/react-native` matchers load after Jest globals. `react-test-renderer` is pinned to an exact version matching `react` (RTL peer-dep guard) — upgrade both together via `bun up react react-test-renderer`.
+**Presentation test notes**: Vitest + jsdom + `@testing-library/react`. `vitest.setup.ts`는 `@testing-library/jest-dom/vitest`를 import하여 `toBeInTheDocument`/`toHaveClass` 등 matcher를 등록한다. 이 matcher 타입이 `app/**/*.test.tsx`에서 인식되려면 `tsconfig.cloudflare.json`의 `include`에 `vitest.setup.ts`가 포함되어 있어야 한다 (T004에서 추가).
+
+> 참고: 위 단락의 이전 버전(Jest + React Native + `react-test-renderer`)은 Expo 스타터 잔재로 본 RR7 프로젝트와 무관 — 추후 정리 예정.
 
 ### Build & Native
 | Command | Description |
