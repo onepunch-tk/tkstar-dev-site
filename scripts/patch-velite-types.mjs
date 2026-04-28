@@ -1,4 +1,5 @@
 import { writeFileSync } from "node:fs";
+import { resolve } from "node:path";
 
 const content = `// Patched by scripts/patch-velite-types.mjs after \`velite build\`.
 // Reason: velite 0.3.1 native typegen does \`import type __vc from '../velite.config.ts'\`
@@ -42,5 +43,6 @@ export type AppLegalDoc = {
 export declare const legal: AppLegalDoc[];
 `;
 
-writeFileSync(".velite/index.d.ts", content);
-console.log("✓ Patched .velite/index.d.ts");
+const target = resolve(import.meta.dirname, "../.velite/index.d.ts");
+writeFileSync(target, content);
+console.log(`✓ Patched ${target}`);

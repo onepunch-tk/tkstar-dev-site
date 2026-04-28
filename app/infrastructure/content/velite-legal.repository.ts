@@ -3,7 +3,7 @@ import type { LegalRepository } from "~/application/content/ports/legal-reposito
 import type { AppLegalDoc } from "~/domain/legal/app-legal-doc.entity";
 import { toAppLegalDoc } from "./mappers/legal.mapper";
 
-const cache: AppLegalDoc[] = legal.map(toAppLegalDoc);
+const cache: readonly AppLegalDoc[] = Object.freeze(legal.map(toAppLegalDoc));
 
 export const veliteLegalRepository: LegalRepository = {
 	async findAppDoc(appSlug, docType) {
