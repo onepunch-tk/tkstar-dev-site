@@ -290,8 +290,11 @@ app/presentation/
 │   ├── format.ts                     # date YYYY-MM 등
 │   └── print.ts                      # F003 — window.print()
 └── layouts/
-    ├── ChromeLayout.tsx              # Topbar + Footer (대부분의 페이지)
-    └── ChromeFreeLayout.tsx          # `.legal` 컨테이너만 (App Terms/Privacy)
+    ├── ChromeLayout.tsx              # Topbar + Footer slot (대부분의 페이지)
+    ├── ChromeFreeLayout.tsx          # `.legal-container` (App Terms/Privacy)
+    └── __tests__/
+        ├── ChromeLayout.test.tsx
+        └── ChromeFreeLayout.test.tsx
 ```
 
 ---
