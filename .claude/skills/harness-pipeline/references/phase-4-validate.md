@@ -38,7 +38,7 @@
 | Substep | Target | Trigger | Action |
 |---------|--------|---------|--------|
 | **14a** | `docs/ROADMAP.md` | Always | Run `development-planner` — mark completed tasks, add `**Must** Read:` link to the current task. |
-| **14b** | `tasks/XXX-*.md` | Always (when ROADMAP `[x]` checked in 14a) | (1) `**Status**` 필드 → `✅ Done` 으로 갱신 (필수), (2) Branch 필드의 `feature/issue-N-…` placeholder를 실제 Issue 번호로 치환, (3) Task file이 브랜치에서 수정된 경우에만 step boxes 체크 + Change History row append. **Enforcement**: `docs-sync-gate.sh` Condition 4가 `scripts/check-task-status-sync.mjs`로 ROADMAP `[x]` ↔ task `Status` drift를 검출하면 PR 생성 차단. |
+| **14b** | `tasks/XXX-*.md` | Always (when ROADMAP `[x]` checked in 14a) | (1) Update `**Status**` field to `✅ Done` (required), (2) Replace the `feature/issue-N-…` placeholder in the Branch field with the actual Issue number, (3) Only when the task file is touched on the branch: check step boxes and append a Change History row. **Enforcement**: `docs-sync-gate.sh` Condition 4 invokes `scripts/check-task-status-sync.mjs` to detect ROADMAP `[x]` ↔ task `Status` drift and blocks PR creation on mismatch. |
 | **14c** | `docs/PROJECT-STRUCTURE.md` | Always | 1. Run `bash .claude/tools/doc-structure-linter.sh --human`. 2. Review the NEW / GHOST / OK categories and their severity tags. 3. Route each item: (a) task-completion drift → `project-structure-analyzer` to reflect; (b) intentional future work → add to Target structure; (c) orphan → delete on disk or document as "reference-only". 4. Include the updates in the docs commit. |
 | **14d** | `CLAUDE.md` | `package.json` / `tsconfig*` / `biome.json(c)` changes on branch | Review for config / dependency drift (commands table, tech-stack entries, tooling sections). |
 
