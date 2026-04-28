@@ -1,9 +1,11 @@
 import { posts } from "#content";
 import type { PostRepository } from "~/application/content/ports/post-repository.port";
 import type { Post } from "~/domain/post/post.entity";
+import { findAdjacent } from "./_shared/find-adjacent";
+import { sortByDateDesc } from "./_shared/sort-by-date-desc";
 import { toPost } from "./mappers/post.mapper";
 
-const cache: Post[] = posts.map(toPost).sort((a, b) => b.date.localeCompare(a.date));
+const cache: Post[] = sortByDateDesc(posts.map(toPost));
 
 export const velitePostRepository: PostRepository = {
 	async findAll() {
@@ -19,11 +21,6 @@ export const velitePostRepository: PostRepository = {
 		return cache.filter((p) => p.tags.includes(tag));
 	},
 	async findRelated(slug) {
-		const idx = cache.findIndex((p) => p.slug === slug);
-		if (idx === -1) return { prev: null, next: null };
-		return {
-			prev: idx > 0 ? cache[idx - 1] : null,
-			next: idx < cache.length - 1 ? cache[idx + 1] : null,
-		};
+		return findAdjacent(cache, slug);
 	},
 };

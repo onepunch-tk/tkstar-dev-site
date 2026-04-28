@@ -1,9 +1,11 @@
 import { projects } from "#content";
 import type { ProjectRepository } from "~/application/content/ports/project-repository.port";
 import type { Project } from "~/domain/project/project.entity";
+import { findAdjacent } from "./_shared/find-adjacent";
+import { sortByDateDesc } from "./_shared/sort-by-date-desc";
 import { toProject } from "./mappers/project.mapper";
 
-const cache: Project[] = projects.map(toProject).sort((a, b) => b.date.localeCompare(a.date));
+const cache: Project[] = sortByDateDesc(projects.map(toProject));
 
 export const veliteProjectRepository: ProjectRepository = {
 	async findAll() {
@@ -16,12 +18,7 @@ export const veliteProjectRepository: ProjectRepository = {
 		return cache.find((p) => p.featured === true) ?? null;
 	},
 	async findRelated(slug) {
-		const idx = cache.findIndex((p) => p.slug === slug);
-		if (idx === -1) return { prev: null, next: null };
-		return {
-			prev: idx > 0 ? cache[idx - 1] : null,
-			next: idx < cache.length - 1 ? cache[idx + 1] : null,
-		};
+		return findAdjacent(cache, slug);
 	},
 	async findByTag(tag) {
 		return cache.filter((p) => p.tags.includes(tag));
