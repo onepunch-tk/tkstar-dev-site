@@ -6,6 +6,7 @@ export const loader = () => {
 	return new Response(bytes, {
 		headers: {
 			"Content-Type": "image/png",
+			// TODO(T018): flip to `public, max-age=..., immutable` once Satori-generated
 			"Cache-Control": "no-store",
 		},
 	});
