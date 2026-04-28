@@ -40,13 +40,13 @@ Application Layer에 3개 Repository Port + 6개 Service(유스케이스)를 정
 - Sitemap service (T019)
 
 ## Acceptance Criteria
-- [ ] `ProjectRepository.findAll()` / `findBySlug(slug)` / `findFeatured()` / `findRelated(slug) → {prev, next}` / `findByTag(tag)` 인터페이스가 정의됨
-- [ ] `PostRepository.findAll()` / `findBySlug(slug)` / `findRecent(n)` / `findByTag(tag)` / `findRelated(slug) → {prev, next}` 정의
-- [ ] `LegalRepository.findAppDoc(app_slug, doc_type)` / `listApps()` 정의
-- [ ] 6개 Service 구현이 mock Repository로 단위 테스트 통과
-- [ ] velite Repository 구현이 fixture `.velite/*.json`을 매핑하여 Domain Entity 배열 반환
-- [ ] `findRelated(slug)`는 발행일/date 기준 정렬 기준으로 인접 항목을 반환 (첫 항목의 prev = null, 마지막 항목의 next = null)
-- [ ] `bun run test` 모든 `__tests__/` Green
+- [x] `ProjectRepository.findAll()` / `findBySlug(slug)` / `findFeatured()` / `findRelated(slug) → {prev, next}` / `findByTag(tag)` 인터페이스가 정의됨
+- [x] `PostRepository.findAll()` / `findBySlug(slug)` / `findRecent(n)` / `findByTag(tag)` / `findRelated(slug) → {prev, next}` 정의
+- [x] `LegalRepository.findAppDoc(app_slug, doc_type)` / `listApps()` 정의
+- [x] 6개 Service 구현이 mock Repository로 단위 테스트 통과
+- [x] velite Repository 구현이 fixture `.velite/*.json`을 매핑하여 Domain Entity 배열 반환
+- [x] `findRelated(slug)`는 발행일/date 기준 정렬 기준으로 인접 항목을 반환 (첫 항목의 prev = null, 마지막 항목의 next = null)
+- [x] `bun run test` 모든 `__tests__/` Green (PR #29 머지 시점 / T009에서도 94 passed 유지)
 
 ## Implementation Plan (TDD Cycle)
 
