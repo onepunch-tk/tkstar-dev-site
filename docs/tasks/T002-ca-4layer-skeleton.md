@@ -11,7 +11,7 @@
 | **PRD Features** | — (구조) |
 | **PRD AC** | — |
 | **예상 작업 시간** | 0.5d |
-| **Status** | Not Started |
+| **Status** | Done |
 
 ## Goal
 PROJECT-STRUCTURE.md에 명시된 Clean Architecture 4-layer(`app/{domain,application,infrastructure,presentation}/`) 디렉토리 골격을 빈 placeholder와 함께 생성하고, path alias가 모든 layer에 정상 동작하도록 한다.
@@ -36,13 +36,13 @@ PROJECT-STRUCTURE.md에 명시된 Clean Architecture 4-layer(`app/{domain,applic
 - `velite.config.ts` / `vite.config.ts` — T003/T007
 
 ## Acceptance Criteria
-- [ ] `app/domain/{project,post,legal,contact,theme}/` 디렉토리가 모두 존재 (각각 `.gitkeep` 또는 `index.ts`)
-- [ ] `app/application/{content,contact,search,og,feed,seo}/{ports,services}/` 디렉토리가 모두 존재
-- [ ] `app/infrastructure/{config,content,email,captcha,og,search,analytics}/` 디렉토리가 모두 존재
-- [ ] `app/presentation/{components,hooks,lib,layouts,routes}/` 디렉토리가 모두 존재
-- [ ] `test/{fixtures,utils}/` 디렉토리가 존재
-- [ ] `bun run typecheck`가 path alias `~/domain/*` 등을 모두 인식
-- [ ] `app/README.md`에 의존성 방향이 1줄 이상으로 문서화
+- [x] `app/domain/{project,post,legal,contact,theme}/` 디렉토리가 모두 존재 (각각 `.gitkeep` 또는 `index.ts`)
+- [x] `app/application/{content,contact,search,og,feed,seo}/{ports,services}/` 디렉토리가 모두 존재
+- [x] `app/infrastructure/{config,content,email,captcha,og,search,analytics}/` 디렉토리가 모두 존재
+- [x] `app/presentation/{components,hooks,lib,layouts,routes}/` 디렉토리가 모두 존재
+- [x] `test/{fixtures,utils}/` 디렉토리가 존재
+- [x] `bun run typecheck`가 path alias `~/domain/*` 등을 모두 인식
+- [x] `app/README.md`에 의존성 방향이 1줄 이상으로 문서화
 
 ## Implementation Plan (TDD Cycle)
 **N/A — chore branch policy.** 디렉토리 구조 자체는 테스트 대상이 아님. `bun run typecheck` 통과로 path alias 정합성을 검증.
@@ -133,4 +133,4 @@ PROJECT-STRUCTURE.md에 명시된 Clean Architecture 4-layer(`app/{domain,applic
 ## Change History
 | Date | Changes | Author |
 |------|---------|--------|
-| - | - | - |
+| 2026-04-28 | T002 PR (#10) — 28개 `.gitkeep` placeholder 생성, T001 split tsconfig 구조에 맞춰 path alias를 `tsconfig.cloudflare.json`에 추가 (태스크 문서의 `tsconfig.app.json` 명세 적응), `app/README.md` 의존성 방향 문서화, Status=Done | TaekyungHa |

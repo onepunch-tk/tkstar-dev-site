@@ -54,7 +54,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
 > **진입 조건**: PRD/PROJECT-STRUCTURE 정본 확정 (현재 시점)
 > **완료 조건 (DoD)**: `bun run typecheck`, `bun run lint`, `bun run test`, `bun run dev`(또는 `bun run start`), `bunx wrangler dev`가 모두 무오류 통과. `app/{domain,application,infrastructure,presentation}/` 4-layer 디렉토리가 placeholder index와 함께 존재.
 
-- [ ] **Task 001: 프로젝트 스캐폴딩 + Bun + TypeScript + Biome 셋업**
+- [x] **Task 001: 프로젝트 스캐폴딩 + Bun + TypeScript + Biome 셋업** ✅
   - **Must** Read: [tasks/T001-scaffold-bun-rr7-biome.md](tasks/T001-scaffold-bun-rr7-biome.md)
   - blockedBy: none
   - blocks: Task 002, Task 003
@@ -69,7 +69,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
     - `.gitignore` 보강 (`.velite/`, `.react-router/`, `node_modules/`, `dist/`, `.wrangler/`)
   - PR 1개 / 브랜치: `chore/scaffold-bun-rr7-biome`
 
-- [ ] **Task 002: Clean Architecture 4-layer 디렉토리 골격 + path alias**
+- [x] **Task 002: Clean Architecture 4-layer 디렉토리 골격 + path alias** ✅
   - **Must** Read: [tasks/T002-ca-4layer-skeleton.md](tasks/T002-ca-4layer-skeleton.md)
   - blockedBy: Task 001
   - blocks: Task 004, Task 006, Task 007, Task 008, Task 009
