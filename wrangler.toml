@@ -1,4 +1,10 @@
 #:schema node_modules/wrangler/config-schema.json
+# NOTE (T007): app/presentation/components/content/MdxRenderer.tsx evaluates
+# velite-produced MDX function-bodies via `new Function(code)` at SSR time.
+# Cloudflare Workers V8 Isolate currently permits this without `unsafe-eval`,
+# but adding a Content-Security-Policy in T015 will REQUIRE
+# `script-src 'unsafe-eval'`, which weakens posture. Re-evaluate then.
+# Input is build-time velite output (trusted boundary) — no user-input path.
 name = "tkstar-dev"
 compatibility_date = "2026-04-27"
 compatibility_flags = ["nodejs_compat"]

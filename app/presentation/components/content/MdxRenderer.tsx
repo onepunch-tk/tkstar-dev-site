@@ -1,7 +1,7 @@
 import { Fragment } from "react";
 import { jsx, jsxs } from "react/jsx-runtime";
 
-const useMDXComponent = (code: string) => {
+const evaluateMdxBody = (code: string) => {
 	const fn = new Function(code);
 	return fn({ Fragment, jsx, jsxs }).default;
 };
@@ -9,6 +9,6 @@ const useMDXComponent = (code: string) => {
 type Props = { code: string };
 
 export default function MdxRenderer({ code }: Props) {
-	const Content = useMDXComponent(code);
+	const Content = evaluateMdxBody(code);
 	return <Content />;
 }
