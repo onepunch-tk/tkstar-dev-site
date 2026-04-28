@@ -38,7 +38,7 @@
 | Substep | Target | Trigger | Action |
 |---------|--------|---------|--------|
 | **14a** | `docs/ROADMAP.md` | Always | Run `development-planner` — mark completed tasks, add `**Must** Read:` link to the current task. |
-| **14b** | `tasks/XXX-*.md` | Task file touched on branch | Check all step boxes, append Change History row (date + what changed). |
+| **14b** | `tasks/XXX-*.md` | Always (when ROADMAP `[x]` checked in 14a) | (1) Update `**Status**` field to `✅ Done` (required), (2) Replace the `feature/issue-N-…` placeholder in the Branch field with the actual Issue number, (3) Only when the task file is touched on the branch: check step boxes and append a Change History row. **Enforcement**: `docs-sync-gate.sh` Condition 4 (inline bash) detects ROADMAP `[x]` ↔ task `Status` drift and blocks PR creation on mismatch. Override: `DOCS_SYNC_SKIP=1` prefix. |
 | **14c** | `docs/PROJECT-STRUCTURE.md` | Always | 1. Run `bash .claude/tools/doc-structure-linter.sh --human`. 2. Review the NEW / GHOST / OK categories and their severity tags. 3. Route each item: (a) task-completion drift → `project-structure-analyzer` to reflect; (b) intentional future work → add to Target structure; (c) orphan → delete on disk or document as "reference-only". 4. Include the updates in the docs commit. |
 | **14d** | `CLAUDE.md` | `package.json` / `tsconfig*` / `biome.json(c)` changes on branch | Review for config / dependency drift (commands table, tech-stack entries, tooling sections). |
 

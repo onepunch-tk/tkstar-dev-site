@@ -3,11 +3,13 @@ set -euo pipefail
 
 # docs-sync-gate — PreToolUse Bash hook
 # Blocks `gh pr create` / `.claude/hooks/git-pr.sh` on a feature/* branch when
-# downstream docs derived from ROADMAP are out of sync. Three OR-gated conditions:
+# downstream docs derived from ROADMAP are out of sync. Four OR-gated conditions:
 #   1. ROADMAP.md not updated on the branch.
 #   2. Config files changed (package.json / tsconfig*.json / biome.json(c) /
 #      bun.lockb) without a corresponding CLAUDE.md update.
 #   3. doc-structure-linter reports HIGH- or MED-severity drift (when the tool exists).
+#   4. ROADMAP `[x]` marks ↔ docs/tasks/TNNN-*.md `**Status**` field drift
+#      (Phase 4 Step 14b enforcement — inline bash, no external dependencies).
 #
 # Scope: feature/* branches only. fix/docs/chore/refactor/test are exempt
 # (they're not supposed to complete ROADMAP tasks).
@@ -176,6 +178,67 @@ MSG
     fi
     # LINT_EC >= 2 is a linter error (missing STRUCTURE_FILE, awk failure, …).
     # Treat as silent skip — consistent with the "tool missing" fallback.
+fi
+
+# ── Condition 4: ROADMAP [x] ↔ task file Status drift (Step 14b enforcement) ──
+# Catches the recurring failure mode: ROADMAP gets `[x]` checked but the
+# corresponding `docs/tasks/TNNN-*.md` keeps `**Status** | Not Started`.
+# Inline implementation (bash + grep/awk) so the hook stays self-contained.
+# Paths are env-overridable for projects with non-default docs layout:
+#   HARNESS_ROADMAP_PATH (default: docs/ROADMAP.md)
+#   HARNESS_TASKS_DIR    (default: docs/tasks)
+ROADMAP_FILE="$PROJECT_DIR/${HARNESS_ROADMAP_PATH:-docs/ROADMAP.md}"
+TASKS_DIR_PATH="$PROJECT_DIR/${HARNESS_TASKS_DIR:-docs/tasks}"
+if [[ -f "$ROADMAP_FILE" && -d "$TASKS_DIR_PATH" ]]; then
+    DRIFT_LINES=""
+    # Extract task IDs from ROADMAP lines like: `- [x] **Task 008: ...`
+    while IFS= read -r task_id; do
+        [[ -z "$task_id" ]] && continue
+        # Find matching task file: docs/tasks/T<NNN>[a-z]?-*.md
+        task_file=$(find "$TASKS_DIR_PATH" -maxdepth 1 -name "${task_id}-*.md" -print -quit 2>/dev/null)
+        if [[ -z "$task_file" ]]; then
+            DRIFT_LINES+="  $task_id: ROADMAP=[x] 이지만 task 파일이 없음"$'\n'
+            continue
+        fi
+        # Extract Status field value: `| **Status** | <value> |`
+        status_raw=$(grep -E '^\|[[:space:]]*\*\*Status\*\*[[:space:]]*\|' "$task_file" \
+            | head -1 \
+            | sed -E 's/^\|[[:space:]]*\*\*Status\*\*[[:space:]]*\|[[:space:]]*//; s/[[:space:]]*\|.*$//')
+        [[ -z "$status_raw" ]] && continue
+        # Strip parens (e.g. "✅ Done (2026-04-28, PR #14)" → "✅ Done")
+        status_clean=$(echo "$status_raw" | sed -E 's/\([^)]*\)//g' | sed -E 's/^[[:space:]]+|[[:space:]]+$//g')
+        # Match Done / Completed / ✅ Done (case-insensitive)
+        if ! echo "$status_clean" | grep -iqE '(^✅[[:space:]]*Done$|^Done$|^Completed$)'; then
+            DRIFT_LINES+="  $task_id ($(basename "$task_file")): ROADMAP=[x] 이지만 Status=\"$status_raw\" → ✅ Done 으로 동기화 필요"$'\n'
+        fi
+    done < <(grep -oE '^- \[x\][[:space:]]+\*\*Task[[:space:]]+[0-9]{3}[a-z]?:' "$ROADMAP_FILE" \
+        | sed -E 's/^- \[x\][[:space:]]+\*\*Task[[:space:]]+([0-9]{3}[a-z]?):.*/T\1/')
+
+    if [[ -n "$DRIFT_LINES" ]]; then
+        SYNC_SKIP=0
+        if echo "$COMMAND" | grep -qE '(^|[[:space:]])DOCS_SYNC_SKIP=1([[:space:]]|$)'; then
+            SYNC_SKIP=1
+        fi
+        if (( SYNC_SKIP == 0 )); then
+            REASON=$(cat <<MSG
+[DOC-SYNC GATE] Blocked: ROADMAP \`[x]\` 체크와 task 파일 \`**Status**\` 필드가 불일치합니다.
+
+$DRIFT_LINES
+Phase 4 Step 14b에 따라 ROADMAP에 \`[x]\`로 마킹된 task는 task 파일의
+\`**Status**\` 필드도 \`✅ Done\` (또는 \`Done\` / \`Completed\`)으로 동기화되어야 합니다.
+
+해결:
+  1. 위 drift 목록의 task 파일을 열어 \`**Status**\` 필드를 갱신.
+  2. \`📝 docs: sync\` 커밋에 포함.
+  3. PR 명령 재시도.
+
+Override (last resort): prefix the PR command with DOCS_SYNC_SKIP=1.
+MSG
+)
+            jq -n --arg reason "$REASON" '{ decision: "block", reason: $reason }'
+            exit 0
+        fi
+    fi
 fi
 
 exit 0
