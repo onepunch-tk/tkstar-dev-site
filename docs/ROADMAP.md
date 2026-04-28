@@ -55,6 +55,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
 > **완료 조건 (DoD)**: `bun run typecheck`, `bun run lint`, `bun run test`, `bun run dev`(또는 `bun run start`), `bunx wrangler dev`가 모두 무오류 통과. `app/{domain,application,infrastructure,presentation}/` 4-layer 디렉토리가 placeholder index와 함께 존재.
 
 - [ ] **Task 001: 프로젝트 스캐폴딩 + Bun + TypeScript + Biome 셋업**
+  - **Must** Read: [tasks/T001-scaffold-bun-rr7-biome.md](tasks/T001-scaffold-bun-rr7-biome.md)
   - blockedBy: none
   - blocks: Task 002, Task 003
   - Layer: 전 layer (인프라성)
@@ -69,6 +70,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
   - PR 1개 / 브랜치: `chore/scaffold-bun-rr7-biome`
 
 - [ ] **Task 002: Clean Architecture 4-layer 디렉토리 골격 + path alias**
+  - **Must** Read: [tasks/T002-ca-4layer-skeleton.md](tasks/T002-ca-4layer-skeleton.md)
   - blockedBy: Task 001
   - blocks: Task 004, Task 006, Task 007, Task 008, Task 009
   - Layer: 전 layer (구조)
@@ -84,6 +86,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
   - PR 1개 / 브랜치: `chore/ca-4layer-skeleton`
 
 - [ ] **Task 003: Vite + React Router v7 Framework + Cloudflare Workers + Tailwind v4 빌드 파이프라인**
+  - **Must** Read: [tasks/T003-vite-rr7-workers-tailwind-pipeline.md](tasks/T003-vite-rr7-workers-tailwind-pipeline.md)
   - blockedBy: Task 001
   - blocks: Task 004, Task 005, Task 016
   - Layer: Platform Adapter (workers/) + Presentation 진입점
@@ -111,6 +114,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
 > **완료 조건 (DoD)**: 모든 PRD 페이지에 해당하는 빈 라우트 파일이 존재하여 `wrangler dev`로 직접 URL 입력 시 404가 아닌 placeholder 응답. Domain `__tests__/` 안 Zod 스키마 테스트가 모두 Green. `[data-theme]` 토글이 시스템/localStorage 추종으로 동작.
 
 - [ ] **Task 004: 라우트 스켈레톤 13개 + chrome / chrome-free 레이아웃**
+  - **Must** Read: [tasks/T004-route-skeleton.md](tasks/T004-route-skeleton.md)
   - blockedBy: Task 002, Task 003
   - blocks: Task 010, Task 011, Task 012, Task 013, Task 014, Task 015
   - Layer: Presentation (routes + layouts)
@@ -129,6 +133,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
   - PR 1개 / 브랜치: `feature/issue-N-route-skeleton`
 
 - [ ] **Task 005: 디자인 토큰 이식 + Tailwind v4 `@theme` + `[data-theme]` dark variant + 다크모드 (F010)**
+  - **Must** Read: [tasks/T005-theme-tokens.md](tasks/T005-theme-tokens.md)
   - blockedBy: Task 003
   - blocks: Task 010, Task 011, Task 012, Task 013, Task 014, Task 015
   - Layer: Presentation (components/chrome, hooks, app.css)
@@ -145,6 +150,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
   - PR 1개 / 브랜치: `feature/issue-N-theme-tokens`
 
 - [ ] **Task 006: Domain Schemas — Project / Post / AppLegalDoc / ContactSubmission / ThemePreference**
+  - **Must** Read: [tasks/T006-domain-schemas.md](tasks/T006-domain-schemas.md)
   - blockedBy: Task 002
   - blocks: Task 007, Task 008, Task 009
   - Layer: **Domain** (innermost)
@@ -170,6 +176,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
 > **완료 조건 (DoD)**: `bunx velite build` 성공 → `.velite/{projects,posts,legal}.json` 생성 → Infrastructure Repository가 Domain Entity 배열 반환 → Application service `__tests__/` 모두 Green. seed 콘텐츠 (프로젝트 1개, 포스트 1개, legal/apps/moai 1쌍) 작성.
 
 - [ ] **Task 007: velite 설치 + 컬렉션 정의 + seed 콘텐츠 + shiki 코드블록**
+  - **Must** Read: [tasks/T007-velite-content-pipeline.md](tasks/T007-velite-content-pipeline.md)
   - blockedBy: Task 006
   - blocks: Task 008
   - Layer: Infrastructure (build-time ETL) + content/
@@ -187,6 +194,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
   - PR 1개 / 브랜치: `feature/issue-N-velite-content-pipeline`
 
 - [ ] **Task 008: Application Ports + Content Repositories (Infrastructure 구현)**
+  - **Must** Read: [tasks/T008-content-ports-repos.md](tasks/T008-content-ports-repos.md)
   - blockedBy: Task 002, Task 006, Task 007
   - blocks: Task 009, Task 010, Task 011, Task 012, Task 013, Task 014, Task 015, Task 016, Task 017
   - Layer: Application (ports/services) + Infrastructure (velite repos)
@@ -212,6 +220,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
   - PR 1개 / 브랜치: `feature/issue-N-content-ports-repos`
 
 - [ ] **Task 009: DI Container (Composition Root) + workers/app.ts wiring + getLoadContext**
+  - **Must** Read: [tasks/T009-di-container.md](tasks/T009-di-container.md)
   - blockedBy: Task 008
   - blocks: Task 010, Task 011, Task 012, Task 013, Task 014, Task 015, Task 016, Task 017
   - Layer: Infrastructure (config) + Platform Adapter (workers/)
@@ -235,6 +244,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
 > **완료 조건 (DoD)**: `wrangler dev`로 7개 콘텐츠 페이지(Home/About/Projects/Project Detail/Blog/Blog Detail/Legal Index)가 seed 데이터로 정상 렌더. Project Detail/Blog Detail 데스크탑 880px+ sticky sidebar 동작. About `[⎙ PDF]` 버튼 → `window.print()` AC-F003-1/2/3 통과.
 
 - [ ] **Task 010: Home Page (F001 Hero + F017 Featured/Recent)**
+  - **Must** Read: [tasks/T010-home-page.md](tasks/T010-home-page.md)
   - blockedBy: Task 005, Task 008, Task 009
   - blocks: Task 016
   - Layer: Presentation (route + components)
@@ -249,6 +259,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
   - PR 1개 / 브랜치: `feature/issue-N-home-page`
 
 - [ ] **Task 011: About Page + F003 PDF 인쇄 스타일**
+  - **Must** Read: [tasks/T011-about-page-print.md](tasks/T011-about-page-print.md)
   - blockedBy: Task 005, Task 008, Task 009
   - Layer: Presentation
   - 관련 Feature: **F002**, **F003**
@@ -266,6 +277,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
   - PR 1개 / 브랜치: `feature/issue-N-about-page-print`
 
 - [ ] **Task 012: Projects Page (F004 ls-style 행 리스트 + 태그 필터)**
+  - **Must** Read: [tasks/T012-projects-list.md](tasks/T012-projects-list.md)
   - blockedBy: Task 005, Task 008, Task 009
   - Layer: Presentation
   - 관련 Feature: **F004**
@@ -280,6 +292,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
   - PR 1개 / 브랜치: `feature/issue-N-projects-list`
 
 - [ ] **Task 013: Project Detail Page (F005 + sticky sidebar + on-this-page TOC)**
+  - **Must** Read: [tasks/T013-project-detail.md](tasks/T013-project-detail.md)
   - blockedBy: Task 005, Task 007 (rehype-slug), Task 008, Task 009
   - blocks: Task 018 (OG)
   - Layer: Presentation + Application(`getProjectDetail`)
@@ -294,6 +307,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
   - PR 1개 / 브랜치: `feature/issue-N-project-detail`
 
 - [ ] **Task 014a: Blog Page (F006) — 목록 + 태그 필터 + RSS Resource Route (F012)**
+  - **Must** Read: [tasks/T014a-blog-list-rss.md](tasks/T014a-blog-list-rss.md)
   - blockedBy: Task 005, Task 007, Task 008, Task 009
   - blocks: Task 014b, Task 018 (OG)
   - Layer: Presentation + Application(`build-rss-feed.service.ts`) + Resource Route
@@ -309,6 +323,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
   - PR 1개 / 브랜치: `feature/issue-N-blog-list-rss`
 
 - [ ] **Task 014b: Blog Detail Page (F007) — 본문 + sticky sidebar + share**
+  - **Must** Read: [tasks/T014b-blog-detail.md](tasks/T014b-blog-detail.md)
   - blockedBy: Task 014a
   - blocks: Task 018 (OG)
   - Layer: Presentation
@@ -323,6 +338,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
   - PR 1개 / 브랜치: `feature/issue-N-blog-detail`
 
 - [ ] **Task 015: Legal Index + App Terms + App Privacy (F014, chrome-free)**
+  - **Must** Read: [tasks/T015-legal-pages.md](tasks/T015-legal-pages.md)
   - blockedBy: Task 005, Task 007, Task 008, Task 009
   - Layer: Presentation
   - 관련 Feature: **F014**
@@ -346,6 +362,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
 > **완료 조건 (DoD)**: AC-F008-1/2/3/4, AC-F009-1/2/3 모두 자동 테스트 통과. 실제 hello@tkstar.dev → 본인 메일 + 제출자 자동응답이 staging에서 발송 확인.
 
 - [ ] **Task 016: F016 Cmd+K Command Palette (글로벌 검색 네비)**
+  - **Must** Read: [tasks/T016-command-palette.md](tasks/T016-command-palette.md)
   - blockedBy: Task 003, Task 008, Task 009, Task 010 (Home에서 트리거)
   - Layer: Application(`build-search-index.service.ts`) + Presentation(palette UI/hook)
   - 관련 Feature: **F016**
@@ -368,6 +385,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
   - PR 1개 / 브랜치: `feature/issue-N-command-palette`
 
 - [ ] **Task 017: Contact Form + Turnstile + Resend + 자동응답 메일 (F008 + F009)**
+  - **Must** Read: [tasks/T017-contact-form-email.md](tasks/T017-contact-form-email.md)
   - blockedBy: Task 002, Task 006 (ContactSubmission schema), Task 008/009 (DI), Task 017-pre (PROJECT-STRUCTURE 갱신 — docs PR)
   - Layer: Application(submit-contact-form.service) + Infrastructure(Resend, Turnstile, React Email, Workers KV rate-limit) + Presentation(Form, Turnstile widget)
   - 관련 Feature: **F008**, **F009**
@@ -402,6 +420,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
   - PR 1개 / 브랜치: `feature/issue-N-contact-form-email`
 
 - [ ] **Task 017-pre: PROJECT-STRUCTURE.md 갱신 — `app/infrastructure/ratelimit/` 모듈 등록 (docs)**
+  - **Must** Read: [tasks/T017-pre-update-project-structure-ratelimit.md](tasks/T017-pre-update-project-structure-ratelimit.md)
   - blockedBy: none (Task 017보다 선행)
   - blocks: Task 017
   - Layer: docs (구조 정합성)
@@ -422,6 +441,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
 > **완료 조건 (DoD)**: AC-F011-1/2/3 통과. `/sitemap.xml`, `/robots.txt`가 well-formed. 페이지별 meta export(title/description/canonical/OG/Twitter) + JSON-LD 정합. Google Search Console / Naver Search Advisor 도메인 인증 완료 (배포 단계).
 
 - [ ] **Task 018: F011 Satori 동적 OG 이미지 (Project + Blog) — Workers Asset Binding**
+  - **Must** Read: [tasks/T018-satori-og.md](tasks/T018-satori-og.md)
   - blockedBy: Task 013, Task 014a, Task 014b
   - Layer: Application(`render-*-og.service`, port) + Infrastructure(Satori standalone + Asset Binding) + Resource Route
   - 관련 Feature: **F011**
@@ -443,6 +463,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
   - PR 1개 / 브랜치: `feature/issue-N-satori-og`
 
 - [ ] **Task 019: F018 SEO Meta + Sitemap + Robots + JSON-LD (차등 인덱싱)**
+  - **Must** Read: [tasks/T019-seo-sitemap-jsonld.md](tasks/T019-seo-sitemap-jsonld.md)
   - blockedBy: Task 008, Task 010~Task 013, Task 014a, Task 014b, Task 015 (페이지별 meta 추가), Task 018 (OG URL)
   - Layer: Application(`build-sitemap.service`) + Resource Route + Presentation(meta export)
   - 관련 Feature: **F018**
@@ -465,6 +486,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
   - PR 1개 / 브랜치: `feature/issue-N-seo-sitemap-jsonld`
 
 - [ ] **Task 020: F019 검색엔진 등록 (Google + Naver) + Cloudflare Web Analytics (F013)**
+  - **Must** Read: [tasks/T020-search-engine-verification.md](tasks/T020-search-engine-verification.md)
   - blockedBy: Task 019
   - Layer: Presentation(root layout) + Infrastructure(analytics 스니펫)
   - 관련 Feature: **F019**, **F013**
@@ -487,6 +509,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
 > **완료 조건 (DoD)**: 프로덕션 도메인 `https://tkstar.dev` 접속 시 모든 페이지 정상, OG 미리보기가 SNS에서 정상 노출, Contact Form이 실제 메일 발송, Search Console에서 sitemap 제출 및 indexing 확인.
 
 - [ ] **Task 021: 통합 QA + Lighthouse + Axe 접근성 점검 + 모든 PRD AC 통과 매트릭스**
+  - **Must** Read: [tasks/T021-qa-pass-mvp.md](tasks/T021-qa-pass-mvp.md)
   - blockedBy: Task 020
   - Layer: 전 layer (회귀 테스트)
   - 관련 Feature: F001~F019 전체
@@ -503,6 +526,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
   - PR 1개 / 브랜치: `chore/qa-pass-mvp`
 
 - [ ] **Task 022: Cloudflare Workers 배포 + 도메인 연결 + Email Routing + 검색엔진 인증 완료**
+  - **Must** Read: [tasks/T022-deploy-production.md](tasks/T022-deploy-production.md)
   - blockedBy: Task 021
   - Layer: 운영
   - 관련 Feature: F019 (인증 완료), 운영 (도메인/이메일)
