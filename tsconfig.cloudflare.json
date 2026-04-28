@@ -19,7 +19,11 @@
 		"jsx": "react-jsx",
 		"rootDirs": [".", "./.react-router/types"],
 		"paths": {
-			"~/*": ["./app/*"]
+			"~/*": ["./app/*"],
+			"~/domain/*": ["./app/domain/*"],
+			"~/application/*": ["./app/application/*"],
+			"~/infrastructure/*": ["./app/infrastructure/*"],
+			"~/presentation/*": ["./app/presentation/*"]
 		},
 		"esModuleInterop": true,
 		"resolveJsonModule": true
