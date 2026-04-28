@@ -85,7 +85,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
     - `test/{fixtures,utils}/` 빈 디렉토리
   - PR 1개 / 브랜치: `chore/ca-4layer-skeleton`
 
-- [ ] **Task 003: Vite + React Router v7 Framework + Cloudflare Workers + Tailwind v4 빌드 파이프라인**
+- [x] ✅ **Task 003: Vite + React Router v7 Framework + Cloudflare Workers + Tailwind v4 빌드 파이프라인** (2026-04-28, PR #14)
   - **Must** Read: [tasks/T003-vite-rr7-workers-tailwind-pipeline.md](tasks/T003-vite-rr7-workers-tailwind-pipeline.md)
   - blockedBy: Task 001
   - blocks: Task 004, Task 005, Task 016
@@ -624,7 +624,7 @@ Phase 6: Task 021 (QA) → Task 022 (Deploy)
 
 ## 진행 현황 요약
 
-- [ ] Phase 0: Setup & Toolchain (Task 001~003)
+- [x] Phase 0: Setup & Toolchain (Task 001~003) ✅ 완료 (2026-04-28)
 - [ ] Phase 1: Foundation — Routing Skeleton + Domain Schemas + Theme (Task 004~006)
 - [ ] Phase 2: Content Pipeline — velite + MDX + shiki + Repository (Task 007~009)
 - [ ] Phase 3: Core Pages UI (Task 010~013, 014a, 014b, 015)

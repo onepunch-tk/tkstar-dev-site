@@ -5,13 +5,13 @@
 | **Task ID** | T003 |
 | **Phase** | Phase 0 — Setup & Toolchain |
 | **Layer** | Platform Adapter (`workers/`) + Presentation 진입점 (`app/root.tsx`, `app/entry.*.tsx`) |
-| **Branch** | `chore/vite-rr7-workers-tailwind-pipeline` |
+| **Branch** | `chore/issue-13-vite-rr7-workers-tailwind-pipeline` |
 | **Depends on** | T001 |
 | **Blocks** | T004, T005, T016 |
 | **PRD Features** | — (toolchain) |
 | **PRD AC** | — |
 | **예상 작업 시간** | 1d |
-| **Status** | Not Started |
+| **Status** | ✅ Done (2026-04-28, PR #14) |
 
 ## Goal
 Vite 8 + React Router v7 Framework mode + Cloudflare Workers + Tailwind v4 + Vitest를 모두 묶은 빌드/개발 파이프라인을 가동시켜, `bun run dev`/`bunx wrangler dev`로 빈 root 페이지가 SSR 응답하도록 한다. Vitest coverage threshold도 이 단계에서 확정한다.
@@ -43,12 +43,12 @@ Vite 8 + React Router v7 Framework mode + Cloudflare Workers + Tailwind v4 + Vit
 - velite (T007)
 
 ## Acceptance Criteria
-- [ ] `bun run dev` Vite dev server가 부팅되고 `/`에 접속 시 빈 placeholder가 렌더
-- [ ] `bunx wrangler dev`가 Workers dev 서버를 띄우고 `curl http://localhost:8787`이 SSR HTML 응답
-- [ ] `bun run typecheck` 통과 (RR7 typegen `.react-router/types/*` 생성)
-- [ ] `bun run lint` 통과
-- [ ] `bun run test`가 빈 테스트 셋에서도 0 exit
-- [ ] `bun run test:coverage` 실행 시 coverage threshold 설정값 (lines 80 / branches 75 / functions 80 / statements 80)이 `vitest.config.ts`에 명시되어 있고, 빈 셋에서도 리포트 생성
+- [x] `bun run dev` Vite dev server가 부팅되고 `/`에 접속 시 빈 placeholder가 렌더
+- [x] `bunx wrangler dev`가 Workers dev 서버를 띄우고 `curl http://localhost:8787`이 SSR HTML 응답
+- [x] `bun run typecheck` 통과 (RR7 typegen `.react-router/types/*` 생성)
+- [x] `bun run lint` 통과
+- [x] `bun run test`가 sanity 테스트에서 0 exit
+- [x] `bun run test:coverage` 실행 시 coverage threshold 설정값 (lines 80 / branches 75 / functions 80 / statements 80)이 `vitest.config.ts`에 명시되어 있고, 리포트 생성
 
 ## Implementation Plan (TDD Cycle)
 **N/A — chore branch policy.** 빌드 파이프라인 자체는 TDD 대상 아님. 단, Vitest는 이 단계에서 가동시켜 두어야 후속 task가 Red phase부터 진행 가능.
@@ -133,4 +133,4 @@ Vite 8 + React Router v7 Framework mode + Cloudflare Workers + Tailwind v4 + Vit
 ## Change History
 | Date | Changes | Author |
 |------|---------|--------|
-| - | - | - |
+| 2026-04-28 | T003 완료 (PR #14, Issue #13). T001/T002 위에 delta 작업: `@vitest/coverage-v8@4.1.5` + `@react-router/fs-routes@7.14.0` 추가, `vitest.config.ts` v8 coverage threshold, `wrangler.toml [assets]` 바인딩, `app/routes.ts` flatRoutes 전환, `_index.tsx` placeholder, `__tests__/sanity.test.ts`, `package.json start/test:coverage` scripts. AC 6/6 충족. | TaekyungHa |
