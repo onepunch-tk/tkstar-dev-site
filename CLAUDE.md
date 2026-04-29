@@ -19,6 +19,65 @@
 > **Surgical Changes**: Do not improve, reformat, or refactor adjacent code outside the requested scope. Match existing style. Only clean orphans (imports/vars/fns) created by your own changes. Pre-existing dead code: mention, do not delete. Domain applications: starter-cleaner.md, ca-rules.
 > **Goal-Driven Execution**: Transform tasks into verifiable success criteria. Reject weak criteria like "make it work" — request clarification. Multi-step tasks: state a brief plan with per-step verification. Domain applications: tdd/SKILL.md (Red/Green/Refactor), harness-pipeline phase gates.
 
+## Ubiquitous Language
+
+> Shared vocabulary for user ↔ agent communication. When asking a question, writing a plan, naming a task, or describing a fix, **use exactly these terms**. Do not invent synonyms ("the discovery step" → say **Phase 0**; "the planning agent" → say **development-planner sub-agent**). Framework-specific terms live in `.claude/rules/glossary-{react-router|nestjs|expo|nextjs}.md` and are read by agents after framework-detection.
+
+### Harness meta (12)
+
+| Term | Meaning |
+|------|---------|
+| **Phase** | One of `discovery / plan / tdd / review / validate / complete` in `pipeline-state.json.current_phase`. Phase order is enforced by hooks. |
+| **Pipeline** | The harness-pipeline skill end-to-end (Phase 0 → 4). Loaded by `/harness-pipeline`. |
+| **Plan File** | The markdown file at `~/.claude/plans/<slug>.md` written during Plan Mode. The contract Phase 1 hands off to Phase 2. |
+| **Mode (Sequential / Team)** | Execution shape decided in Phase 1 Step 4. Sequential = main agent runs all phases; Team = lead spawns teammates via `TeamCreate`. |
+| **Task** | A `TaskCreate`-registered unit of pipeline work. Tasks describe concrete actions, not pipeline labels. |
+| **Roadmap** | `docs/ROADMAP.md` — the source of truth for phase order, owned by `development-planner`. |
+| **Issue** | A GitHub Issue created by `git-issue.sh` in GitHub Mode. Branches reference it as `feature/issue-{N}-{slug}`. |
+| **Branch** | A git branch following `commit-prefix-rules.md`: `feature/* / fix/* / docs/* / chore/*`. PRs always target `development`. |
+| **Skill** | A `.claude/skills/<name>/SKILL.md` module loaded into agent context (auto via `skills:` frontmatter or on-demand via Skill tool). |
+| **Sub-Agent** | A specialized agent under `.claude/agents/**/*.md`, spawned by the Agent tool with `subagent_type:`. Foreground-only when listed in harness-pipeline SKILL.md. |
+| **Hook** | A shell script under `.claude/hooks/` wired in `settings.json`, run by the harness runtime (not by the agent) on lifecycle events. |
+| **ABAC** | Attribute-Based Access Control. The `abac-phase-policy.sh` hook hard-blocks `Edit/Write` on source files unless `pipeline-state.plan_approved == true`. |
+
+### Pipeline State (4)
+
+| Term | Meaning |
+|------|---------|
+| **Pipeline State** | `.claude/pipeline-state.json` — the single source of truth for current phase, mode, branch, plan/task gates. Hook-owned fields are off-limits to agents. |
+| **Ownership (ReBAC)** | `.claude/ownership.json` (Team Mode only) — per-teammate file allowlist. Violations are detected post-hoc by the TeammateIdle hook. |
+| **Doc Sync Gate** | The `docs-sync-gate.sh` hook that blocks PRs when ROADMAP/task checkbox state drifts from task body Status fields. |
+| **Coverage Gate** | The `coverageThreshold` enforced by `jest.config.js` and verified by Phase 4 validation. |
+
+### Clean Architecture (8)
+
+| Term | Meaning |
+|------|---------|
+| **Layer** | One of Domain / Application / Infrastructure / Presentation. Inner must not import from outer. Enforced by `ca-rules` skill. |
+| **Domain Entity** | A class/object in the Domain layer that owns business invariants. Pure TypeScript, no framework imports. |
+| **Value Object** | An immutable Domain object identified by its values, not by identity (e.g., `Email`, `Money`). |
+| **Use Case** | An Application-layer function that orchestrates Domain operations to fulfill a single user intent. |
+| **Port** | An interface declared by Application defining what Infrastructure must provide (e.g., `PostRepositoryPort`). |
+| **Adapter** | An Infrastructure-layer concrete implementation of a Port (e.g., `DrizzlePostRepository`). |
+| **Repository** | A specific kind of Port/Adapter pair for persistence. Domain-shaped reads/writes; ORM details hidden. |
+| **CA Template** | The framework-specific layer scaffold under `.claude/skills/project-structure/references/{react-router|nestjs|expo}.md`, loaded in Phase 1 Step 1b. |
+
+### TDD (3)
+
+| Term | Meaning |
+|------|---------|
+| **Red Phase** | Phase 2 step where `unit-test-writer` writes a failing test that pins the next behavior contract. Commit prefix `✅ test:`. |
+| **Green Phase** | Phase 2 step where the implementation makes the Red test pass — minimum code only. Commit prefix `✨ feat:`. |
+| **Refactor** | Optional post-Green cleanup that preserves Green-state passing tests. Style/structure changes only, no new behavior. |
+
+### Principles (3)
+
+| Term | Meaning |
+|------|---------|
+| **Context Engineering** | The discipline of loading only the context strictly required for the current phase and discarding it once consumed. See harness-pipeline §Context Management. |
+| **Surgical Changes** | Edit only what the task requires. No incidental refactor of adjacent code. Pre-existing dead code: mention, do not delete. |
+| **Goal-Driven Execution** | Translate tasks into verifiable success criteria up front; reject "make it work" framings; verify per step. |
+
 ## Tech Stack
 
 ### Frontend Framework

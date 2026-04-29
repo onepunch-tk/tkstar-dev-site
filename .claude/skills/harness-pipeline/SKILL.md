@@ -60,6 +60,12 @@ entirely**. By convention these branches carry non-behavioral changes
 Red/Green cycle has no honest Red state to assert — the work is editing
 spec, not changing runtime behavior.
 
+> **Phase 0 is NOT carved out.** The `chore/*` / `docs/*` carve-out applies
+> only to Phase 1 (Plan) and Phase 2 (TDD). Phase 0 (Discovery) runs on
+> every branch type — misreading user intent on a chore ("just bump the
+> dep" vs. "bump the dep AND migrate the API surface") is exactly the
+> failure mode Phase 0 exists to prevent.
+
 What remains in force:
 
 - **PR-only workflow**: every change still goes through `chore/{slug}`
@@ -104,7 +110,12 @@ Updated at each Phase transition. The ABAC hook reads this to block source code 
 - **`ui_involved`**: `true` if the plan's file list includes Presentation layer files or task description contains UI keywords. Set during Phase 1 Step 4-ui. Read by Phase 2 and Phase 3 to conditionally invoke `ux-design-lead`.
 - **`tasks_created`**: `false` after plan approval; flipped to `true` by the `post-task-created.sh` PostToolUse:TaskCreate hook on the first TaskCreate call in plan phase. The same hook delivers the plan→tdd `/compact` advisory verbatim via `additionalContext` (mirrored to stderr as a fallback) exactly once on that first flip — the `false → true` transition is the natural idempotency gate.
 
-**Phase order:** `none` → `plan` → `tdd` → `review` → `validate` → `complete`
+**Phase order:** `none` → `discovery` → `plan` → `tdd` → `review` → `validate` → `complete`
+
+> **`discovery` phase**: set when Phase 0 (interview) starts. Shares the
+> ABAC semantics of `plan` — source code edits remain hard-blocked. Cleared
+> only when Phase 0's user-confirmation gate passes and the agent advances
+> to `plan`.
 
 > **`plan_approved`**: Flipped to `true` automatically by the `post-plan-approval.sh` PostToolUse hook immediately after `ExitPlanMode` approval. The `pipeline-guardian` hook blocks plan→tdd transition if this is `false`.
 >
@@ -164,10 +175,18 @@ Each phase has detailed steps in its reference file. **Read the reference for th
 
 | Phase | Reference | Key Actions |
 |-------|-----------|-------------|
-| **1. Plan** | [references/phase-1-plan.md](references/phase-1-plan.md) | Load docs, gh check, create Issue (GitHub Mode), create plan, stakeholder consultation (if persona set), detect mode, create branch + tasks |
+| **0. Discovery** | [references/phase-0-discovery.md](references/phase-0-discovery.md) | Load `interview-protocol` skill → enumerate ambiguities → AskUserQuestion loop until ambiguity = 0 → write Korean intent summary → user confirmation gate |
+| **1. Plan** | [references/phase-1-plan.md](references/phase-1-plan.md) | Load docs, gh check, create Issue (GitHub Mode), create plan, detect mode, create branch + tasks |
 | **2. TDD** | [references/phase-2-tdd.md](references/phase-2-tdd.md) | Red (unit-test-writer) → Green (implement) → Design apply (ux-design-lead, if UI) → commit |
 | **3. Review** | [references/phase-3-review.md](references/phase-3-review.md) | code-reviewer + design-reviewer (ux-design-lead, if UI) → fix issues → commit |
 | **4. Validate** | [references/phase-4-validate.md](references/phase-4-validate.md) | E2E test → docs update → PR create + merge (GitHub) or direct merge (Local) → cleanup |
+
+> **Foreground-only sub-agents**: When spawning `prd-generator`,
+> `prd-validator`, `development-planner`, `code-reviewer`, or
+> `ux-design-lead`, **NEVER** set `run_in_background: true`. These agents
+> load the `interview-protocol` skill and call `AskUserQuestion`, which
+> fails silently in background sub-agents — the result is unreviewed
+> assumptions baked into the output.
 
 **Team Protocol**: [references/team-protocol.md](references/team-protocol.md) — teammate execution steps, file ownership, communication, merge strategy
 
