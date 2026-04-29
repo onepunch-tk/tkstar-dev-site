@@ -79,6 +79,20 @@ type FrameworkDetectionResult = {
 };
 ```
 
+## Glossary loading (post-detection)
+
+After the framework is resolved, the consuming agent **must Read the matching glossary** from `.claude/rules/` so framework-native vocabulary is in context before any user-facing question, plan, or review:
+
+| Detected framework | Glossary path to Read |
+|---|---|
+| `react-router` | `.claude/rules/glossary-react-router.md` |
+| `nestjs`       | `.claude/rules/glossary-nestjs.md` |
+| `expo`         | `.claude/rules/glossary-expo.md` |
+| `nextjs`       | `.claude/rules/glossary-nextjs.md` |
+| `remix` / `vite-react` / `unknown` | No glossary — pair with CLAUDE.md §Ubiquitous Language only |
+
+Sub-agents do NOT auto-load files in `.claude/rules/`. Each consumer is responsible for the explicit `Read` after detection. Phase 0 of the harness pipeline performs this Read for the main agent; sub-agents that load `framework-detection` via their `skills:` frontmatter (prd-generator, prd-validator, ux-design-lead, code-reviewer, project-structure-analyzer, etc.) do the Read themselves at the start of their workflow.
+
 ## Change control
 
 Updating this skill updates detection for every consumer. When adding a new framework, also add to:

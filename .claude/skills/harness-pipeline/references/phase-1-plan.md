@@ -12,8 +12,7 @@
 | 2 | **Enter plan mode**: Call `EnterPlanMode` to start local planning. Output a summary of gathered context and task description for the user. Inform the user they can upgrade to ultraplan via `/ultraplan` if desired. |
 | 2a | **Pipeline State → `plan`**: Set `pipeline-state.json` `current_phase` to `"plan"`, `plan_approved` to `false`, `github_mode` to detected value, `issue_number` to `null`. (ABAC hook blocks source code modifications during plan phase). Mode is finalized after Step 4, so set `"pending"` for now. (see Pipeline State Management in SKILL.md) |
 | 2b | **Create GitHub Issue** (GitHub Mode only — skip if Local Mode): Agent composes title/body, then calls `.claude/hooks/git-issue.sh --title "..." --body "..." --label "..."`. Parse `ISSUE_NUMBER=N` from the last line of output and store in `pipeline-state.json` `issue_number`. |
-| 3 | Analyze current state and create detailed step-by-step plan in the plan file. **File placement MUST follow the CA template's layer structure**: Domain → Application → Infrastructure → Presentation |
-| 3a | **Stakeholder Consultation** (conditional — see Stakeholder Consultation section below) |
+| 3 | Analyze current state and create detailed step-by-step plan in the plan file. **File placement MUST follow the CA template's layer structure**: Domain → Application → Infrastructure → Presentation. Use the Phase 0 intent summary as the source of truth for user intent — do NOT re-litigate decisions already confirmed there. |
 | 4 | **Count files and features** → determine execution mode (Sequential / Team) |
 | 4-ui | **UI Detection**: First read `docs/PROJECT-STRUCTURE.md` for the project's Presentation layer paths and use those as the primary match set. Fall back to the default glob patterns (`**/presentation/components/**`, `**/presentation/routes/**`, `**/presentation/layouts/**`, `**/presentation/pages/**`, `**/presentation/screens/**`, `app/routes/**`) if the structure doc does not enumerate them. Also check the task description for UI keywords (`component`, `page`, `screen`, `layout`, `UI`, `design`, `디자인`, `화면`). If ANY match → set `ui_involved = true`, otherwise `false`. **When `ui_involved = true`, the plan MUST allocate visual sub-tasks to `ux-design-lead` — see "UI/Design Delegation" section below.** |
 | 4z | **Pipeline State mode finalized**: Update `pipeline-state.json` with the mode determined in Step 4 (`"sequential"` \| `"team"`) and `"ui_involved"` from Step 4-ui |
@@ -21,57 +20,15 @@
 | 5z | **Automatic**: On `ExitPlanMode` approval the `post-plan-approval.sh` PostToolUse hook flips `pipeline-state.json` `plan_approved` to `true`. **Agents MUST NOT attempt to write `plan_approved: true` manually** — a system-level safety filter blocks that pattern to prevent plan-mode skipping, and the hook is the only sanctioned flip path. If the hook somehow fails (check with `cat .claude/pipeline-state.json`), stop and escalate — do not try to bypass. The `pipeline-guardian` hook will **block Phase 2 entry** while `plan_approved` is `false`. |
 | 5zz | **MANDATORY ordering before Phase 2 (context gate)**: After approval the agent MUST execute, in this exact order, within the same response: (1) Steps 5a → 5a-clean → 5a-sync → 5b — sync `development` and create the feature branch; (2) the **Task Creation** section below — call `TaskCreate` to register ALL upfront pipeline tasks for the entire workflow (Phase 2 TDD red/green cycles, Phase 3 review, Phase 4 validate + PR), each task a concrete action derived from the approved plan. The first `TaskCreate` call triggers `post-task-created.sh`, which flips `pipeline-state.tasks_created` to `true` AND emits an `additionalContext` directive carrying the `/compact` advisory verbatim (with the focus prompt inlined as a copy-pasteable one-liner) — the same body is mirrored to stderr as a fallback for terminal-watching users. (3) STOP — do NOT advance `current_phase` to `"tdd"`, do NOT spawn sub-agents, do NOT begin Phase 2 work. The agent's next response relays the advisory verbatim and waits. **Unblocking replies**: user runs `/compact` themselves; user explicitly says to skip compact and proceed; user gives new direction. **Rationale**: with tasks created before compaction the user retains full pipeline visibility through the focus prompt; without this ordering the model silently enters TDD carrying Phase 1 reconnaissance noise that the plan file already captures, defeating the Context Engineering principle in CLAUDE.md. |
 
-## Stakeholder Consultation (Step 3a)
+## Stakeholder Consultation — Removed
 
-> **Purpose**: After creating the initial plan, the agent (acting as team lead) self-reviews
-> the plan for gaps and ambiguities, then reports to the user in their declared persona role
-> for strategic direction before finalizing.
-
-### Skip Conditions
-
-Skip Step 3a entirely (proceed directly to Step 4) if ANY:
-
-| Condition | Reason |
-|-----------|--------|
-| `My Role` in CLAUDE.md is empty or missing | No persona declared |
-| Task is a bug fix, typo fix, or config change | Trivial — no strategic input needed |
-| Plan has ≤ 2 files AND ≤ 1 feature | Scope too small |
-| All requirements are explicit and unambiguous | Nothing to clarify |
-
-> **Judgment call**: Only surface genuine gaps. Do not manufacture questions.
-
-### Consultation Report Format
-
-Address the user by their declared persona role:
-
-```
-[Role]님, [task summary]에 대한 초기 플랜이 완성되었습니다.
-진행 전 다음 사항에 대해 의견을 구합니다:
-
-**Ambiguities & Open Questions**
-[numbered — requirements gaps the agent cannot resolve from existing docs]
-
-**Decision Points**
-[numbered — multiple valid approaches with trade-offs and recommendation]
-
-**Risk Flags** (if any)
-[numbered — potential issues identified during plan analysis]
-
-**Assumptions Made**
-[numbered — implicit decisions baked into the plan for validation]
-
----
-위 사항에 대해 결정해주시면 플랜에 반영하겠습니다.
-"proceed"로 응답하시면 현재 플랜대로 진행합니다.
-```
-
-### Rules
-
-- **One round only**: Present report once. No back-and-forth loop.
-- **No fictional gaps**: Only surface genuine ambiguities.
-- **Respect hierarchy**: Frame recommendations as proposals, not decisions. The user's response is the final word.
-- **Plan file updates**: Reflect feedback in plan file before Step 4. If user says "proceed," move on without changes.
-- **Works in both modes**: Occurs before mode detection (Step 4) — applies identically to Sequential and Team paths. Also works with ultraplan (consultation happens before any upgrade).
+> Stakeholder Consultation (former Step 3a) has been **removed** from Phase 1.
+> Its purpose (surfacing ambiguities and gathering user intent) is now owned
+> entirely by **Phase 0 (Discovery)**. See
+> [`phase-0-discovery.md`](phase-0-discovery.md) and the
+> `interview-protocol` skill. The Phase 0 intent summary written to the plan
+> file is the contract Phase 1 reads from — re-asking the same questions in
+> Phase 1 is redundant.
 
 ---
 
