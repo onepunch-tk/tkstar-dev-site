@@ -187,6 +187,9 @@ describe("Group B — projects._index UI", () => {
 
 		// Assert
 		await screen.findByText("Alpha Project");
-		expect(screen.getAllByText(/\$ ls -la projects\//)).toHaveLength(1);
+		const headers = screen
+			.getAllByRole("heading", { level: 1 })
+			.filter((el) => /\$\s*ls -la projects\//.test(el.textContent ?? ""));
+		expect(headers).toHaveLength(1);
 	});
 });
