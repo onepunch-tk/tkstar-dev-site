@@ -109,7 +109,8 @@ body {
 	[data-chrome="topbar"],
 	[data-chrome="footer"],
 	[data-chrome="search-trigger"],
-	[data-chrome="theme-toggle"] {
+	[data-chrome="theme-toggle"],
+	[data-chrome="print-trigger"] {
 		/* biome-ignore lint/complexity/noImportantStyles: @media print에서 chrome 컴포넌트를 무조건 hide. 더 specific한 셀렉터가 chrome을 우연히 노출시키는 회귀 차단용. */
 		display: none !important;
 	}
