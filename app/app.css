@@ -75,3 +75,44 @@ body {
 	color: var(--color-fg);
 	font-family: var(--font-mono);
 }
+
+@media print {
+	@page {
+		size: A4;
+		margin: 0;
+	}
+
+	:root,
+	[data-theme="dark"] {
+		color-scheme: light;
+		--color-bg: #f4f1ea;
+		--color-bg-elev: #ebe7dd;
+		--color-bg-card: #f9f7f1;
+		--color-fg: #1a1c20;
+		--color-muted: #5a6068;
+		--color-faint: #a8aab0;
+		--color-line: #c8c2b3;
+		--color-line-strong: #8a8678;
+		--color-accent: oklch(48% 0.14 155);
+		--color-accent-warm: oklch(55% 0.14 65);
+		--color-warn: oklch(55% 0.14 30);
+		--color-hatch: oklch(20% 0 0 / 0.05);
+	}
+
+	body {
+		print-color-adjust: exact;
+		-webkit-print-color-adjust: exact;
+	}
+
+	[data-chrome="topbar"],
+	[data-chrome="footer"],
+	[data-chrome="search-trigger"],
+	[data-chrome="theme-toggle"] {
+		display: none !important;
+	}
+
+	h2 {
+		break-after: avoid-page;
+		page-break-after: avoid;
+	}
+}
