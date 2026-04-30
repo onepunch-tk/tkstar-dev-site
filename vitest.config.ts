@@ -10,7 +10,7 @@ export default defineConfig({
 		environment: "jsdom",
 		globals: true,
 		setupFiles: ["./vitest.setup.ts"],
-		include: ["app/**/*.{test,spec}.{ts,tsx}"],
+		include: ["app/**/*.{test,spec}.{ts,tsx}", "velite/**/*.{test,spec}.{ts,tsx}"],
 		coverage: {
 			provider: "v8",
 			reporter: ["text", "html", "lcov"],

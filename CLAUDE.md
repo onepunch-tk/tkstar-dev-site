@@ -100,6 +100,7 @@
 - **MDX** — 콘텐츠 작성 포맷. velite `s.mdx()` function-body 출력은 SSR/CSR에서 `evaluateMdxBody` (`new Function(code)({Fragment, jsx, jsxs})`)로 평가 — `app/presentation/components/content/MdxRenderer.tsx`
 - **shiki 4.0.2 + @shikijs/rehype 4.0.2** — 빌드 타임 코드블록 syntax highlight (theme: `github-dark` 단일, MVP). 클라이언트 번들 영향 0 (devDependency)
 - **rehype-slug 6.0.0** — 헤딩 anchor 자동 부여 (한국어 anchor 지원)
+- **github-slugger 2.0.0** (devDependency) — `velite/transforms/extract-toc.ts` 가 사용. `rehype-slug` 와 동일 라이브러리이므로 빌드-time TOC 추출 시 anchor id 와 1:1 매칭 보장 (T013)
 - **Satori** — 빌드/SSR 동적 OG 이미지 생성 (1200×630, T018)
 - **velite lifecycle hooks** — `predev` / `prebuild` / `prestart` / `pretest`가 모두 `bun run velite:build`로 라우팅. `velite:build`는 `velite build && node scripts/patch-velite-types.mjs`로 chained — fresh clone / CI에서 stale `.velite/` 캐시 회귀 차단 + typegen 교체
 - **Velite typegen patch** — velite 0.3.1 native typegen이 `import type __vc from '../velite.config.ts'`로 Zod 3 internal private 타입(`ZodInvalidStringIssue`, `ZodOptionalDef` 등)을 노출시켜 `tsc -b`에서 TS4082 폭발. `scripts/patch-velite-types.mjs`가 매 build 후 `.velite/index.d.ts`를 명시적 minimal 타입으로 교체. velite upstream fix 시 제거 (T008 D1)

@@ -11,4 +11,7 @@ export const projectSchema = z.object({
 	metrics: z.array(z.tuple([z.string(), z.string()])),
 	featured: z.boolean().optional(),
 	cover: z.string().optional(),
+	role: z.string().optional(),
+	body: z.string().optional(),
+	toc: z.array(z.object({ slug: z.string(), text: z.string() })).optional(),
 });
