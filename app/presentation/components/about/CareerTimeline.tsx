@@ -5,15 +5,16 @@ export default function CareerTimeline() {
 		<section aria-labelledby="about-career-heading" className="flex flex-col gap-3">
 			<h2
 				id="about-career-heading"
-				className="m-0 font-mono font-semibold text-fg text-xl leading-tight tracking-[-0.01em]"
+				className="m-0 flex items-center gap-2 font-mono font-semibold text-faint text-xs tracking-[0.1em] before:text-accent before:content-['##']"
 			>
 				경력
+				<span aria-hidden="true" className="ml-2 h-px flex-1 bg-line" />
 			</h2>
 			<ol className="m-0 flex list-none flex-col gap-0 p-0">
 				{CAREER_TIMELINE.map((entry) => (
 					<li
 						key={`${entry.period}-${entry.company}`}
-						className="grid grid-cols-1 gap-2 border-line border-b border-dashed py-3 last:border-b-0 sm:grid-cols-[140px_1fr] sm:gap-4"
+						className="grid grid-cols-1 gap-2 border-line border-b border-dashed py-3 last:border-b-0 sm:grid-cols-[120px_1fr] sm:gap-4"
 					>
 						<span className="font-mono text-[11px] text-faint tracking-[0.04em]">
 							{entry.period}

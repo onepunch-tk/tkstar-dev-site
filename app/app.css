@@ -13,6 +13,8 @@
 	--color-accent: oklch(72% 0.14 155);
 	--color-accent-warm: oklch(72% 0.14 65);
 	--color-warn: oklch(72% 0.14 30);
+	/* always-dark contrast for solid accent backgrounds — light/dark/print 공통 (정본 prototype.css .wf-btn.accent: color #0d0f12) */
+	--color-on-accent: #0d0f12;
 
 	--font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 

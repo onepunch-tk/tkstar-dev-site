@@ -5,9 +5,10 @@ export default function StackCards() {
 		<section aria-labelledby="about-stack-heading" className="flex flex-col gap-3">
 			<h2
 				id="about-stack-heading"
-				className="m-0 font-mono font-semibold text-fg text-xl leading-tight tracking-[-0.01em]"
+				className="m-0 flex items-center gap-2 font-mono font-semibold text-faint text-xs tracking-[0.1em] before:text-accent before:content-['##']"
 			>
 				기술 스택
+				<span aria-hidden="true" className="ml-2 h-px flex-1 bg-line" />
 			</h2>
 			<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
 				{STACK_CARDS.map((card) => (
@@ -15,7 +16,7 @@ export default function StackCards() {
 						key={card.area}
 						className="flex flex-col gap-3 rounded-md border border-line bg-bg-card p-4"
 					>
-						<span className="inline-block self-start rounded-full border border-accent bg-accent px-2 py-0.5 font-mono font-medium text-[11px] text-bg tracking-[0.04em]">
+						<span className="inline-block self-start rounded-full border border-accent bg-accent px-2 py-0.5 font-mono font-medium text-[11px] text-on-accent tracking-[0.04em]">
 							{card.area}
 						</span>
 						<ul className="m-0 flex list-none flex-wrap gap-1.5 p-0">

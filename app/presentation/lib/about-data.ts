@@ -1,7 +1,7 @@
 // Pure data — TDD exempt per phase-1-plan.md "TDD Exemption — Setup & Data Files"
 // 본 PR은 placeholder 데이터로 구조 + AC만 책임. 실제 인물 정보는 후속 운영 PR에서 채움.
 
-export type AboutHeader = {
+export type AboutHeaderData = {
 	name: string;
 	positioning: string;
 	email: string;
@@ -37,7 +37,7 @@ export type CertificationEntry = {
 	issuer: string;
 };
 
-export const ABOUT_HEADER: AboutHeader = {
+export const ABOUT_HEADER: AboutHeaderData = {
 	name: "김태곤",
 	positioning: "1인 개발자 · 풀스택 · 제품 설계부터 운영까지",
 	email: "hello@tkstar.dev",
@@ -80,5 +80,6 @@ export const AWARDS: readonly AwardEntry[] = [
 	{ year: "YYYY", title: "placeholder award 2", issuer: "placeholder issuer" },
 ];
 
-// 자격증은 future optional — 본 PR에서는 자리만, 데이터 0개
+// 자격증 — A001(자격증 카드 컴포넌트) 후속 PR 셋업.
+// 본 PR scope 밖. 의도된 미사용 export — Phase 0 plan에서 "future optional로 자리만" 명시 결정.
 export const CERTIFICATIONS: readonly CertificationEntry[] = [];

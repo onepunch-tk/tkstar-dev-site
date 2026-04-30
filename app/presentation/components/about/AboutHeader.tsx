@@ -30,7 +30,7 @@ export default function AboutHeader() {
 				type="button"
 				aria-label="Print as PDF"
 				onClick={triggerPrint}
-				className="inline-flex shrink-0 items-center gap-2 self-start rounded-md border border-accent bg-accent px-4 py-2.5 font-mono font-medium text-[13px] text-bg transition-[filter] duration-[var(--duration-120)] ease-out hover:brightness-[1.08] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent motion-reduce:transition-none"
+				className="inline-flex shrink-0 items-center gap-2 self-start rounded-md border border-accent bg-accent px-4 py-2.5 font-mono font-medium text-[13px] text-on-accent transition-[color,background-color,border-color,filter] duration-[var(--duration-120)] ease-out hover:brightness-[1.08] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent motion-reduce:transition-none"
 			>
 				<span aria-hidden="true">⎙</span>
 				./resume --pdf

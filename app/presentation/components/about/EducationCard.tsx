@@ -5,9 +5,10 @@ export default function EducationCard() {
 		<section aria-labelledby="about-education-heading" className="flex flex-col gap-3">
 			<h2
 				id="about-education-heading"
-				className="m-0 font-mono font-semibold text-fg text-xl leading-tight tracking-[-0.01em]"
+				className="m-0 flex items-center gap-2 font-mono font-semibold text-faint text-xs tracking-[0.1em] before:text-accent before:content-['##']"
 			>
 				학력
+				<span aria-hidden="true" className="ml-2 h-px flex-1 bg-line" />
 			</h2>
 			<ul className="m-0 flex list-none flex-col gap-2 p-0">
 				{EDUCATION.map((entry) => (
