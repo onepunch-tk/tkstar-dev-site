@@ -27,7 +27,7 @@ describe("ProjectRow", () => {
 
 		// Assert
 		expect(screen.getByText("2026-04")).toBeInTheDocument();
-		expect(screen.getByText("example-project/")).toBeInTheDocument();
+		expect(screen.getAllByText("example-project/")).not.toHaveLength(0);
 		expect(screen.getByText("Example Project")).toBeInTheDocument();
 		expect(screen.getByText(/A short summary/)).toBeInTheDocument();
 		expect(screen.getByText("TypeScript")).toBeInTheDocument();
