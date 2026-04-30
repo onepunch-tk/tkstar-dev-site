@@ -11,7 +11,7 @@
 | **PRD Features** | **F004** (Projects 목록) |
 | **PRD AC** | — (UI 표시 위주, Issue #1 보강으로 자동 테스트 추가) |
 | **예상 작업 시간** | 1d |
-| **Status** | Not Started |
+| **Status** | Done |
 
 ## Goal
 `/projects` 목록 페이지를 ls-style 행 리스트(카드 그리드 X)로 구현하고, 태그 칩 필터를 URLSearchParam(`?tag=xxx`)에 동기화한다. 행 클릭 시 `/projects/:slug`로 네비게이션.
@@ -37,11 +37,11 @@
 - 페이지별 meta export (T019)
 
 ## Acceptance Criteria
-- [ ] `/projects` 진입 시 모든 project가 행 리스트로 렌더 (카드 그리드 아님)
-- [ ] 각 행에 `slug/`, `title`, `date(YYYY-MM)`, `summary`, `stack pills`가 모두 표시
-- [ ] 태그 칩 클릭 시 URL이 `?tag=<tag>`로 변경 + loader가 해당 태그로 필터링된 결과 반환
-- [ ] 행 클릭 시 `/projects/:slug`로 네비게이션
-- [ ] DOM 구조 snapshot 또는 명시적 selector assertion으로 ls-style 행 레이아웃이 grid가 아닌 flat row 구조임을 보장 (Issue #1 보강)
+- [x] `/projects` 진입 시 모든 project가 행 리스트로 렌더 (카드 그리드 아님)
+- [x] 각 행에 `slug/`, `title`, `date(YYYY-MM)`, `summary`, `stack pills`가 모두 표시
+- [x] 태그 칩 클릭 시 URL이 `?tag=<tag>`로 변경 + loader가 해당 태그로 필터링된 결과 반환
+- [x] 행 클릭 시 `/projects/:slug`로 네비게이션
+- [x] DOM 구조 snapshot 또는 명시적 selector assertion으로 ls-style 행 레이아웃이 grid가 아닌 flat row 구조임을 보장 (Issue #1 보강)
 
 ## Implementation Plan (TDD Cycle)
 
@@ -120,3 +120,4 @@
 | Date | Changes | Author |
 |------|---------|--------|
 | 2026-04-30 | A013 cross-ref 추가 — About 경력 timeline solo entry가 velite project frontmatter (`about_career_role` / `about_career_period`)를 끌어올 수 있음. T012 진행 시 frontmatter Zod schema 확장 가능. | TaekyungHa |
+| 2026-04-30 | T012 구현 완료. ProjectRow 4-col grid (date / slug / title·summary / stack) + TagFilterChips 단일 토글 + projects._index loader (listProjects 두 번 호출, allTags fixed pool) + ls 헤더 라벨 행 + 모바일 amber slug + dashed 행 구분선. 4 TDD cycles, 11 tests added (전체 150 tests Green). Closes #44. | TaekyungHa |
