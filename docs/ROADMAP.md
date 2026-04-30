@@ -283,7 +283,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
   - **후속 확장 (PR #42 merge 이후 결정)**: A013 — 경력 timeline 회사 + solo 프로젝트 통합. `CareerEntry`를 `type: "company" | "solo"` discriminated union으로 확장. solo entry는 velite project frontmatter (`about_career_role` / `about_career_period`) 끌어오기. 본 task는 Completed 상태 유지하고 후속 운영 PR로 처리 (실 데이터 입력 시점)
   - PR 1개 / 브랜치: `feature/issue-N-about-page-print`
 
-- [ ] **Task 012: Projects Page (F004 ls-style 행 리스트 + 태그 필터)**
+- [x] **Task 012: Projects Page (F004 ls-style 행 리스트 + 태그 필터)** ✅
   - **Must** Read: [tasks/T012-projects-list.md](tasks/T012-projects-list.md)
   - blockedBy: Task 005, Task 008, Task 009
   - Layer: Presentation
