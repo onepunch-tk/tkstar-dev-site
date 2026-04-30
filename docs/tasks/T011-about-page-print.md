@@ -142,3 +142,4 @@ About 페이지를 사이트 자체 이력서 역할로 완성하고, `[⎙ PDF]
 | Date | Changes | Author |
 |------|---------|--------|
 | 2026-04-30 | T011 완료 — About 페이지 5 영역(헤더/스택/경력/학력/수상) + `triggerPrint` wrapper + chrome `data-chrome` attribute + `@media print` 블록(A4/light scheme 강제/chrome hide/h2 break-after). 자격증은 A001 후속 PR 셋업으로 type + 빈 배열만. AC-F003-1/2/3 자동(133/133) + 수동 인쇄 미리보기 검증 완료. | TaekyungHa |
+| 2026-04-30 | 후속 확장 결정 — A013 신규 가정 등록. 경력 timeline을 회사 재직 + solo 프로젝트 통합으로 확장 예정 (`type: "company" \| "solo"` discriminated union). solo entry는 velite project frontmatter 끌어오기. T011은 Completed 유지, 별도 운영 PR로 진행. | TaekyungHa |

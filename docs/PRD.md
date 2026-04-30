@@ -68,7 +68,7 @@
 | ID | Feature Name | Description | Priority | Related Pages |
 |----|--------------|-------------|----------|---------------|
 | **F001** | Hero (whoami + 검색 + 빠른 링크) | `whoami` 프롬프트 + "ship solo. ship fast." 카피 + 3-버튼 클러스터([검색해서 이동], [/about], [/projects]). 청중 분기는 별도 CTA가 아닌 콘텐츠 라우팅으로 자연 수렴 | Core (랜딩 진입점) | Home Page |
-| **F002** | About (사이트 자체 이력서) | 이력·기술스택·경력·학력·수상 표시. 화면용 + 인쇄용 듀얼 레이아웃 | Core (B2B 청중 주요 검토 자료) | About Page |
+| **F002** | About (사이트 자체 이력서) | 이력·기술스택·경력·학력·수상 표시. 화면용 + 인쇄용 듀얼 레이아웃. **경력 timeline은 회사 재직 + solo 프로젝트 통합 (시간 역순)** — `type: "company" \| "solo"` 분기로 시각 마커/링크 차별. solo entry는 `/projects/:slug` 또는 `/projects?type=solo`로 link 가능 [ASSUMPTION: A013] | Core (B2B 청중 주요 검토 자료) | About Page |
 | **F003** | PDF 저장 (CSS print) | About 페이지 "⎙ PDF" 버튼 → `window.print()` 호출. `@media print` 전용 스타일로 Topbar/Footer/검색트리거/토글 숨김, 색상 단순화 | Core (이력서 다운로드 대체) | About Page |
 | **F004** | Projects 목록 (ls-style 행 리스트) | `slug/ + title + date / summary / stack pills` 행 구조 + 태그 필터 칩. 카드 그리드 아님. velite + MDX 컬렉션, frontmatter Zod 검증 | Core (포트폴리오 진열) | Projects Page |
 | **F005** | Project Case Study | 프로젝트 상세 페이지. 문제 정의 → 접근 → 결과(수치/스크린샷) 구조. shiki 코드블록. 데스크탑 880px+에서 sticky sidebar(meta: year/role/stack pills + on-this-page TOC). 하단 prev/next 프로젝트 + 가운데 "의뢰하기 →" primary CTA | Core (B2C 청중 신뢰성 검증) | Project Detail Page |
@@ -172,7 +172,7 @@
 | **Role** | 사이트 자체가 이력서. 이력·기술스택·경력·학력·수상을 한 페이지에 정리하여 B2B 청중의 검토를 즉시 만족 |
 | **Entry Path** | palette `/about` / Home 빠른 링크 / Footer Contact 인근 / 외부 검색 결과 |
 | **User Actions** | 본문 스크롤로 섹션별 검토. 인쇄 시 "⎙ PDF" 버튼 클릭 → 시스템 인쇄 다이얼로그에서 PDF 저장 |
-| **Key Features** | • 헤더: 이름 + 한 줄 포지셔닝 + 이메일 + [⎙ PDF] 버튼<br>• 기술스택 카드 3개 (frontend / edge·backend / quality) — 카테고리별 그룹<br>• 경력 (역순)<br>• 학력 / 수상 카드 2개 [ASSUMPTION: 자격증 데이터 추가 시 별도 카드]<br>• `@media print` 스타일: Topbar/Footer/검색트리거/토글 숨김, 색상 단순화 (F003) |
+| **Key Features** | • 헤더: 이름 + 한 줄 포지셔닝 + 이메일 + [⎙ PDF] 버튼<br>• 기술스택 카드 3개 (frontend / edge·backend / quality) — 카테고리별 그룹<br>• 경력 (역순) — **회사 재직 + solo 프로젝트 통합 timeline**. `type: "company" \| "solo"` discriminated union으로 분기. solo entry는 `/projects/:slug` link 가능 (frontmatter 끌어오기) [ASSUMPTION: A013]<br>• 학력 / 수상 카드 2개 [ASSUMPTION: 자격증 데이터 추가 시 별도 카드 — A001]<br>• `@media print` 스타일: Topbar/Footer/검색트리거/토글/PDF 버튼 숨김, 색상 단순화 (F003) |
 | **Next Navigation** | palette / Projects / Blog / Contact |
 
 ### Projects Page
@@ -340,6 +340,7 @@
 | A010 | Tech Stack — Hosting | 도메인 등록 채널(CF Registrar / Porkbun) 미정 | 배포 PR 직전 | DNS 작업 시점 |
 | A011 | F019 — Bing | Bing Webmaster Tools는 MVP 후 등록 | MVP 완료 후 | 운영 안정화 후 |
 | A012 | Deferred — Motion | Motion 라이브러리는 추후 인터랙션 보강 시 재검토 | MVP 완료 후 | 사용자 피드백 수집 후 |
+| A013 | About Page Career — solo 통합 | 경력 timeline에 회사 재직 + solo 프로젝트를 통합. solo entry는 velite project frontmatter의 신규 필드(예: `about_career_role`, `about_career_period`) 끌어오기. `CareerEntry` 타입은 `type: "company" \| "solo"` discriminated union | 후속 운영 PR (T012 이후 또는 T011 follow-up) | 회사 경력 1건 이상 + solo 프로젝트 데이터 입력 시점 |
 
 > **운용 규칙**: 새 `[ASSUMPTION]` 태그를 PRD 본문에 추가할 때는 반드시 본 표에 ID와 해소 게이트를 함께 등록한다. ROADMAP의 각 phase 종료 시점에 본 표를 점검하여 해당 phase가 게이트인 항목이 모두 [FACT]로 전환됐는지 확인한다.
 
