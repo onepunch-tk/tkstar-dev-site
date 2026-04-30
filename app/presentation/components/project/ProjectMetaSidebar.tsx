@@ -30,7 +30,7 @@ export default function ProjectMetaSidebar({ date, role, stack }: Props) {
 					{stack.map((item) => (
 						<li
 							key={item}
-							className="inline-flex border border-line px-2 py-0.5 text-[11px] text-muted tracking-[0.02em]"
+							className="inline-block rounded-full border border-line-strong px-2 py-0.5 font-mono text-[11px] text-muted tracking-[0.02em]"
 						>
 							{item}
 						</li>

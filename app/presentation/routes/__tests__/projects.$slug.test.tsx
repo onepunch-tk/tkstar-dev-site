@@ -24,7 +24,7 @@ const PROJECT_WITH_TOC: Project = {
 	stack: ["TypeScript", "React Router"],
 	metrics: [],
 	role: "Lead Engineer",
-	body: undefined,
+	body: "[stub-mdx-body]",
 	toc: [
 		{ slug: "problem", text: "Problem" },
 		{ slug: "approach", text: "Approach" },

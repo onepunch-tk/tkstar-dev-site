@@ -14,7 +14,7 @@ export default function OnThisPageToc({ toc }: Props) {
 					<li key={item.slug}>
 						<a
 							href={`#${item.slug}`}
-							className="text-[12px] text-faint no-underline transition-colors duration-[var(--duration-120)] ease-out hover:text-fg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent motion-reduce:transition-none"
+							className="text-[12px] text-muted no-underline transition-colors duration-[var(--duration-120)] ease-out hover:text-fg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent motion-reduce:transition-none"
 						>
 							{item.text}
 						</a>

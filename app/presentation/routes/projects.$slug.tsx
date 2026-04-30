@@ -31,10 +31,10 @@ export default function ProjectDetail({ loaderData }: Route.ComponentProps) {
 			</header>
 
 			<div className="flex flex-col gap-8 min-[880px]:grid min-[880px]:grid-cols-[minmax(0,1fr)_280px] min-[880px]:gap-10">
-				<article className="prose-invert">
-					<MdxRenderer code={project.body ?? ""} />
+				<article className="project-body">
+					{project.body ? <MdxRenderer code={project.body} /> : null}
 				</article>
-				<div className="flex flex-col gap-6 min-[880px]:sticky min-[880px]:top-[88px] min-[880px]:self-start min-[880px]:max-h-[calc(100vh-100px)] min-[880px]:overflow-y-auto">
+				<div className="flex flex-col gap-6 min-[880px]:sticky min-[880px]:top-[calc(var(--height-topbar)+36px)] min-[880px]:self-start min-[880px]:max-h-[calc(100dvh-var(--height-topbar)-48px)] min-[880px]:overflow-y-auto">
 					<ProjectMetaSidebar date={project.date} role={project.role} stack={project.stack} />
 					<OnThisPageToc toc={project.toc ?? []} />
 				</div>
