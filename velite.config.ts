@@ -1,22 +1,29 @@
 import rehypeShiki from "@shikijs/rehype";
 import rehypeSlug from "rehype-slug";
 import { defineCollection, defineConfig, s } from "velite";
+import { extractToc } from "./velite/transforms/extract-toc";
 
 const projects = defineCollection({
 	name: "Project",
 	pattern: "projects/**/*.mdx",
-	schema: s.object({
-		slug: s.slug("projects"),
-		title: s.string(),
-		summary: s.string(),
-		date: s.isodate(),
-		tags: s.array(s.string()),
-		stack: s.array(s.string()),
-		metrics: s.array(s.tuple([s.string(), s.string()])),
-		featured: s.boolean().optional(),
-		cover: s.string().optional(),
-		body: s.mdx(),
-	}),
+	schema: s
+		.object({
+			slug: s.slug("projects"),
+			title: s.string(),
+			summary: s.string(),
+			date: s.isodate(),
+			tags: s.array(s.string()),
+			stack: s.array(s.string()),
+			metrics: s.array(s.tuple([s.string(), s.string()])),
+			featured: s.boolean().optional(),
+			cover: s.string().optional(),
+			role: s.string().optional(),
+			body: s.mdx(),
+		})
+		.transform((data, { meta }) => ({
+			...data,
+			toc: extractToc(meta.content ?? ""),
+		})),
 });
 
 const posts = defineCollection({
