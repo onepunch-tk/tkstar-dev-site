@@ -6,7 +6,7 @@ const linkClass =
 
 export default function Footer() {
 	return (
-		<footer className="border-t border-line text-muted text-xs">
+		<footer data-chrome="footer" className="border-t border-line text-muted text-xs">
 			<div className="mx-auto flex max-w-5xl flex-col gap-3 px-4 py-6 sm:flex-row sm:items-center sm:justify-between">
 				<p>© {new Date().getFullYear()} tkstar.dev</p>
 				<ul className="flex flex-wrap gap-4">

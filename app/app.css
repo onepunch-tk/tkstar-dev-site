@@ -13,6 +13,8 @@
 	--color-accent: oklch(72% 0.14 155);
 	--color-accent-warm: oklch(72% 0.14 65);
 	--color-warn: oklch(72% 0.14 30);
+	/* always-dark contrast for solid accent backgrounds — light/dark/print 공통 (정본 prototype.css .wf-btn.accent: color #0d0f12) */
+	--color-on-accent: #0d0f12;
 
 	--font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
@@ -74,4 +76,47 @@ body {
 	background: var(--color-bg);
 	color: var(--color-fg);
 	font-family: var(--font-mono);
+}
+
+@media print {
+	@page {
+		size: A4;
+		margin: 0;
+	}
+
+	:root,
+	[data-theme="dark"] {
+		color-scheme: light;
+		--color-bg: #f4f1ea;
+		--color-bg-elev: #ebe7dd;
+		--color-bg-card: #f9f7f1;
+		--color-fg: #1a1c20;
+		--color-muted: #5a6068;
+		--color-faint: #a8aab0;
+		--color-line: #c8c2b3;
+		--color-line-strong: #8a8678;
+		--color-accent: oklch(48% 0.14 155);
+		--color-accent-warm: oklch(55% 0.14 65);
+		--color-warn: oklch(55% 0.14 30);
+		--color-hatch: oklch(20% 0 0 / 0.05);
+	}
+
+	body {
+		print-color-adjust: exact;
+		-webkit-print-color-adjust: exact;
+	}
+
+	[data-chrome="topbar"],
+	[data-chrome="footer"],
+	[data-chrome="search-trigger"],
+	[data-chrome="theme-toggle"],
+	[data-chrome="print-trigger"] {
+		/* biome-ignore lint/complexity/noImportantStyles: @media print에서 chrome 컴포넌트를 무조건 hide. 더 specific한 셀렉터가 chrome을 우연히 노출시키는 회귀 차단용. */
+		display: none !important;
+	}
+
+	h2 {
+		break-after: avoid-page;
+		page-break-after: avoid;
+	}
 }

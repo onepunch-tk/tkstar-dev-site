@@ -264,7 +264,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
     - `app/presentation/components/home/{HeroWhoami.tsx, FeaturedProjectCard.tsx, RecentPostsList.tsx}`
   - PR 1개 / 브랜치: `feature/issue-N-home-page`
 
-- [ ] **Task 011: About Page + F003 PDF 인쇄 스타일**
+- [x] **Task 011: About Page + F003 PDF 인쇄 스타일**
   - **Must** Read: [tasks/T011-about-page-print.md](tasks/T011-about-page-print.md)
   - blockedBy: Task 005, Task 008, Task 009
   - Layer: Presentation

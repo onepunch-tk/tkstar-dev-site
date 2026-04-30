@@ -7,7 +7,10 @@ export default function Topbar() {
 	const { pathname } = useLocation();
 	const kbd = useKbdHint();
 	return (
-		<header className="sticky top-0 z-40 border-b border-line bg-bg/80 backdrop-blur-sm motion-reduce:bg-bg motion-reduce:backdrop-blur-none">
+		<header
+			data-chrome="topbar"
+			className="sticky top-0 z-40 border-b border-line bg-bg/80 backdrop-blur-sm motion-reduce:bg-bg motion-reduce:backdrop-blur-none"
+		>
 			<div className="mx-auto flex max-w-5xl items-center gap-6 px-4 py-3">
 				<Link
 					to="/"
@@ -36,6 +39,7 @@ export default function Topbar() {
 					))}
 					<button
 						type="button"
+						data-chrome="search-trigger"
 						aria-disabled="true"
 						aria-label="검색 (준비 중)"
 						onClick={(e) => e.preventDefault()}

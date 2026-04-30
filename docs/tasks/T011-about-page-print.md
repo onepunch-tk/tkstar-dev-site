@@ -11,7 +11,7 @@
 | **PRD Features** | **F002** (About), **F003** (PDF 저장) |
 | **PRD AC** | **AC-F003-1**, **AC-F003-2**, **AC-F003-3** |
 | **예상 작업 시간** | 1.5d |
-| **Status** | Not Started |
+| **Status** | Completed |
 
 ## Goal
 About 페이지를 사이트 자체 이력서 역할로 완성하고, `[⎙ PDF]` 버튼 클릭 시 `window.print()`을 호출하여 `@media print` 전용 스타일로 깨끗한 PDF가 저장되게 한다 (AC-F003-1/2/3 모두 통과).
@@ -37,13 +37,13 @@ About 페이지를 사이트 자체 이력서 역할로 완성하고, `[⎙ PDF]
 - About에서 직접 Project Detail 링크 — T013에서 prev/next 패턴 확정 후 검토
 
 ## Acceptance Criteria (PRD AC 인용)
-- [ ] **AC-F003-1**: About 페이지에서 사용자가 `[⎙ PDF]` 버튼을 클릭한다 → `window.print()` 다이얼로그가 열린다 → `@page { size: A4; margin: 0 }` 적용 + Topbar/Footer/검색트리거/토글이 `display: none`으로 시각적으로 숨겨짐
-- [ ] **AC-F003-2**: 본문에 OKLCH 색상이 포함된 섹션이 존재 → 인쇄 미리보기를 본다 → `print-color-adjust: exact`가 적용되어 화면과 동일한 색이 유지됨 (또는 sRGB로 자동 변환되어도 가독성 손상 없음)
-- [ ] **AC-F003-3**: 인쇄 미리보기가 열린 상태 → 페이지 경계에 도달 → 섹션 헤딩(`h2`)이 페이지 하단에 고립되지 않음 (`break-after: avoid` 또는 `page-break-inside: avoid`)
+- [x] **AC-F003-1**: About 페이지에서 사용자가 `[⎙ PDF]` 버튼을 클릭한다 → `window.print()` 다이얼로그가 열린다 → `@page { size: A4; margin: 0 }` 적용 + Topbar/Footer/검색트리거/토글이 `display: none`으로 시각적으로 숨겨짐
+- [x] **AC-F003-2**: 본문에 OKLCH 색상이 포함된 섹션이 존재 → 인쇄 미리보기를 본다 → `print-color-adjust: exact`가 적용되어 화면과 동일한 색이 유지됨 (또는 sRGB로 자동 변환되어도 가독성 손상 없음)
+- [x] **AC-F003-3**: 인쇄 미리보기가 열린 상태 → 페이지 경계에 도달 → 섹션 헤딩(`h2`)이 페이지 하단에 고립되지 않음 (`break-after: avoid` 또는 `page-break-inside: avoid`)
 
 ### Task 추가 AC
-- [ ] About 페이지에 헤더 / 기술스택 3 카드 / 경력 / 학력 / 수상 5 영역이 모두 렌더
-- [ ] `triggerPrint()`가 unit test에서 `window.print` mock을 1회 호출
+- [x] About 페이지에 헤더 / 기술스택 3 카드 / 경력 / 학력 / 수상 5 영역이 모두 렌더
+- [x] `triggerPrint()`가 unit test에서 `window.print` mock을 1회 호출
 
 ## Implementation Plan (TDD Cycle)
 
@@ -141,4 +141,4 @@ About 페이지를 사이트 자체 이력서 역할로 완성하고, `[⎙ PDF]
 ## Change History
 | Date | Changes | Author |
 |------|---------|--------|
-| - | - | - |
+| 2026-04-30 | T011 완료 — About 페이지 5 영역(헤더/스택/경력/학력/수상) + `triggerPrint` wrapper + chrome `data-chrome` attribute + `@media print` 블록(A4/light scheme 강제/chrome hide/h2 break-after). 자격증은 A001 후속 PR 셋업으로 type + 빈 배열만. AC-F003-1/2/3 자동(133/133) + 수동 인쇄 미리보기 검증 완료. | TaekyungHa |
