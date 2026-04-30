@@ -37,7 +37,7 @@ describe("FeaturedProjectCard", () => {
 		expect(links[0]).toHaveAttribute("href", "/projects/whiteboard-rt");
 	});
 
-	it("h2 heading으로 프로젝트 제목이 렌더된다", () => {
+	it("h3 heading으로 프로젝트 제목이 렌더된다", () => {
 		// Arrange
 		render(
 			<MemoryRouter>
@@ -46,7 +46,7 @@ describe("FeaturedProjectCard", () => {
 		);
 
 		// Act & Assert
-		expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent("Realtime Whiteboard");
+		expect(screen.getByRole("heading", { level: 3 })).toHaveTextContent("Realtime Whiteboard");
 	});
 
 	it("프로젝트 summary가 렌더된다", () => {

@@ -36,9 +36,9 @@ export default function Topbar() {
 					))}
 					<button
 						type="button"
-						disabled
 						aria-disabled="true"
-						aria-label="검색 (T016에서 활성화)"
+						aria-label="검색 (준비 중)"
+						onClick={(e) => e.preventDefault()}
 						className="cursor-not-allowed rounded-sm border border-line px-2 py-1 text-muted text-xs opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
 					>
 						{kbd}

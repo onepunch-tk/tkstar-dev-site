@@ -8,7 +8,6 @@ export const TOPBAR_LINKS: ChromeLink[] = [
 	{ label: "about", href: "/about" },
 	{ label: "projects", href: "/projects" },
 	{ label: "blog", href: "/blog" },
-	{ label: "now", href: "/now" },
 ];
 
 // TODO: X / RSS placeholder — T0xx에서 실 URL 확정 시 교체. external: true로 두어 SPA navigation 회피.

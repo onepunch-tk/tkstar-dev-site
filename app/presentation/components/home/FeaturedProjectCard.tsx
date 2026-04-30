@@ -4,9 +4,6 @@ import type { Project } from "../../../domain/project/project.entity";
 
 type Props = { project: Project };
 
-const COVER_HATCH_CLASS =
-	"bg-bg-elev bg-[image:repeating-linear-gradient(45deg,var(--color-hatch)_0_8px,transparent_8px_16px)]";
-
 export default function FeaturedProjectCard({ project }: Props) {
 	return (
 		<Link
@@ -23,12 +20,11 @@ export default function FeaturedProjectCard({ project }: Props) {
 						alt=""
 						loading="eager"
 						decoding="async"
+						fetchPriority="high"
 						className="h-full w-full object-cover"
 					/>
 				) : (
-					<div
-						className={`flex h-full w-full items-center justify-center font-mono text-[11px] text-faint tracking-[0.06em] ${COVER_HATCH_CLASS}`}
-					>
+					<div className="flex h-full w-full items-center justify-center bg-bg-elev bg-[image:repeating-linear-gradient(45deg,var(--color-hatch)_0_8px,transparent_8px_16px)] font-mono text-[11px] text-faint tracking-[0.06em]">
 						cover · 16:9
 					</div>
 				)}
@@ -45,9 +41,9 @@ export default function FeaturedProjectCard({ project }: Props) {
 				))}
 			</div>
 
-			<h2 className="m-0 font-mono font-semibold text-[clamp(1.25rem,3.4vw,1.5rem)] leading-[1.2] tracking-[-0.01em]">
+			<h3 className="m-0 font-mono font-semibold text-[clamp(1.25rem,3.4vw,1.5rem)] leading-[1.2] tracking-[-0.01em]">
 				{project.title}
-			</h2>
+			</h3>
 
 			<p className="m-0 mt-1.5 text-muted text-sm leading-[1.7]">{project.summary}</p>
 		</Link>
