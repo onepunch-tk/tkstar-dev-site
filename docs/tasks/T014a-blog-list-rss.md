@@ -5,13 +5,13 @@
 | **Task ID** | T014a |
 | **Phase** | Phase 3 — Core Pages UI |
 | **Layer** | Presentation + Application(`build-rss-feed.service`) + Resource Route |
-| **Branch** | `feature/issue-N-blog-list-rss` |
+| **Branch** | `feature/issue-48-blog-list-rss` |
 | **Depends on** | T005, T007, T008, T009 |
 | **Blocks** | T014b, T018 |
 | **PRD Features** | **F006** (Blog 목록), **F012** (RSS) |
 | **PRD AC** | — (UI 표시 + RSS XML well-formed) |
 | **예상 작업 시간** | 1d |
-| **Status** | Not Started |
+| **Status** | Completed |
 
 ## Goal
 `/blog` 목록 페이지를 발행일 역순 + 태그 필터 + 행 형태로 구현하고, `/rss.xml` 리소스 라우트가 RSS 2.0 well-formed XML을 반환하게 한다. T014b(Blog Detail)의 사전 단계.
@@ -36,12 +36,12 @@
 - 페이지별 meta export (T019)
 
 ## Acceptance Criteria
-- [ ] `/blog` 진입 시 모든 post가 발행일 역순으로 행 형태로 렌더
-- [ ] 각 행에 제목, date, lede, tags, read 표시
-- [ ] 태그 칩 클릭 시 URL `?tag=<tag>` 변경 + 필터링 결과
-- [ ] `/rss.xml` 응답이 RSS 2.0 well-formed XML, `<rss version="2.0">`, `<channel>`, `<title>`, `<link>`, `<description>`, `<item>{title,link,description,pubDate,guid}` 포함
-- [ ] item 수 = 모든 post 수
-- [ ] `Content-Type: application/xml` 헤더
+- [x] `/blog` 진입 시 모든 post가 발행일 역순으로 행 형태로 렌더
+- [x] 각 행에 제목, date, lede, tags, read 표시
+- [x] 태그 칩 클릭 시 URL `?tag=<tag>` 변경 + 필터링 결과
+- [x] `/rss.xml` 응답이 RSS 2.0 well-formed XML, `<rss version="2.0">`, `<channel>`, `<title>`, `<link>`, `<description>`, `<item>{title,link,description,pubDate,guid}` 포함
+- [x] item 수 = 모든 post 수
+- [x] `Content-Type: application/xml` 헤더
 
 ## Implementation Plan (TDD Cycle)
 
@@ -127,4 +127,4 @@
 ## Change History
 | Date | Changes | Author |
 |------|---------|--------|
-| - | - | - |
+| 2026-04-30 | T014a 완료 — 5 TDD cycles (build-rss-feed service / Container / rss route / PostRow / blog._index) + 17 tests Green. Phase 3 code-review/design-review 0 blocking issues. PR #48 squash merge 대기. | TaekyungHa |

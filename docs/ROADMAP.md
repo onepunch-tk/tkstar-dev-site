@@ -313,7 +313,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
   - 가정 해소: A002 완료
   - PR 1개 / 브랜치: `feature/issue-N-project-detail`
 
-- [ ] **Task 014a: Blog Page (F006) — 목록 + 태그 필터 + RSS Resource Route (F012)**
+- [x] **Task 014a: Blog Page (F006) — 목록 + 태그 필터 + RSS Resource Route (F012)** — 완료 (2026-04-30, PR #48)
   - **Must** Read: [tasks/T014a-blog-list-rss.md](tasks/T014a-blog-list-rss.md)
   - blockedBy: Task 005, Task 007, Task 008, Task 009
   - blocks: Task 014b, Task 018 (OG)
