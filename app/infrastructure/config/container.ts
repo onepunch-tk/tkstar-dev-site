@@ -6,6 +6,7 @@ import { getProjectDetail } from "~/application/content/services/get-project-det
 import { getRecentPosts } from "~/application/content/services/get-recent-posts.service";
 import { listPosts } from "~/application/content/services/list-posts.service";
 import { listProjects } from "~/application/content/services/list-projects.service";
+import { buildRssFeed } from "~/application/feed/services/build-rss-feed.service";
 import type { Post } from "~/domain/post/post.entity";
 import type { Project } from "~/domain/project/project.entity";
 import { velitePostRepository } from "~/infrastructure/content/velite-post.repository";
@@ -20,6 +21,7 @@ export type Container = {
 	listPosts: (opts?: { tag?: string }) => Promise<Post[]>;
 	getPostDetail: (slug: string) => Promise<{ post: Post; prev: Post | null; next: Post | null }>;
 	getRecentPosts: (n: number) => Promise<Post[]>;
+	buildRssFeed: () => Promise<string>;
 };
 
 export const buildContainer = (_env: Env): Container => {
@@ -32,5 +34,6 @@ export const buildContainer = (_env: Env): Container => {
 		listPosts: (opts) => listPosts(postRepo, opts),
 		getPostDetail: (slug) => getPostDetail(postRepo, slug),
 		getRecentPosts: (n) => getRecentPosts(postRepo, n),
+		buildRssFeed: async () => buildRssFeed(await postRepo.findAll()),
 	};
 };

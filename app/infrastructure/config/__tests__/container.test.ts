@@ -32,8 +32,10 @@ vi.mock("#content", () => ({
 			slug: "post-1",
 			title: "Post 1",
 			summary: "Post 1 요약",
+			lede: "Post 1 lede",
 			date: "2026-04-20T00:00:00.000Z",
 			tags: ["x"],
+			read: 3,
 			cover: undefined,
 			body: "",
 		},
@@ -41,8 +43,10 @@ vi.mock("#content", () => ({
 			slug: "post-2",
 			title: "Post 2",
 			summary: "Post 2 요약",
+			lede: "Post 2 lede",
 			date: "2026-04-21T00:00:00.000Z",
 			tags: ["y"],
+			read: 5,
 			cover: undefined,
 			body: "",
 		},
@@ -56,7 +60,7 @@ import { buildContainer, type Container } from "../container";
 describe("buildContainer", () => {
 	const env = {} as Env;
 
-	it("Container에 6개 service 함수가 모두 노출된다", () => {
+	it("Container에 7개 service 함수가 모두 노출된다", () => {
 		const c = buildContainer(env);
 		const keys: (keyof Container)[] = [
 			"listProjects",
@@ -65,6 +69,7 @@ describe("buildContainer", () => {
 			"listPosts",
 			"getPostDetail",
 			"getRecentPosts",
+			"buildRssFeed",
 		];
 		for (const k of keys) {
 			expect(typeof c[k]).toBe("function");
@@ -127,6 +132,19 @@ describe("buildContainer", () => {
 			expect(result.post.slug).toBe("post-2");
 			expect(result.prev).toBeNull();
 			expect(result.next?.slug).toBe("post-1");
+		});
+	});
+
+	describe("feed services delegation", () => {
+		it("buildRssFeed는 모든 post를 포함한 RSS 2.0 XML을 반환한다", async () => {
+			const c = buildContainer(env);
+			const xml = await c.buildRssFeed();
+			expect(xml.startsWith('<?xml version="1.0" encoding="UTF-8"?>')).toBe(true);
+			expect(xml).toContain('<rss version="2.0"');
+			const itemMatches = xml.match(/<item>/g);
+			expect(itemMatches).toHaveLength(2);
+			expect(xml).toContain("<link>https://tkstar.dev/blog/post-1</link>");
+			expect(xml).toContain("<link>https://tkstar.dev/blog/post-2</link>");
 		});
 	});
 });
