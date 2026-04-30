@@ -298,7 +298,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
     - `app/presentation/lib/format.ts` — `formatYearMonth(date)` (Domain VO 또는 lib?  — 읽기 전용 포맷이므로 Presentation lib 채택)
   - PR 1개 / 브랜치: `feature/issue-N-projects-list`
 
-- [ ] **Task 013: Project Detail Page (F005 + sticky sidebar + on-this-page TOC)**
+- [x] **Task 013: Project Detail Page (F005 + sticky sidebar + on-this-page TOC)**
   - **Must** Read: [tasks/T013-project-detail.md](tasks/T013-project-detail.md)
   - blockedBy: Task 005, Task 007 (rehype-slug), Task 008, Task 009
   - blocks: Task 018 (OG)

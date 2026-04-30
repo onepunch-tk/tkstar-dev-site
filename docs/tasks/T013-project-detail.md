@@ -5,13 +5,14 @@
 | **Task ID** | T013 |
 | **Phase** | Phase 3 — Core Pages UI |
 | **Layer** | Presentation + Application(`getProjectDetail`) |
-| **Branch** | `feature/issue-N-project-detail` |
+| **Branch** | `feature/issue-46-project-detail` |
 | **Depends on** | T005, T007, T008, T009 |
 | **Blocks** | T018 (OG) |
 | **PRD Features** | **F005** (Project Case Study) |
 | **PRD AC** | — (UI 표시 위주, OG는 Phase 5 F011) |
 | **예상 작업 시간** | 1.5d |
-| **Status** | Not Started |
+| **Status** | Completed |
+| **Issue** | #46 |
 
 ## Goal
 Project Detail 페이지를 Case Study 구조(문제 → 접근 → 결과)로 완성하고, 데스크탑 880px+에서 sticky sidebar(meta + on-this-page TOC)를 가동시킨다. `← prev` / `의뢰하기 →` (primary) / `next →` 3분할 푸터 포함. velite 후처리로 TOC를 frontmatter에 자동 주입하여 가정 A002 완료.
