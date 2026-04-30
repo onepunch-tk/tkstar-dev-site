@@ -16,15 +16,12 @@ export const loader = async ({ context, request }: Route.LoaderArgs) => {
 	return { projects, allTags, activeTag: tag ?? null };
 };
 
-const SECTION_HEADER_CLASS =
-	"flex items-center gap-2 m-0 font-mono text-[11px] tracking-[0.12em] uppercase text-muted";
-
 export default function ProjectsIndex({ loaderData }: Route.ComponentProps) {
 	const { projects, allTags, activeTag } = loaderData;
 	return (
 		<main className="mx-auto flex max-w-[var(--container-measure)] flex-col gap-[22px] px-[var(--spacing-gutter)] pt-[22px] pb-20 min-[720px]:gap-7 min-[720px]:px-7 min-[720px]:pt-9 min-[720px]:pb-[120px]">
 			<header className="flex flex-col gap-2">
-				<h1 className={SECTION_HEADER_CLASS}>
+				<h1 className="flex items-center gap-2 m-0 font-mono text-[11px] tracking-[0.12em] uppercase text-muted">
 					<span aria-hidden="true" className="text-accent">
 						$
 					</span>
@@ -40,11 +37,20 @@ export default function ProjectsIndex({ loaderData }: Route.ComponentProps) {
 
 			{projects.length === 0 ? (
 				<div data-testid="empty-state" className="flex flex-col gap-1 font-mono text-[12px]">
-					<div className="text-muted">$ grep -l 'tag:{activeTag}' projects/*.mdx</div>
+					<div className="text-muted">$ grep -l 'tag:{activeTag ?? "*"}' projects/*.mdx</div>
 					<div className="text-faint">No matches.</div>
 				</div>
 			) : (
 				<div className="flex flex-col">
+					<div
+						aria-hidden="true"
+						className="hidden border-line-strong border-b-[1.5px] py-1 font-mono text-[11px] text-faint tracking-[0.08em] uppercase min-[720px]:grid min-[720px]:grid-cols-[80px_180px_1fr_auto] min-[720px]:gap-2.5"
+					>
+						<span>date</span>
+						<span>slug</span>
+						<span>title · summary</span>
+						<span className="text-right">stack</span>
+					</div>
 					{projects.map((p) => (
 						<ProjectRow key={p.slug} project={p} />
 					))}

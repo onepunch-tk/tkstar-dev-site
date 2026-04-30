@@ -15,7 +15,7 @@ export default function ProjectRow({ project }: Props) {
 			<span className="hidden text-[11px] text-muted min-[720px]:inline">
 				{formatYearMonth(project.date)}
 			</span>
-			<span className="hidden text-accent min-[720px]:inline">{project.slug}/</span>
+			<span className="hidden text-[12px] text-accent min-[720px]:inline">{project.slug}/</span>
 			<div className="flex flex-col gap-0.5">
 				<span className="font-semibold text-fg">{project.title}</span>
 				<span className="text-[11px] text-muted">{project.summary}</span>
