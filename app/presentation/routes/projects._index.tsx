@@ -44,7 +44,7 @@ export default function ProjectsIndex({ loaderData }: Route.ComponentProps) {
 				<div className="flex flex-col">
 					<div
 						aria-hidden="true"
-						className="hidden border-line-strong border-b-[1.5px] py-1 font-mono text-[11px] text-faint tracking-[0.08em] uppercase min-[720px]:grid min-[720px]:grid-cols-[80px_180px_1fr_auto] min-[720px]:gap-2.5"
+						className="hidden border-line-strong border-b-[1.5px] py-1 font-mono text-[11px] text-faint tracking-[0.08em] uppercase min-[720px]:grid min-[720px]:grid-cols-[72px_140px_1fr_minmax(0,200px)] min-[720px]:gap-2.5"
 					>
 						<span>date</span>
 						<span>slug</span>
