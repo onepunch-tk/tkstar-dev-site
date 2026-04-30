@@ -280,6 +280,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
     - `app/presentation/lib/print.ts` — `triggerPrint()` 래퍼 (테스트 가능)
     - `app/app.css`에 `@media print { ... }` 블록 (Topbar/Footer/검색트리거/토글 `display: none`, `@page { size: A4; margin: 0 }`, `print-color-adjust: exact`, `break-after: avoid` for h2)
   - 가정 해소: A001 (자격증 데이터는 frontmatter optional 필드로 자리만, Phase 3 외에서 콘텐츠 추가 가능)
+  - **후속 확장 (PR #42 merge 이후 결정)**: A013 — 경력 timeline 회사 + solo 프로젝트 통합. `CareerEntry`를 `type: "company" | "solo"` discriminated union으로 확장. solo entry는 velite project frontmatter (`about_career_role` / `about_career_period`) 끌어오기. 본 task는 Completed 상태 유지하고 후속 운영 PR로 처리 (실 데이터 입력 시점)
   - PR 1개 / 브랜치: `feature/issue-N-about-page-print`
 
 - [ ] **Task 012: Projects Page (F004 ls-style 행 리스트 + 태그 필터)**

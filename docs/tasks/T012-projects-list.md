@@ -30,6 +30,7 @@
 - `<TagFilterChips />` — 모든 unique 태그 추출 + 클릭 시 URL 갱신 (`useSearchParams`)
 - `formatYearMonth(date)` 유틸
 - 행 클릭 시 `<Link to={"/projects/" + slug}>`로 네비게이션
+- **A013 연계**: solo 프로젝트는 velite frontmatter에 `about_career_role` / `about_career_period` 신규 optional 필드 추가 가능 (About 경력 timeline에서 끌어옴). `/projects` 페이지 자체에는 해당 필드를 노출하지 않으나 frontmatter Zod schema 확장은 본 task 범위에 포함 가능
 
 ### Out of Scope
 - Project Detail (T013)
@@ -118,4 +119,4 @@
 ## Change History
 | Date | Changes | Author |
 |------|---------|--------|
-| - | - | - |
+| 2026-04-30 | A013 cross-ref 추가 — About 경력 timeline solo entry가 velite project frontmatter (`about_career_role` / `about_career_period`)를 끌어올 수 있음. T012 진행 시 frontmatter Zod schema 확장 가능. | TaekyungHa |
