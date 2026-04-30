@@ -32,7 +32,7 @@ describe("OnThisPageToc", () => {
 		expect(container.firstChild).toBeNull();
 	});
 
-	it("anchor href 는 정확히 `#${slug}` 형식이다", () => {
+	it("anchor href 는 정확히 #slug 형식이다", () => {
 		// Arrange
 		const toc = [{ slug: "문제-정의", text: "문제 정의" }];
 
