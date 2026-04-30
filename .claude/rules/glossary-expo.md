@@ -17,7 +17,7 @@ applies_to: expo-sdk-50+ / react-native
 | **EAS Build** | Cloud build service (`eas.json`). Distinct profiles for `development` / `preview` / `production`. Triggered by `eas build`. |
 | **EAS Update** | OTA update channel for JS/asset updates without a store release. Tied to a build's `runtimeVersion`. |
 | **`useNavigation()` / `router`** | Two ways to navigate in Expo Router. Prefer `router.push('/path')` for explicit paths; `useNavigation()` for advanced gestures. |
-| **`SafeAreaView` / `useSafeAreaInsets`** | From `react-native-safe-area-context`. Pad against notch/home-indicator. Mandatory on top-level screens. |
+| **`SafeAreaView` / `useSafeAreaInsets`** | From `react-native-safe-area-context`. Pad against notch/home-indicator. Mandatory on top-level screens. **Coding rules: see design-system skill §3.1 "SafeAreaView background color" / "App-wide SafeAreaView avoidance" and §3.5 review checklist.** |
 | **Reanimated Worklet** | A JS function with `'worklet'` directive that runs on the UI thread. Required for 60fps gesture/scroll animations. |
 | **Hermes** | JS engine on iOS/Android. Already default in modern Expo. Affects stack traces and performance profiling. |
 | **`expo-constants`** | Source of truth for app metadata (`Constants.expoConfig`). Read at runtime instead of hard-coding versions. |
