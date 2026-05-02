@@ -5,6 +5,7 @@ import {
 	type PaletteGroup,
 	useCommandPalette,
 } from "~/presentation/hooks/useCommandPalette";
+import { useKbdHint } from "~/presentation/hooks/useKbdHint";
 
 const GROUP_LABELS: Record<PaletteGroup | "recents", string> = {
 	recents: "Recent",
@@ -26,6 +27,7 @@ const collectGroups = (api: CommandPaletteApi): { key: GroupKey; items: PaletteE
 
 export default function CommandPalette() {
 	const api = useCommandPalette();
+	const kbd = useKbdHint();
 	const inputRef = useRef<HTMLInputElement | null>(null);
 	const [listEl, setListEl] = useState<HTMLUListElement | null>(null);
 
@@ -49,54 +51,100 @@ export default function CommandPalette() {
 	if (!api.isOpen) return null;
 
 	const visible = collectGroups(api);
+	const isEmpty = visible.length === 0;
 	let runningIndex = 0;
 
 	return (
 		<div
 			data-testid="palette-modal"
+			data-palette-backdrop
 			role="dialog"
 			aria-modal="true"
 			aria-label="Command palette"
-			className="fixed inset-0 z-50 flex items-start justify-center bg-black/40 pt-24"
+			onClick={(e) => {
+				// 패널 자체 클릭은 무시 — backdrop(자기 자신)만 close 트리거
+				if (e.target === e.currentTarget) api.close();
+			}}
+			className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 px-4 pt-[14vh] backdrop-blur-sm motion-reduce:bg-black/60 motion-reduce:backdrop-blur-none [animation:palette-backdrop-in_var(--duration-120)_ease-out]"
 		>
-			<div className="w-full max-w-xl rounded-md border border-border bg-bg-elev shadow-lg">
-				<input
-					ref={inputRef}
-					data-testid="palette-input"
-					value={api.query}
-					onChange={(e) => api.setQuery(e.target.value)}
-					placeholder="Search pages, projects, posts..."
-					className="w-full bg-transparent px-4 py-3 outline-none"
-				/>
-				<ul ref={setListEl} className="max-h-96 overflow-y-auto py-2">
-					{visible.map(({ key, items }) => (
-						<li key={key} data-testid={`palette-group-${key}`}>
-							<div className="px-4 py-1 text-xs uppercase text-muted">{GROUP_LABELS[key]}</div>
-							<ul>
-								{items.map((item) => {
-									const itemIndex = runningIndex++;
-									const isActive = itemIndex === api.activeIndex;
-									return (
-										<li
-											key={`${key}-${item.slug}`}
-											data-testid={`palette-item-${key === "recents" ? item.group : key}-${item.slug}`}
-											data-active={isActive ? "true" : "false"}
-											data-palette-index={itemIndex}
-											onClick={() => {
-												api.setActiveIndex(itemIndex);
-												api.selectActive();
-											}}
-											className={`cursor-pointer px-4 py-2 ${isActive ? "bg-accent/10" : ""}`}
-										>
-											<div className="text-sm">{item.title}</div>
-											<div className="text-xs text-muted">{item.href}</div>
-										</li>
-									);
-								})}
-							</ul>
-						</li>
-					))}
-				</ul>
+			<div
+				data-palette-panel
+				className="w-full max-w-xl overflow-hidden rounded-md border border-line-strong bg-bg-elev font-mono shadow-2xl shadow-black/40 [animation:palette-panel-in_var(--duration-120)_ease-out]"
+			>
+				<div className="flex items-center gap-2 border-line border-b px-4">
+					<span aria-hidden="true" className="text-accent text-sm">
+						›
+					</span>
+					<input
+						ref={inputRef}
+						data-testid="palette-input"
+						value={api.query}
+						onChange={(e) => api.setQuery(e.target.value)}
+						placeholder="go to ─ /about, project slug, post..."
+						className="flex-1 bg-transparent py-3 font-mono text-fg text-sm outline-none placeholder:text-faint"
+					/>
+					<kbd className="hidden rounded-sm border border-line px-1.5 py-0.5 font-mono text-[10px] text-muted sm:inline-block">
+						{kbd}
+					</kbd>
+					<kbd className="hidden rounded-sm border border-line px-1.5 py-0.5 font-mono text-[10px] text-muted sm:inline-block">
+						esc
+					</kbd>
+				</div>
+
+				{isEmpty ? (
+					<div className="px-4 py-8 text-center font-mono text-muted text-xs">
+						{api.query ? "검색 결과 없음" : "검색어를 입력하세요"}
+					</div>
+				) : (
+					<ul ref={setListEl} className="max-h-[60vh] overflow-y-auto py-2">
+						{visible.map(({ key, items }) => (
+							<li key={key} data-testid={`palette-group-${key}`}>
+								<div className="px-4 pt-2 pb-1 font-mono text-[10px] text-faint uppercase tracking-[0.12em]">
+									{GROUP_LABELS[key]}
+								</div>
+								<ul>
+									{items.map((item) => {
+										const itemIndex = runningIndex++;
+										const isActive = itemIndex === api.activeIndex;
+										return (
+											<li
+												key={`${key}-${item.slug}`}
+												data-testid={`palette-item-${key === "recents" ? item.group : key}-${item.slug}`}
+												data-active={isActive ? "true" : "false"}
+												data-palette-index={itemIndex}
+												onClick={() => {
+													api.setActiveIndex(itemIndex);
+													api.selectActive();
+												}}
+												className="cursor-pointer border-l-2 border-l-transparent px-4 py-2 transition-colors duration-[var(--duration-120)] ease-out motion-reduce:transition-none data-[active=true]:border-l-accent data-[active=true]:bg-accent/10"
+											>
+												<div className="flex items-baseline gap-2">
+													<span className="font-mono text-fg text-sm">{item.title}</span>
+													<span className="truncate font-mono text-faint text-xs">{item.href}</span>
+												</div>
+											</li>
+										);
+									})}
+								</ul>
+							</li>
+						))}
+					</ul>
+				)}
+
+				<div className="flex items-center justify-end gap-3 border-line border-t bg-bg/40 px-4 py-2 font-mono text-[10px] text-faint">
+					<span className="flex items-center gap-1">
+						<kbd className="rounded-sm border border-line px-1 py-0.5 text-muted">↑↓</kbd>
+						이동
+					</span>
+					<span className="flex items-center gap-1">
+						<kbd className="rounded-sm border border-line px-1 py-0.5 text-muted">↵</kbd>
+						선택
+					</span>
+					<span className="flex items-center gap-1">
+						<kbd className="rounded-sm border border-line px-1 py-0.5 text-muted">esc</kbd>
+						닫기
+					</span>
+				</div>
 			</div>
 		</div>
 	);

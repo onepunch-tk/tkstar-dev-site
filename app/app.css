@@ -89,6 +89,34 @@ html {
 	}
 }
 
+/* CommandPalette (T016 F016) — 120ms fade-in for backdrop + panel.
+   prototype.css 정본의 "transition: 120ms ease" 와 동일 duration. */
+@keyframes palette-backdrop-in {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+@keyframes palette-panel-in {
+	from {
+		opacity: 0;
+		transform: translateY(-4px) scale(0.985);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
+}
+@media (prefers-reduced-motion: reduce) {
+	[data-palette-backdrop],
+	[data-palette-panel] {
+		/* biome-ignore lint/complexity/noImportantStyles: Tailwind arbitrary [animation:...] 유틸리티가 동일 specificity로 출력되므로, prefers-reduced-motion 환경에서 animation 을 확실히 끄려면 !important 가 필요. */
+		animation: none !important;
+	}
+}
+
 /* Long-form MDX body — projects (T013) + posts (T014b) 동일 typography */
 .project-body,
 .post-body {
