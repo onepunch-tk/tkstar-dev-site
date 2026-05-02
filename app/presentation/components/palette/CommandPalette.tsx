@@ -80,6 +80,10 @@ export default function CommandPalette() {
 						data-testid="palette-input"
 						value={api.query}
 						onChange={(e) => api.setQuery(e.target.value)}
+						onKeyDown={(e) => {
+							// open trigger '/' 가 input 에 echo 되는 race 차단 (빈 query 일 때만)
+							if (e.key === "/" && api.query === "") e.preventDefault();
+						}}
 						placeholder="go to ─ /about, project slug, post..."
 						className="flex-1 bg-transparent py-3 font-mono text-fg text-sm outline-none placeholder:text-faint"
 					/>
