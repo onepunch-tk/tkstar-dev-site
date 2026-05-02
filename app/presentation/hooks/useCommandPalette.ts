@@ -30,7 +30,21 @@ type SearchIndexPayload = {
 	posts: SearchableItem[];
 };
 
+type PaletteCommand = "open" | "close";
+
 const SEARCH_INDEX_URL = "/search-index.json";
+
+// Module-level command channel — Topbar/HeroWhoami fire commands without
+// owning their own palette state. Single ChromeLayout instance subscribes.
+const commandSubscribers = new Set<(cmd: PaletteCommand) => void>();
+
+export const openCommandPalette = (): void => {
+	for (const fn of commandSubscribers) fn("open");
+};
+
+export const closeCommandPalette = (): void => {
+	for (const fn of commandSubscribers) fn("close");
+};
 
 const hrefFor = (group: PaletteGroup, slug: string): string =>
 	group === "pages" ? slug : group === "projects" ? `/projects/${slug}` : `/blog/${slug}`;
@@ -113,8 +127,19 @@ export const useCommandPalette = (): CommandPaletteApi => {
 		[visibleRecents, groups],
 	);
 
+	// Keep latest values reachable from the keydown handler without
+	// re-registering the window listener on every render.
+	const flatItemsRef = useRef(flatItems);
+	const activeIndexRef = useRef(activeIndex);
+	useEffect(() => {
+		flatItemsRef.current = flatItems;
+	}, [flatItems]);
+	useEffect(() => {
+		activeIndexRef.current = activeIndex;
+	}, [activeIndex]);
+
 	const selectActive = useCallback(() => {
-		const item = flatItems[activeIndex];
+		const item = flatItemsRef.current[activeIndexRef.current];
 		if (!item) {
 			setIsOpen(false);
 			return;
@@ -122,7 +147,7 @@ export const useCommandPalette = (): CommandPaletteApi => {
 		pushRecent({ slug: item.slug, title: item.title, group: item.group });
 		navigate(item.href);
 		setIsOpen(false);
-	}, [activeIndex, flatItems, navigate]);
+	}, [navigate]);
 
 	useEffect(() => {
 		const handler = (e: KeyboardEvent) => {
@@ -140,7 +165,8 @@ export const useCommandPalette = (): CommandPaletteApi => {
 			if (!isOpen) return;
 			if (e.key === "ArrowDown") {
 				e.preventDefault();
-				setActiveIndex((i) => Math.min(i + 1, Math.max(0, flatItems.length - 1)));
+				const max = Math.max(0, flatItemsRef.current.length - 1);
+				setActiveIndex((i) => Math.min(i + 1, max));
 			} else if (e.key === "ArrowUp") {
 				e.preventDefault();
 				setActiveIndex((i) => Math.max(0, i - 1));
@@ -151,7 +177,18 @@ export const useCommandPalette = (): CommandPaletteApi => {
 		};
 		window.addEventListener("keydown", handler);
 		return () => window.removeEventListener("keydown", handler);
-	}, [isOpen, flatItems.length, open, selectActive]);
+	}, [isOpen, open, selectActive]);
+
+	useEffect(() => {
+		const sub = (cmd: PaletteCommand) => {
+			if (cmd === "open") open();
+			else setIsOpen(false);
+		};
+		commandSubscribers.add(sub);
+		return () => {
+			commandSubscribers.delete(sub);
+		};
+	}, [open]);
 
 	return {
 		isOpen,

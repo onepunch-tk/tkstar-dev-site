@@ -116,9 +116,16 @@ export default function CommandPalette() {
 													api.setActiveIndex(itemIndex);
 													api.selectActive();
 												}}
-												className="cursor-pointer border-l-2 border-l-transparent px-4 py-2 transition-colors duration-[var(--duration-120)] ease-out motion-reduce:transition-none data-[active=true]:border-l-accent data-[active=true]:bg-accent/10"
+												className="cursor-pointer border-l-2 border-l-transparent px-4 py-2 transition-colors duration-[var(--duration-120)] ease-out motion-reduce:transition-none data-[active=true]:border-l-accent data-[active=true]:bg-bg-card"
 											>
 												<div className="flex items-baseline gap-2">
+													<span
+														aria-hidden="true"
+														className="w-3 font-mono text-accent text-xs opacity-0 data-[active=true]:opacity-100"
+														data-active={isActive ? "true" : "false"}
+													>
+														▸
+													</span>
 													<span className="font-mono text-fg text-sm">{item.title}</span>
 													<span className="truncate font-mono text-faint text-xs">{item.href}</span>
 												</div>
