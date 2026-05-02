@@ -12,7 +12,10 @@ export default function ShareTools({ title, canonicalUrl }: Props) {
 	}, [copied]);
 
 	const onCopy = () => {
-		navigator.clipboard.writeText(canonicalUrl).then(() => setCopied(true));
+		navigator.clipboard
+			.writeText(canonicalUrl)
+			.then(() => setCopied(true))
+			.catch(() => {});
 	};
 
 	const xHref = `https://x.com/intent/post?text=${encodeURIComponent(title)}&url=${encodeURIComponent(canonicalUrl)}`;
