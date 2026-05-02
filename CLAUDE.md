@@ -109,7 +109,7 @@
 - **Cloudflare D1 (SQLite, edge-native)** — Post 원본 markdown / 메타 / Project 커버 메타 저장. binding: `DB`
 - **Drizzle ORM** + `drizzle-kit` — D1 first-class, 경량 (~10KB), runtime 의존 0. migration 관리
 - **Cloudflare R2** — Post 본문 이미지 / Project 커버 이미지 / 기타 미디어. S3 호환
-- **`@aws-sdk/client-s3`** — Workers 에서 R2 PUT/GET (proxy upload, 경로 `/admin/api/upload`)
+- **R2 클라이언트** — 후보 3개 (T023 PoC 후 T033 결정): (a) **R2 Workers binding** 1순위 (`MEDIA_BUCKET.put/get/delete/list`, 의존성 0) / (b) `aws4fetch` 2순위 (~2.5KB) / (c) `@aws-sdk/client-s3` 3순위 (~500KB, `compatibility_flags = ["nodejs_compat"]` 활성으로 import 가능 — multipart/streaming 진짜 필요 시만)
 - **Cloudflare Access (Zero Trust)** — `/admin/*` path 보호. 본인 1명 (이메일 1건 allowlist). Workers 는 `Cf-Access-Authenticated-User-Email` 헤더만 검증 — 자체 세션/쿠키/비밀번호 코드 X
 - **Tiptap (or Lexical) WYSIWYG** — admin editor. **순수 markdown 만** 직렬화 (커스텀 JSX 컴포넌트 X) → DB 에 markdown 문자열 저장
 

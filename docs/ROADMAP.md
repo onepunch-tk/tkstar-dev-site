@@ -577,7 +577,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
   - 관련 Feature: F020, F021, F022, F023 (전제)
   - 관련 AC: 없음 (사실 측정)
   - 검증:
-    - 임시 PoC 브랜치에서 [Tiptap (v2 또는 v3 + markdown serializer 후보) + MDX-like compiler 후보(`marked` / `micromark` / `@mdx-js/mdx` + `nodejs_compat`) + shiki 단일 theme(`github-dark`) + `jose` (JWT 검증) + R2 client 후보 (`aws4fetch` 또는 R2 binding-only)] 합산 import만으로 빈 Worker 빌드 → `bunx wrangler deploy --dry-run --outdir dist`로 산출물 측정
+    - 임시 PoC 브랜치에서 [Tiptap (v2 또는 v3 + markdown serializer 후보) + MDX-like compiler 후보(`marked` / `micromark` / `@mdx-js/mdx` — `nodejs_compat` 는 wrangler.toml 에 이미 활성) + shiki 단일 theme(`github-dark`) + `jose` (JWT 검증) + R2 client 후보 (`aws4fetch` / R2 binding-only / `@aws-sdk/client-s3`)] 합산 import만으로 빈 Worker 빌드 → `bunx wrangler deploy --dry-run --outdir dist`로 산출물 측정. **`@aws-sdk/client-s3` 도 측정 대상에 포함** (nodejs_compat 으로 import 가능, 실측 ~500KB 가산 영향 확인 목적)
     - 합산이 Cloudflare Free 3 MiB 이내 → 기본 stack 확정 / 초과 시 (a) `aws4fetch` + R2 binding-only / (b) shiki 제거(syntax highlight 빌드 타임만) / (c) Workers Paid 플랜 ($5/월) 중 결정
     - 측정 보고서를 PR 본문 + `docs/reports/cms-bundle-poc-{date}.md` 에 기록 (각 의존성별 byte 분해)
   - 산출물:
@@ -827,7 +827,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
     - `wrangler.toml` `[[r2_buckets]] binding = "MEDIA_BUCKET"`, `bucket_name = "tkstar-dev-media"`, `preview_bucket_name = "tkstar-dev-media-preview"` 등록
     - R2 public read 방식 결정 (A017): R2 public bucket URL 직접 노출 vs Workers 라우트 proxy 서빙. 본 task 에서 결정·기록
   - 검증:
-    - T023 PoC 결과로 R2 SDK 결정 — (a) R2 Workers binding 직접 호출 (`MEDIA_BUCKET.put/get/delete/list`, ~0KB) 또는 (b) `aws4fetch` (~2.5KB) 또는 (c) `@aws-sdk/client-s3` (~500KB, Workers 비호환 risk). 결정 후 PR 본문 + 본 task 산출물에 사실 기록
+    - T023 PoC 결과로 R2 SDK 결정 — (a) R2 Workers binding 직접 호출 (`MEDIA_BUCKET.put/get/delete/list`, ~0KB, 의존성 0) 또는 (b) `aws4fetch` (~2.5KB) 또는 (c) `@aws-sdk/client-s3` (~500KB). **`@aws-sdk/client-s3` 는 `wrangler.toml` 의 `compatibility_flags = ["nodejs_compat"]` 활성으로 `node:fs`/`node:stream` import-time 에러는 polyfill 로 해결** — 비호환은 아님. 단 (i) 번들 ~500KB + cold start 비용, (ii) 일부 기능(multipart upload, streaming response)은 nodejs_compat 부분 구현이라 사용 시점 검증 필요. 따라서 1순위는 (a) R2 binding (R2 전용이라 S3 API 추상화 불필요), 2순위는 (b) `aws4fetch` (다른 S3 호환 서비스로 이식 시), 3순위는 (c) `@aws-sdk/client-s3` (multi-part / streaming 등 sdk 만의 기능이 진짜 필요할 때). 결정 후 PR 본문 + 본 task 산출물에 사실 기록
     - `app/infrastructure/storage/r2-media-client.ts` — 결정 SDK 로 `put(key, body, contentType)` / `get(key)` / `delete(key)` / `list(prefix)` 추상화
     - `app/env.d.ts` `MEDIA_BUCKET: R2Bucket` 추가
     - 단위 테스트 — `miniflare` R2Bucket mock 으로 PUT/GET/DELETE/LIST 동작 검증
@@ -1162,7 +1162,7 @@ Phase 7.4 (Project Meta+Search Index):
 >
 > **Phase 7 신설 이력 (2026-05-02, prd-validator hand-off 반영)**:
 > - Phase 7.1 Read Path 우선 분리 (사용자 가치 조기 확보 — Post D1 이관만으로 admin 없이도 운영 변화 가능)
-> - Issue #1 (R2 SDK 결정): T033 에서 T023 PoC 결과 기반 최종 결정 (aws4fetch / R2 binding-only / @aws-sdk/client-s3 중)
+> - Issue #1 (R2 SDK 결정): T033 에서 T023 PoC 결과 기반 최종 결정 (R2 binding-only / aws4fetch / @aws-sdk/client-s3 중). **정정 (2026-05-03)**: `wrangler.toml` 의 `compatibility_flags = ["nodejs_compat"]` 활성으로 `@aws-sdk/client-s3` 의 `node:fs`/`node:stream` import-time 에러는 polyfill 로 해결 — Workers 비호환 risk 표현은 약화. 실제 trade-off 는 **번들 ~500KB + cold start + 일부 기능(multipart/streaming) 의 nodejs_compat 부분 구현** 한정.
 > - Issue #2 (Workers 번들 사이즈): T023 가 Phase 7 첫 task — Tiptap + MDX compiler + shiki + jose + R2 client 합산 측정 필수
 > - Issue #3 (`buildSearchIndex` owner): T039 에서 application service 로 분리, T040 에서 admin save/publish wiring
 > - A014 (Tiptap v2/v3 결정): T023 후보 좁힘 + T035 한국어 IME PoC (iOS Safari) 후 최종 결정
