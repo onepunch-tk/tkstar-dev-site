@@ -11,7 +11,7 @@
 | **PRD Features** | **F016** (Cmd+K Command Palette) |
 | **PRD AC** | **AC-F016-1**, **AC-F016-2**, **AC-F016-3**, **AC-F016-4**, **AC-F016-5** |
 | **예상 작업 시간** | 1.5d |
-| **Status** | Not Started |
+| **Status** | Done |
 
 ## Goal
 사이트의 주 네비게이션 패러다임인 Cmd+K Command Palette를 가동시킨다. ⌘K(macOS) / Ctrl+K(Windows·Linux) / `/` 단축키로 오픈, 토큰 기반 다중 키워드 필터, 키보드/마우스 네비, 빌드 타임 검색 인덱스 lazy fetch까지 모두 AC 통과.

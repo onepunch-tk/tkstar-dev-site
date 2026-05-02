@@ -368,7 +368,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
 > **진입 조건**: Phase 3 완료 (DI 가동, 라우트 동작 확인)
 > **완료 조건 (DoD)**: AC-F008-1/2/3/4, AC-F009-1/2/3 모두 자동 테스트 통과. 실제 hello@tkstar.dev → 본인 메일 + 제출자 자동응답이 staging에서 발송 확인.
 
-- [ ] **Task 016: F016 Cmd+K Command Palette (글로벌 검색 네비)**
+- [x] **Task 016: F016 Cmd+K Command Palette (글로벌 검색 네비)**
   - **Must** Read: [tasks/T016-command-palette.md](tasks/T016-command-palette.md)
   - blockedBy: Task 003, Task 008, Task 009, Task 010 (Home에서 트리거)
   - Layer: Application(`build-search-index.service.ts`) + Presentation(palette UI/hook)
