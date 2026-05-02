@@ -8,6 +8,8 @@ export type PaletteGroup = "pages" | "projects" | "posts";
 export type PaletteEntry = SearchableItem & {
 	group: PaletteGroup;
 	href: string;
+	date?: string;
+	read?: number;
 };
 
 export type CommandPaletteApi = {
@@ -24,10 +26,12 @@ export type CommandPaletteApi = {
 	selectActive: () => void;
 };
 
+type IndexedPost = SearchableItem & { date?: string; read?: number };
+
 type SearchIndexPayload = {
 	pages: SearchableItem[];
 	projects: SearchableItem[];
-	posts: SearchableItem[];
+	posts: IndexedPost[];
 };
 
 type PaletteCommand = "open" | "close";
@@ -49,7 +53,10 @@ export const closeCommandPalette = (): void => {
 const hrefFor = (group: PaletteGroup, slug: string): string =>
 	group === "pages" ? slug : group === "projects" ? `/projects/${slug}` : `/blog/${slug}`;
 
-const toEntry = (item: SearchableItem, group: PaletteGroup): PaletteEntry => ({
+const toEntry = (
+	item: SearchableItem & { date?: string; read?: number },
+	group: PaletteGroup,
+): PaletteEntry => ({
 	...item,
 	group,
 	href: hrefFor(group, item.slug),

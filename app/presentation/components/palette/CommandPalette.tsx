@@ -14,7 +14,23 @@ const GROUP_LABELS: Record<PaletteGroup | "recents", string> = {
 	posts: "Posts",
 };
 
+const TYPE_BADGE: Record<PaletteGroup, string> = {
+	pages: "page",
+	projects: "project",
+	posts: "post",
+};
+
 type GroupKey = PaletteGroup | "recents";
+
+const itemMeta = (item: PaletteEntry): string => {
+	if (item.group === "posts") {
+		const date = item.date ?? "";
+		const read = item.read != null ? `${item.read} min` : "";
+		return [date, read].filter(Boolean).join(" · ");
+	}
+	if (item.group === "projects") return item.summary ?? item.href;
+	return item.href;
+};
 
 const collectGroups = (api: CommandPaletteApi): { key: GroupKey; items: PaletteEntry[] }[] => {
 	const out: { key: GroupKey; items: PaletteEntry[] }[] = [];
@@ -125,13 +141,18 @@ export default function CommandPalette() {
 												<div className="flex items-baseline gap-2">
 													<span
 														aria-hidden="true"
-														className="w-3 font-mono text-accent text-xs opacity-0 data-[active=true]:opacity-100"
+														className="w-3 shrink-0 font-mono text-accent text-xs opacity-0 data-[active=true]:opacity-100"
 														data-active={isActive ? "true" : "false"}
 													>
 														▸
 													</span>
-													<span className="font-mono text-fg text-sm">{item.title}</span>
-													<span className="truncate font-mono text-faint text-xs">{item.href}</span>
+													<span className="shrink-0 font-mono text-fg text-sm">{item.title}</span>
+													<span className="min-w-0 flex-1 truncate font-mono text-faint text-xs">
+														{itemMeta(item)}
+													</span>
+													<span className="shrink-0 rounded-sm border border-line px-1.5 py-0.5 font-mono text-[10px] text-muted">
+														{TYPE_BADGE[item.group]}
+													</span>
 												</div>
 											</li>
 										);

@@ -19,6 +19,8 @@ describe("buildSearchIndex", () => {
 		slug: "2026-04-shipping-solo",
 		title: "1인 기업으로 출발하기",
 		lede: "tkstar.dev 첫 글",
+		date: "2026-04-28",
+		read: 3,
 		tags: ["solo", "ops"],
 		body: "function _createMdxContent() { /* huge mdx body */ }",
 	};
@@ -107,6 +109,8 @@ describe("buildSearchIndex", () => {
 			slug: `post-${i}`,
 			title: `Post ${i}`,
 			lede: "포스트 한 줄 요약 ~ 두 줄 정도 길이.",
+			date: "2026-04-20",
+			read: 6,
 			tags: ["ops"],
 			body: "should not appear",
 		}));
@@ -119,17 +123,33 @@ describe("buildSearchIndex", () => {
 		expect(json.length).toBeLessThanOrEqual(150 * 1024);
 	});
 
-	it("결과의 모든 그룹은 SearchableItem 형태({slug,title,summary,tags?})만 노출한다", () => {
+	it("결과의 pages/projects 는 SearchableItem 형태({slug,title,summary,tags?})만, posts 는 추가로 date/read 만 노출한다", () => {
 		// Arrange & Act
 		const result = buildSearchIndex({ projects: [project], posts: [post] });
-		const all = [...result.pages, ...result.projects, ...result.posts];
 
-		// Assert — allowed key set
-		const allowed = new Set(["slug", "title", "summary", "tags"]);
-		for (const item of all) {
+		// Assert — pages / projects 는 SearchableItem 키 셋
+		const baseAllowed = new Set(["slug", "title", "summary", "tags"]);
+		for (const item of [...result.pages, ...result.projects]) {
 			for (const key of Object.keys(item)) {
-				expect(allowed.has(key)).toBe(true);
+				expect(baseAllowed.has(key)).toBe(true);
 			}
 		}
+
+		// posts 는 base + date/read 만 허용
+		const postAllowed = new Set(["slug", "title", "summary", "tags", "date", "read"]);
+		for (const item of result.posts) {
+			for (const key of Object.keys(item)) {
+				expect(postAllowed.has(key)).toBe(true);
+			}
+		}
+	});
+
+	it("posts 출력에 date 와 read 필드가 보존된다", () => {
+		// Arrange & Act
+		const result = buildSearchIndex({ projects: [], posts: [post] });
+
+		// Assert
+		expect(result.posts[0].date).toBe("2026-04-28");
+		expect(result.posts[0].read).toBe(3);
 	});
 });
