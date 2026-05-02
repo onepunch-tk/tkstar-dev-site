@@ -1,6 +1,5 @@
-import { Link, NavLink, useLocation } from "react-router";
+import { Link, useLocation } from "react-router";
 import { useKbdHint } from "../../hooks/useKbdHint";
-import { TOPBAR_LINKS } from "../../lib/chrome-links";
 import ThemeToggle from "./ThemeToggle";
 
 export default function Topbar() {
@@ -22,21 +21,6 @@ export default function Topbar() {
 					$ {pathname}
 				</span>
 				<nav aria-label="Primary" className="ml-auto flex items-center gap-4 text-sm">
-					{TOPBAR_LINKS.map((link) => (
-						<NavLink
-							key={link.href}
-							to={link.href}
-							className={({ isActive }) =>
-								`rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
-									isActive
-										? "text-accent font-semibold underline decoration-accent decoration-2 underline-offset-4"
-										: "text-muted hover:text-fg"
-								}`
-							}
-						>
-							{link.label}
-						</NavLink>
-					))}
 					<button
 						type="button"
 						data-chrome="search-trigger"
