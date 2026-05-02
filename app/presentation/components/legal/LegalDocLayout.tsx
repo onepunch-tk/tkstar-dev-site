@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 
+import { formatDate } from "../../lib/format";
+
 type Props = {
 	title: string;
 	version: string;
@@ -17,7 +19,7 @@ export default function LegalDocLayout({ title, version, effectiveDate, children
 				<div className="mt-2 flex flex-wrap gap-2.5 font-mono text-[11px] text-faint">
 					<span>버전 {version}</span>
 					<span aria-hidden="true">·</span>
-					<span>시행 {effectiveDate}</span>
+					<span>시행 {formatDate(effectiveDate)}</span>
 				</div>
 			</header>
 			<article
