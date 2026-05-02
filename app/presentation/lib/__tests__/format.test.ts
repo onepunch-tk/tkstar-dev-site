@@ -39,4 +39,28 @@ describe("formatDate", () => {
 		// Act & Assert
 		expect(() => formatDate(input)).toThrow("Invalid date");
 	});
+
+	it("YYYY-MM 월 단위 입력 시 Invalid date 메시지와 함께 throw한다", () => {
+		// Arrange
+		const input = "2026-04";
+
+		// Act & Assert
+		expect(() => formatDate(input)).toThrow("Invalid date");
+	});
+
+	it("자연어 날짜 (예: 'April 28 2026') 입력 시 Invalid date 메시지와 함께 throw한다", () => {
+		// Arrange
+		const input = "April 28 2026";
+
+		// Act & Assert
+		expect(() => formatDate(input)).toThrow("Invalid date");
+	});
+
+	it("선행/후행 공백이 있는 입력 시 Invalid date 메시지와 함께 throw한다", () => {
+		// Arrange
+		const input = "  2026-04-28  ";
+
+		// Act & Assert
+		expect(() => formatDate(input)).toThrow("Invalid date");
+	});
 });
