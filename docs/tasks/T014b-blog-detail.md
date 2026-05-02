@@ -5,13 +5,13 @@
 | **Task ID** | T014b |
 | **Phase** | Phase 3 — Core Pages UI |
 | **Layer** | Presentation |
-| **Branch** | `feature/issue-N-blog-detail` |
+| **Branch** | `feature/issue-53-blog-detail` |
 | **Depends on** | T014a |
 | **Blocks** | T018 |
 | **PRD Features** | **F007** (Blog 상세) |
 | **PRD AC** | — (UI 표시 위주) |
 | **예상 작업 시간** | 1d |
-| **Status** | Not Started |
+| **Status** | Done |
 
 ## Goal
 `/blog/:slug` 상세 페이지를 MDX 본문 + shiki 코드블록 + 데스크탑 880px+ sticky sidebar(TOC + share)로 구현하고, 하단 3분할 네비(`← prev` / `[모든 글]` / `next →`)을 가동시킨다.
@@ -37,12 +37,12 @@
 - 페이지별 meta export (T019)
 
 ## Acceptance Criteria
-- [ ] `/blog/:slug` 진입 시 본문 + shiki 코드블록 렌더
-- [ ] 데스크탑 880px+에서 sticky sidebar(TOC + share) 노출
-- [ ] copy link 버튼 클릭 시 `navigator.clipboard.writeText` 호출 + 시각 피드백 ("복사됨" toast 또는 inline)
-- [ ] X 공유 링크가 `https://x.com/intent/post?text=<title>&url=<canonical>` 형식
-- [ ] 하단 3분할 (`← prev` / `[모든 글]` / `next →`) — prev/next는 collection 인접 항목, 미존재 시 `<span>`
-- [ ] 미존재 slug 접속 시 splat fallback
+- [x] `/blog/:slug` 진입 시 본문 + shiki 코드블록 렌더
+- [x] 데스크탑 880px+에서 sticky sidebar(TOC + share) 노출
+- [x] copy link 버튼 클릭 시 `navigator.clipboard.writeText` 호출 + 시각 피드백 ("복사됨" toast 또는 inline)
+- [x] X 공유 링크가 `https://x.com/intent/post?text=<title>&url=<canonical>` 형식
+- [x] 하단 3분할 (`← prev` / `[모든 글]` / `next →`) — prev/next는 collection 인접 항목, 미존재 시 `<span>`
+- [x] 미존재 slug 접속 시 splat fallback
 
 ## Implementation Plan (TDD Cycle)
 
@@ -112,4 +112,4 @@
 ## Change History
 | Date | Changes | Author |
 |------|---------|--------|
-| - | - | - |
+| 2026-05-02 | T014b 구현 완료 — `blog.$slug.tsx` + `ShareTools` + `PostFooterNav` 신설, T013 명세 누락이었던 Post `body`/`toc` infra (post.schema/mapper/velite transform) 흡수, `.post-body` typography 통합. PR #(TBD), Issue #53 | TaekyungHa |
