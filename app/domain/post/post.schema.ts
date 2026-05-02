@@ -8,4 +8,6 @@ export const postSchema = z.object({
 	date: zIso8601Date(),
 	tags: z.array(z.string()),
 	read: z.number(),
+	body: z.string().optional(),
+	toc: z.array(z.object({ slug: z.string(), text: z.string() })).optional(),
 });

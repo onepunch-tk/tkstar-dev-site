@@ -29,15 +29,20 @@ const projects = defineCollection({
 const posts = defineCollection({
 	name: "Post",
 	pattern: "posts/**/*.mdx",
-	schema: s.object({
-		slug: s.slug("posts"),
-		title: s.string(),
-		lede: s.string(),
-		date: s.isodate(),
-		tags: s.array(s.string()),
-		read: s.number(),
-		body: s.mdx(),
-	}),
+	schema: s
+		.object({
+			slug: s.slug("posts"),
+			title: s.string(),
+			lede: s.string(),
+			date: s.isodate(),
+			tags: s.array(s.string()),
+			read: s.number(),
+			body: s.mdx(),
+		})
+		.transform((data, { meta }) => ({
+			...data,
+			toc: extractToc(meta.content ?? ""),
+		})),
 });
 
 const legal = defineCollection({
