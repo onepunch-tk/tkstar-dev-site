@@ -5,7 +5,6 @@ import {
 	type PaletteGroup,
 	useCommandPalette,
 } from "~/presentation/hooks/useCommandPalette";
-import { useKbdHint } from "~/presentation/hooks/useKbdHint";
 
 const GROUP_LABELS: Record<PaletteGroup | "recents", string> = {
 	recents: "Recent",
@@ -43,7 +42,6 @@ const collectGroups = (api: CommandPaletteApi): { key: GroupKey; items: PaletteE
 
 export default function CommandPalette() {
 	const api = useCommandPalette();
-	const kbd = useKbdHint();
 	const inputRef = useRef<HTMLInputElement | null>(null);
 	const [listEl, setListEl] = useState<HTMLUListElement | null>(null);
 
@@ -103,12 +101,6 @@ export default function CommandPalette() {
 						placeholder="go to ─ /about, project slug, post..."
 						className="flex-1 bg-transparent py-3 font-mono text-fg text-sm outline-none placeholder:text-faint"
 					/>
-					<kbd className="hidden rounded-sm border border-line px-1.5 py-0.5 font-mono text-[10px] text-muted sm:inline-block">
-						{kbd}
-					</kbd>
-					<kbd className="hidden rounded-sm border border-line px-1.5 py-0.5 font-mono text-[10px] text-muted sm:inline-block">
-						esc
-					</kbd>
 				</div>
 
 				{isEmpty ? (
