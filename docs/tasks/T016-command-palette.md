@@ -35,14 +35,14 @@
 - FlexSearch/Fuse 도입 (콘텐츠 100+ 시 재검토)
 
 ## Acceptance Criteria (PRD AC 인용)
-- [ ] **AC-F016-1**: 페이지에 입력 포커스가 없다 → ⌘K(macOS) 또는 Ctrl+K(Win/Linux) 또는 `/` 입력 → palette가 열리고 검색 input에 자동 포커스
-- [ ] **AC-F016-2**: input/textarea/contenteditable에 포커스가 있다 → 위 단축키 입력 → palette가 열리지 않고 기본 입력 동작 유지
-- [ ] **AC-F016-3**: palette 열림 + 검색어 "rou nav" → 토큰 기반 필터 → "rou"와 "nav"를 모두 포함하는 항목만 그룹 헤더(pages/projects/posts) 별로 표시
-- [ ] **AC-F016-4**: 결과 리스트 → ↓ ↑로 네비 + ↵로 진입 + Esc로 닫기 → 키보드만으로 모든 동작 + 마우스 호버 시 선택 인덱스 동기화
-- [ ] **AC-F016-5**: 사이트가 처음 로드 → 검색 인덱스 fetch → JSON gzip 100KB 이하 + 본문(body) 미포함 + 세션당 1회만 fetch
+- [x] **AC-F016-1**: 페이지에 입력 포커스가 없다 → ⌘K(macOS) 또는 Ctrl+K(Win/Linux) 또는 `/` 입력 → palette가 열리고 검색 input에 자동 포커스
+- [x] **AC-F016-2**: input/textarea/contenteditable에 포커스가 있다 → 위 단축키 입력 → palette가 열리지 않고 기본 입력 동작 유지
+- [x] **AC-F016-3**: palette 열림 + 검색어 "rou nav" → 토큰 기반 필터 → "rou"와 "nav"를 모두 포함하는 항목만 그룹 헤더(pages/projects/posts) 별로 표시
+- [x] **AC-F016-4**: 결과 리스트 → ↓ ↑로 네비 + ↵로 진입 + Esc로 닫기 → 키보드만으로 모든 동작 + 마우스 호버 시 선택 인덱스 동기화
+- [x] **AC-F016-5**: 사이트가 처음 로드 → 검색 인덱스 fetch → JSON gzip 100KB 이하 + 본문(body) 미포함 + 세션당 1회만 fetch
 
 ### Task 추가 AC (Issue #7 보강)
-- [ ] cross-platform 단축키 분기 명시: macOS는 `event.metaKey === true`, Windows·Linux는 `event.ctrlKey === true`, `/`는 공통 — RTL `userEvent.keyboard('{Meta>}k{/Meta}')` / `'{Control>}k{/Control}'` / `'/'` 3 케이스 모두 통과
+- [x] cross-platform 단축키 분기 명시: macOS는 `event.metaKey === true`, Windows·Linux는 `event.ctrlKey === true`, `/`는 공통 — RTL `userEvent.keyboard('{Meta>}k{/Meta}')` / `'{Control>}k{/Control}'` / `'/'` 3 케이스 모두 통과
 
 ## Implementation Plan (TDD Cycle)
 
