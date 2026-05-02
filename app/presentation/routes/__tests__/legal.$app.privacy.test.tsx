@@ -19,7 +19,7 @@ const moaiPrivacy: AppLegalDoc = {
 	app_slug: "moai",
 	doc_type: "privacy",
 	version: "1.0.0",
-	effective_date: "2026-04-28",
+	effective_date: "2026-04-28T00:00:00.000Z",
 	body: "## moai privacy",
 };
 
@@ -120,7 +120,7 @@ describe("Group B — legal.$app.privacy 컴포넌트", () => {
 		expect(await screen.findByRole("heading", { level: 1 })).toBeInTheDocument();
 		expect(screen.getByText(/moai/i)).toBeInTheDocument();
 		expect(screen.getByText(/1\.0\.0/)).toBeInTheDocument();
-		expect(screen.getByText(/2026-04-28/)).toBeInTheDocument();
+		expect(screen.getByText("시행 2026-04-28")).toBeInTheDocument();
 		expect(screen.getByTestId("mdx-content")).toBeInTheDocument();
 	});
 });
