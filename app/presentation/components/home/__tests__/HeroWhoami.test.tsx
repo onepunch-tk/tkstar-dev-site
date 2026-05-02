@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const openSpy = vi.fn();
 vi.mock("../../../hooks/useCommandPalette", () => ({
-	useCommandPalette: () => ({ open: openSpy }),
+	openCommandPalette: () => openSpy(),
 }));
 
 import HeroWhoami from "../HeroWhoami";

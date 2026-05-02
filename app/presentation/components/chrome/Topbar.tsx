@@ -1,5 +1,6 @@
 import { Link, useLocation } from "react-router";
 import { useKbdHint } from "../../hooks/useKbdHint";
+import { openCommandPalette } from "../../hooks/useCommandPalette";
 import ThemeToggle from "./ThemeToggle";
 
 export default function Topbar() {
@@ -27,10 +28,9 @@ export default function Topbar() {
 					<button
 						type="button"
 						data-chrome="search-trigger"
-						aria-disabled="true"
-						aria-label="검색 (준비 중)"
-						onClick={(e) => e.preventDefault()}
-						className="inline-flex w-full max-w-[360px] cursor-not-allowed items-center gap-2 rounded-md border border-line bg-bg-elev px-2.5 py-1.5 text-muted text-xs opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+						aria-label="검색 — Command Palette 열기"
+						onClick={openCommandPalette}
+						className="inline-flex w-full max-w-[360px] cursor-pointer items-center gap-2 rounded-md border border-line bg-bg-elev px-2.5 py-1.5 text-muted text-xs transition-colors duration-[var(--duration-120)] ease-out hover:border-line-strong hover:text-fg motion-reduce:transition-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
 					>
 						<span aria-hidden="true">›</span>
 						<span className="flex-1 truncate text-left">go to ─ /about, post...</span>

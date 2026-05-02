@@ -1,6 +1,9 @@
+import { mkdirSync, writeFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
 import rehypeShiki from "@shikijs/rehype";
 import rehypeSlug from "rehype-slug";
 import { defineCollection, defineConfig, s } from "velite";
+import { buildSearchIndex } from "./app/application/search/services/build-search-index.service";
 import { extractToc } from "./velite/transforms/extract-toc";
 
 const projects = defineCollection({
@@ -57,6 +60,8 @@ const legal = defineCollection({
 	}),
 });
 
+const SEARCH_INDEX_PATH = resolve(process.cwd(), "public/search-index.json");
+
 export default defineConfig({
 	root: "content",
 	output: { data: ".velite", clean: true },
@@ -67,5 +72,13 @@ export default defineConfig({
 			// biome-ignore lint/suspicious/noExplicitAny: shiki rehype 플러그인 타입 incompat
 			[rehypeShiki as any, { theme: "github-dark" }],
 		],
+	},
+	complete: async (data) => {
+		const index = buildSearchIndex({
+			projects: data.projects ?? [],
+			posts: data.posts ?? [],
+		});
+		mkdirSync(dirname(SEARCH_INDEX_PATH), { recursive: true });
+		writeFileSync(SEARCH_INDEX_PATH, JSON.stringify(index));
 	},
 });
