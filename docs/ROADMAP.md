@@ -329,7 +329,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
     - `app/application/feed/services/build-rss-feed.service.ts` + `__tests__/`
   - PR 1개 / 브랜치: `feature/issue-N-blog-list-rss`
 
-- [ ] **Task 014b: Blog Detail Page (F007) — 본문 + sticky sidebar + share**
+- [x] **Task 014b: Blog Detail Page (F007) — 본문 + sticky sidebar + share**
   - **Must** Read: [tasks/T014b-blog-detail.md](tasks/T014b-blog-detail.md)
   - blockedBy: Task 014a
   - blocks: Task 018 (OG)

@@ -8,6 +8,7 @@ type VelitePostInput = {
 	tags: string[];
 	read: number;
 	body?: string;
+	toc?: { slug: string; text: string }[];
 };
 
 export const toPost = (raw: VelitePostInput): Post => ({
@@ -17,4 +18,6 @@ export const toPost = (raw: VelitePostInput): Post => ({
 	date: raw.date,
 	tags: raw.tags,
 	read: raw.read,
+	body: raw.body,
+	toc: raw.toc,
 });

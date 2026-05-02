@@ -8,6 +8,8 @@ const content = `// Patched by scripts/patch-velite-types.mjs after \`velite bui
 // This patch replaces the typegen with explicit minimal types mirroring
 // the schema in velite.config.ts.
 
+export type TocEntry = { slug: string; text: string };
+
 export type Project = {
 \tslug: string;
 \ttitle: string;
@@ -18,7 +20,9 @@ export type Project = {
 \tmetrics: [string, string][];
 \tfeatured?: boolean;
 \tcover?: string;
+\trole?: string;
 \tbody: string;
+\ttoc: TocEntry[];
 };
 export declare const projects: Project[];
 
@@ -30,6 +34,7 @@ export type Post = {
 \ttags: string[];
 \tread: number;
 \tbody: string;
+\ttoc: TocEntry[];
 };
 export declare const posts: Post[];
 
