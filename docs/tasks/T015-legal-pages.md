@@ -37,10 +37,10 @@ Legal Index(`/legal`)에 등록된 앱 카드를 표시하고, `/legal/:app/term
 - chrome-free 레이아웃 자체 (T004에서 만든 `<ChromeFreeLayout />` 재사용)
 
 ## Acceptance Criteria
-- [ ] `/legal` 인덱스에 등록된 앱 카드(`<AppCard />`) 갯수 = `listApps()` 결과 길이 (seed: 1개 `moai`)
-- [ ] `/legal/moai/terms`와 `/legal/moai/privacy`가 chrome-free 레이아웃으로 렌더 (Topbar/Footer 미노출, max-width 680px)
-- [ ] Footer가 일반 페이지에서 — `appCount === 0`이면 Legal 링크 미렌더, `appCount > 0`이면 노출
-- [ ] DOM 구조 snapshot/className assertion으로 chrome-free 본문 영역 보장 (Issue #1 보강)
+- [x] `/legal` 인덱스에 등록된 앱 카드(`<AppCard />`) 갯수 = `listApps()` 결과 길이 (seed: 1개 `moai`)
+- [x] `/legal/moai/terms`와 `/legal/moai/privacy`가 chrome-free 레이아웃으로 렌더 (Topbar/Footer 미노출, max-width 680px)
+- [x] Footer가 일반 페이지에서 — `appCount === 0`이면 Legal 링크 미렌더, `appCount > 0`이면 노출
+- [x] DOM 구조 snapshot/className assertion으로 chrome-free 본문 영역 보장 (Issue #1 보강)
 
 ## Implementation Plan (TDD Cycle)
 
