@@ -39,7 +39,7 @@ if ! echo "$COMMAND" | grep -qE '(^|[^a-zA-Z0-9])(gh[[:space:]]+pr[[:space:]]+cr
 fi
 
 # Pipeline state gate — only enforce during validate/complete
-STATE_FILE="$PROJECT_DIR/.claude/pipeline-state.json"
+STATE_FILE="$PROJECT_DIR/.claude/runtime/pipeline-state.json"
 [[ ! -f "$STATE_FILE" ]] && exit 0
 
 PHASE=$(jq -r '.current_phase // "none"' "$STATE_FILE")

@@ -59,7 +59,7 @@ if [[ "$MATCHED" == "false" ]]; then
 fi
 
 # Only nudge when the pipeline is idle. Active runs already have their own gating.
-STATE_FILE="$PROJECT_DIR/.claude/pipeline-state.json"
+STATE_FILE="$PROJECT_DIR/.claude/runtime/pipeline-state.json"
 PHASE="none"
 if [[ -f "$STATE_FILE" ]]; then
   PHASE=$(jq -r '.current_phase // "none"' "$STATE_FILE" 2>/dev/null || echo "none")

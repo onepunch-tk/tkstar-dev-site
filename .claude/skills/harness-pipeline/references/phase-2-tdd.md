@@ -2,10 +2,10 @@
 
 > **Pipeline State → `tdd`**: Update `pipeline-state.json` before Phase 2 starts (ABAC source code blocking lifted):
 > ```bash
-> cat > .claude/pipeline-state.json << EOF
+> cat > .claude/runtime/pipeline-state.json << EOF
 > {
 >   "current_phase": "tdd",
->   "mode": "$(jq -r .mode .claude/pipeline-state.json)",
+>   "mode": "$(jq -r .mode .claude/runtime/pipeline-state.json)",
 >   "branch": "$(git branch --show-current)",
 >   "updated_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 > }
@@ -61,7 +61,7 @@ When implementing with external library APIs, verify correctness via context7 MC
 |------|--------|-----------|
 | 8 | Spawn teammates with detailed prompts (see Spawn Template below) | `TeamCreate` |
 | 8a | **Ownership registration**: Run `cat ~/.claude/teams/{team-name}/config.json` → verify `members[].agentId` and `members[].name` mapping | — |
-| 8b | **Write `.claude/ownership.json`**: Record each teammate's name → `{files}` mapping (see Pipeline State Management in SKILL.md) | — |
+| 8b | **Write `.claude/runtime/ownership.json`**: Record each teammate's name → `{files}` mapping (see Pipeline State Management in SKILL.md) | — |
 | 9 | Use **Delegate Mode** (Shift+Tab) — do NOT implement yourself | — |
 | 10 | Monitor teammate progress, unblock as needed | — |
 | 10-ui | **Design Application** (if `ui_involved`): After all teammates complete, spawn `ux-design-lead` sub-agent to apply design system across all new Presentation layer files. Same rules as Sequential Step 9-ui — do NOT break existing tests. | `Agent(subagent_type="ux-design-lead")` |

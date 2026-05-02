@@ -267,7 +267,7 @@ testID-based targeting is far more reliable than text matching. Prepare testIDs 
 ### Step 5: Scenario Design
 
 1. **Analyze code changes**: `git diff` to identify affected screens/flows
-2. **Team Mode awareness**: Read `.claude/ownership.json` if it exists to understand teammate areas, prioritize integration scenarios
+2. **Team Mode awareness**: Read `.claude/runtime/ownership.json` if it exists to understand teammate areas, prioritize integration scenarios
 3. **Design test scenarios**:
    - **Happy Path**: Standard successful user flow
    - **Edge Cases**: Empty states, boundary inputs, offline states

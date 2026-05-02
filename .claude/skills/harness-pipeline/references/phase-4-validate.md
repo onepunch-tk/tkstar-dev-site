@@ -2,13 +2,13 @@
 
 > **Pipeline State → `validate`**: Update before Phase 4 starts:
 > ```bash
-> cat > .claude/pipeline-state.json << EOF
+> cat > .claude/runtime/pipeline-state.json << EOF
 > {
 >   "current_phase": "validate",
->   "mode": "$(jq -r .mode .claude/pipeline-state.json)",
+>   "mode": "$(jq -r .mode .claude/runtime/pipeline-state.json)",
 >   "branch": "$(git branch --show-current)",
->   "github_mode": $(jq -r .github_mode .claude/pipeline-state.json),
->   "issue_number": $(jq -r .issue_number .claude/pipeline-state.json),
+>   "github_mode": $(jq -r .github_mode .claude/runtime/pipeline-state.json),
+>   "issue_number": $(jq -r .issue_number .claude/runtime/pipeline-state.json),
 >   "updated_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 > }
 > EOF
@@ -57,7 +57,7 @@ The PR workflow is deliberately split into **create**, **user confirmation**, an
 Step 15a — create only:
 
 ```bash
-ISSUE_NUMBER=$(jq -r '.issue_number // empty' .claude/pipeline-state.json)
+ISSUE_NUMBER=$(jq -r '.issue_number // empty' .claude/runtime/pipeline-state.json)
 
 # Agent composes PR title/body, then invokes the CREATE script. The script
 # pushes the branch and opens the PR, then prints the PR URL and exits.
@@ -140,7 +140,7 @@ git push origin development
 git branch -d "$FEATURE_BRANCH"
 
 # Reset pipeline state (Local Mode must do this manually — GitHub Mode is handled by git-pr-merge.sh)
-cat > .claude/pipeline-state.json << EOF
+cat > .claude/runtime/pipeline-state.json << EOF
 {
   "current_phase": "none",
   "mode": "none",
@@ -151,7 +151,7 @@ cat > .claude/pipeline-state.json << EOF
   "updated_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 }
 EOF
-echo '{"last_reminded_phase":"","doc_reminders_sent":{},"workflow_warnings_sent":{},"cooldown_until":""}' > .claude/hook-state.json
+echo '{"last_reminded_phase":"","doc_reminders_sent":{},"workflow_warnings_sent":{},"cooldown_until":""}' > .claude/runtime/hook-state.json
 ```
 
 ## Team Mode

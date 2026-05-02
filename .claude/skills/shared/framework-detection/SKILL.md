@@ -81,17 +81,13 @@ type FrameworkDetectionResult = {
 
 ## Glossary loading (post-detection)
 
-After the framework is resolved, the consuming agent **must Read the matching glossary** from `.claude/rules/` so framework-native vocabulary is in context before any user-facing question, plan, or review:
+After the framework is resolved, the consuming agent **must Read `docs/glossary.md`** — the project's domain Ubiquitous Language Single Source of Truth.
 
-| Detected framework | Glossary path to Read |
-|---|---|
-| `react-router` | `.claude/rules/glossary-react-router.md` |
-| `nestjs`       | `.claude/rules/glossary-nestjs.md` |
-| `expo`         | `.claude/rules/glossary-expo.md` |
-| `nextjs`       | `.claude/rules/glossary-nextjs.md` |
-| `remix` / `vite-react` / `unknown` | No glossary — pair with CLAUDE.md §Ubiquitous Language only |
+The glossary is framework-agnostic on purpose: framework-native API vocabulary (e.g., NestJS `Module`, Expo `Config Plugin`) is well-covered by the LLM's training data and produced consistent identifiers anyway; the historical per-framework cheat sheets only inflated context. Domain entities and standardized technical verbs — the things AI actually paraphrases inconsistently — are what the glossary captures.
 
-Sub-agents do NOT auto-load files in `.claude/rules/`. Each consumer is responsible for the explicit `Read` after detection. Phase 0 of the harness pipeline performs this Read for the main agent; sub-agents that load `framework-detection` via their `skills:` frontmatter (prd-generator, prd-validator, ux-design-lead, code-reviewer, project-structure-analyzer, etc.) do the Read themselves at the start of their workflow.
+If `docs/glossary.md` does not exist (very early in a project), proceed without it; `prd-generator` seeds the file on its first run. Pair with `CLAUDE.md §Harness Vocabulary` for harness/pipeline terms regardless.
+
+Sub-agents do NOT auto-load `docs/glossary.md`. Each consumer is responsible for the explicit `Read` after detection. Phase 0 of the harness pipeline performs this Read for the main agent; sub-agents that load `framework-detection` via their `skills:` frontmatter (prd-generator, prd-validator, ux-design-lead, code-reviewer, project-structure-analyzer, etc.) do the Read themselves at the start of their workflow.
 
 ## Change control
 

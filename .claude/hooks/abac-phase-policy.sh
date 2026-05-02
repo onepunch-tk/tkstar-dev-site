@@ -47,7 +47,7 @@ if [[ "${HARNESS_BYPASS:-0}" == "1" ]]; then
 fi
 
 PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$PWD}"
-STATE_FILE="$PROJECT_DIR/.claude/pipeline-state.json"
+STATE_FILE="$PROJECT_DIR/.claude/runtime/pipeline-state.json"
 
 PHASE="none"
 PLAN_APPROVED="false"

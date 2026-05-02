@@ -12,8 +12,8 @@
 | Step | Action |
 |------|--------|
 | 0.1 | **Load `interview-protocol` skill.** All Phase 0 rules (no-skip, ambiguity-zero, Korean, no round limit, output gate) live there. |
-| 0.2 | **Read `CLAUDE.md` Ubiquitous Language section.** Use the project's shared vocabulary when phrasing questions and the intent summary — never invent new terms. |
-| 0.3 | **Detect framework** via `.claude/skills/shared/framework-detection/SKILL.md`. If a match is found, **Read the matching glossary** at `.claude/rules/glossary-{detected}.md` (one of: react-router, nestjs, expo, nextjs). Now you can ask questions using framework-native vocabulary. |
+| 0.2 | **Read `CLAUDE.md` §Harness Vocabulary.** Use harness/pipeline vocabulary correctly when phrasing questions (e.g., **Phase 0**, **development-planner sub-agent**) — never invent synonyms. |
+| 0.3 | **Read `docs/glossary.md`** — the project's domain Ubiquitous Language. Use the registered Korean / English pairs verbatim when phrasing questions about domain entities or technical verbs. If the file does not yet exist (very first run), proceed without it; `prd-generator` will seed it. |
 | 0.4 | **Enumerate ambiguities** about the user's task description (not aloud — internal scratch). Cover: target framework / data sources / auth / success criteria / UI library / users & roles / error handling / scope boundary / multi-interpretable wording. |
 | 0.5 | **Interview loop** (per `interview-protocol` skill): batch `AskUserQuestion` calls (1–4 questions per batch, grouped by topic), apply answers to scratch, re-enumerate. Loop until the ambiguity list is empty. **No round limit.** |
 | 0.6 | **Write the Korean intent summary** to the active plan file (path provided by Plan Mode system reminder, typically `/Users/tkstart/.claude/plans/<slug>.md`). Format defined in `interview-protocol` skill's "Output format" section. |
@@ -66,6 +66,6 @@ this block is absent, Phase 1 must refuse to start and call back to Phase 0.
 ## Cross-references
 
 - Skill: `.claude/skills/interview-protocol/SKILL.md`
-- Glossaries: `.claude/rules/glossary-{react-router,nestjs,expo,nextjs}.md`
+- Domain glossary: `docs/glossary.md` (Ubiquitous Language SoT — auto-imported into CLAUDE.md context)
 - Framework detection: `.claude/skills/shared/framework-detection/SKILL.md`
 - Phase 1: `phase-1-plan.md` (entered only after Phase 0 confirmation gate)

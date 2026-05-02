@@ -2,10 +2,10 @@
 
 > **Pipeline State → `review`**: Update before Phase 3 starts:
 > ```bash
-> cat > .claude/pipeline-state.json << EOF
+> cat > .claude/runtime/pipeline-state.json << EOF
 > {
 >   "current_phase": "review",
->   "mode": "$(jq -r .mode .claude/pipeline-state.json)",
+>   "mode": "$(jq -r .mode .claude/runtime/pipeline-state.json)",
 >   "branch": "$(git branch --show-current)",
 >   "review_unresolved_count": 0,
 >   "design_review_unresolved_count": 0,
@@ -48,12 +48,12 @@ After `code-reviewer` (or `ux-design-lead`) returns, parse `issue_count` from it
 # Code review
 ISSUE_COUNT=<from sub-agent summary>
 jq --argjson n "$ISSUE_COUNT" '.review_unresolved_count = $n | .updated_at = (now | todateiso8601)' \
-   .claude/pipeline-state.json > /tmp/_state && mv /tmp/_state .claude/pipeline-state.json
+   .claude/runtime/pipeline-state.json > /tmp/_state && mv /tmp/_state .claude/runtime/pipeline-state.json
 
 # Design review (only if ui_involved)
 DESIGN_ISSUE_COUNT=<from sub-agent summary>
 jq --argjson n "$DESIGN_ISSUE_COUNT" '.design_review_unresolved_count = $n | .updated_at = (now | todateiso8601)' \
-   .claude/pipeline-state.json > /tmp/_state && mv /tmp/_state .claude/pipeline-state.json
+   .claude/runtime/pipeline-state.json > /tmp/_state && mv /tmp/_state .claude/runtime/pipeline-state.json
 ```
 
 ### 2. Decrement after each fix
@@ -62,7 +62,7 @@ After each issue is resolved (and committed if it was a code change):
 
 ```bash
 jq '.review_unresolved_count = (.review_unresolved_count - 1) | .updated_at = (now | todateiso8601)' \
-   .claude/pipeline-state.json > /tmp/_state && mv /tmp/_state .claude/pipeline-state.json
+   .claude/runtime/pipeline-state.json > /tmp/_state && mv /tmp/_state .claude/runtime/pipeline-state.json
 ```
 
 (Use `.design_review_unresolved_count` for design issues.) Optionally tick the corresponding `- [ ]` in the runtime report file as a self-checklist — it has no effect on the gate, but helps if autocompact reloads context mid-cycle.

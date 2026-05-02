@@ -1,7 +1,7 @@
 #!/bin/bash
 # PostToolUse hook — matcher: ExitPlanMode
 #
-# Automatically flips `plan_approved` to `true` in `.claude/pipeline-state.json`
+# Automatically flips `plan_approved` to `true` in `.claude/runtime/pipeline-state.json`
 # immediately after the user approves a plan via `ExitPlanMode`.
 #
 # Why this hook exists:
@@ -31,7 +31,7 @@ if jq -e '.tool_response.error // empty' >/dev/null 2>&1 <<< "$INPUT"; then
 fi
 
 PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$PWD}"
-STATE_FILE="$PROJECT_DIR/.claude/pipeline-state.json"
+STATE_FILE="$PROJECT_DIR/.claude/runtime/pipeline-state.json"
 [[ -f "$STATE_FILE" ]] || exit 0
 
 TMP=$(mktemp)
