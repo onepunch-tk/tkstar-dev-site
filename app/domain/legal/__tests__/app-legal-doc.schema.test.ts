@@ -51,4 +51,61 @@ describe("appLegalDocSchema", () => {
 		const result = appLegalDocSchema.safeParse(rest);
 		expect(result.success).toBe(false);
 	});
+
+	// ---------------------------------------------------------------------------
+	// T015 RED — body optional 필드 검증 (아직 schema에 없으므로 실패)
+	// ---------------------------------------------------------------------------
+
+	it("body가 string일 때 parse 통과하고 결과에 body 필드가 있다", () => {
+		// Arrange
+		const input = {
+			app_slug: "moai",
+			doc_type: "terms" as const,
+			version: "1.0.0",
+			effective_date: "2026-04-28",
+			body: "# Hello",
+		};
+
+		// Act
+		const result = appLegalDocSchema.safeParse(input);
+
+		// Assert
+		expect(result.success).toBe(true);
+		// body 필드가 parsed 결과에 존재해야 한다 (strip 모드라 추가 없이는 undefined)
+		expect((result.data as Record<string, unknown>).body).toBe("# Hello");
+	});
+
+	it("body 미제공 시 parse 통과하고 결과의 body 는 undefined 이다", () => {
+		// Arrange
+		const input = {
+			app_slug: "moai",
+			doc_type: "terms" as const,
+			version: "1.0.0",
+			effective_date: "2026-04-28",
+		};
+
+		// Act
+		const result = appLegalDocSchema.safeParse(input);
+
+		// Assert
+		expect(result.success).toBe(true);
+		expect((result.data as Record<string, unknown>).body).toBeUndefined();
+	});
+
+	it("body가 number 등 non-string 이면 reject 한다", () => {
+		// Arrange
+		const input = {
+			app_slug: "moai",
+			doc_type: "terms" as const,
+			version: "1.0.0",
+			effective_date: "2026-04-28",
+			body: 123,
+		};
+
+		// Act
+		const result = appLegalDocSchema.safeParse(input);
+
+		// Assert
+		expect(result.success).toBe(false);
+	});
 });
