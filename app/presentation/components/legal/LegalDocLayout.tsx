@@ -10,7 +10,7 @@ type Props = {
 export default function LegalDocLayout({ title, version, effectiveDate, children }: Props) {
 	return (
 		<div className="bg-bg font-mono text-[14px] text-fg leading-[1.75]">
-			<header className="border-line border-b px-4 pt-[22px] pb-3">
+			<header className="border-line border-b px-[var(--spacing-gutter)] pt-[22px] pb-3">
 				<h1 className="m-0 font-mono font-semibold text-[20px] text-fg tracking-[-0.01em]">
 					{title}
 				</h1>
@@ -21,7 +21,7 @@ export default function LegalDocLayout({ title, version, effectiveDate, children
 				</div>
 			</header>
 			<article
-				className="px-4 pt-[22px] pb-20
+				className="px-[var(--spacing-gutter)] pt-[22px] pb-20
 					[&>h2]:mt-7 [&>h2]:mb-2 [&>h2]:font-mono [&>h2]:font-semibold [&>h2]:text-[14px] [&>h2]:text-fg
 					[&>h3]:mt-[18px] [&>h3]:mb-1.5 [&>h3]:font-mono [&>h3]:font-semibold [&>h3]:text-[13px] [&>h3]:text-muted
 					[&>p]:mb-3 [&>p]:text-fg
