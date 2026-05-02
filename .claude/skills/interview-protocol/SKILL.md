@@ -3,12 +3,14 @@ name: interview-protocol
 description: |
   Discovery / Ambiguity-Resolution interview protocol for the harness pipeline and
   any sub-agent that performs requirements gathering, planning, design, or review
-  decisions. Loaded at Phase 0 of harness-pipeline and preloaded into 5 interview-
-  enabled sub-agents (prd-generator, prd-validator, development-planner,
-  code-reviewer, ux-design-lead) via their `skills:` frontmatter.
+  decisions. Loaded at Phase 0 of harness-pipeline and preloaded into 6 interview-
+  enabled sub-agents — 5 for full Phase-0 interviews (prd-generator, prd-validator,
+  development-planner, code-reviewer, ux-design-lead) and project-structure-analyzer
+  for glossary missing-entry confirmation only — via their `skills:` frontmatter.
 
-  Core mandate: **Do NOT proceed on inference.** When user intent is unclear, call
-  `AskUserQuestion` repeatedly — 100 calls if necessary — until *Ambiguity Count = 0*.
+  Core mandate: **Do NOT proceed on inference.** Interview the user relentlessly
+  about every aspect of their intent — 100 questions if that's what it takes —
+  until you reach a shared understanding (*Ambiguity Count = 0*).
 ---
 
 # Interview Protocol
@@ -130,9 +132,10 @@ Sub-agent 들도 동일 포맷으로 자기 영역의 intent 를 1문단 기록�
 
 - `.claude/skills/harness-pipeline/SKILL.md` Phase Execution table (Phase 0)
 - `.claude/skills/harness-pipeline/references/phase-0-discovery.md`
-- 5 sub-agent definitions:
+- 6 sub-agent definitions:
   - `.claude/agents/docs/prd-generator.md`
   - `.claude/agents/docs/prd-validator.md`
   - `.claude/agents/docs/development-planner.md`
   - `.claude/agents/dev/code-reviewer.md`
   - `.claude/agents/docs/ux-design-lead.md`
+  - `.claude/agents/docs/project-structure-analyzer.md` (glossary missing-entry confirmation)

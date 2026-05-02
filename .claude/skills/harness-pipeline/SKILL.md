@@ -86,7 +86,7 @@ What remains in force:
 
 The harness enforces Access Control via two state files.
 
-### `.claude/pipeline-state.json`
+### `.claude/runtime/pipeline-state.json`
 
 Updated at each Phase transition. The ABAC hook reads this to block source code modifications during plan phase.
 
@@ -125,7 +125,7 @@ Updated at each Phase transition. The ABAC hook reads this to block source code 
 
 **Update command (run at each Phase transition — `plan_approved` and `tasks_created` are excluded, the hooks own them):**
 ```bash
-cat > .claude/pipeline-state.json << EOF
+cat > .claude/runtime/pipeline-state.json << EOF
 {
   "current_phase": "PHASE",
   "mode": "MODE",
@@ -139,9 +139,9 @@ cat > .claude/pipeline-state.json << EOF
 }
 EOF
 ```
-*For phase transitions other than plan approval, both `PLAN_APPROVED` and `TASKS_CREATED` should carry forward the current values (read with `jq -r '.plan_approved' .claude/pipeline-state.json` and `jq -r '.tasks_created' .claude/pipeline-state.json`).*
+*For phase transitions other than plan approval, both `PLAN_APPROVED` and `TASKS_CREATED` should carry forward the current values (read with `jq -r '.plan_approved' .claude/runtime/pipeline-state.json` and `jq -r '.tasks_created' .claude/runtime/pipeline-state.json`).*
 
-### `.claude/ownership.json` (Team Mode only)
+### `.claude/runtime/ownership.json` (Team Mode only)
 
 Written by lead after TeamCreate. The ReBAC hook checks per-teammate file ownership.
 
@@ -182,11 +182,12 @@ Each phase has detailed steps in its reference file. **Read the reference for th
 | **4. Validate** | [references/phase-4-validate.md](references/phase-4-validate.md) | E2E test → docs update → PR create + merge (GitHub) or direct merge (Local) → cleanup |
 
 > **Foreground-only sub-agents**: When spawning `prd-generator`,
-> `prd-validator`, `development-planner`, `code-reviewer`, or
-> `ux-design-lead`, **NEVER** set `run_in_background: true`. These agents
-> load the `interview-protocol` skill and call `AskUserQuestion`, which
-> fails silently in background sub-agents — the result is unreviewed
-> assumptions baked into the output.
+> `prd-validator`, `development-planner`, `code-reviewer`,
+> `ux-design-lead`, or `project-structure-analyzer`, **NEVER** set
+> `run_in_background: true`. These agents load the `interview-protocol`
+> skill and call `AskUserQuestion` (the latter on glossary missing-entry
+> detection), which fails silently in background sub-agents — the
+> result is unreviewed assumptions baked into the output.
 
 **Team Protocol**: [references/team-protocol.md](references/team-protocol.md) — teammate execution steps, file ownership, communication, merge strategy
 

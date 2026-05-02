@@ -131,7 +131,46 @@ Verify import direction follows CA layer rules defined in `CLAUDE.md` (Core Prin
 - [ ] Edge cases handled (null, undefined, empty arrays)
 - [ ] No silent failures (swallowed exceptions)
 
-#### 4.6 CLAUDE.md Convention Compliance (Low-High)
+#### 4.6 Module Depth — Deletion Test (Low-Medium, Light Lens)
+
+A light pass for **shallow module** detection (Ousterhout). The full
+deepening workflow lives in the `improve-codebase-architecture` skill —
+this lens just flags candidates worth running through it.
+
+For each new/modified module in the diff, apply the **deletion test**
+mentally:
+
+- *If you deleted this module, would the same complexity reappear
+  unchanged across N callers?* → keeping it is justified
+- *If you deleted it, would complexity collapse to one place?* → it's
+  a pass-through, flag as **shallow**
+
+Specific shallow-module signals to flag (severity MINOR by default,
+raise to MAJOR if it sits on a hot path or in Domain/Application):
+
+- [ ] Wrapper file (≤ ~30 lines) that only re-exports or thinly
+      delegates to one other file, used by ≤ 2 callers — recommend
+      inlining
+- [ ] Multi-file split where understanding one concept requires
+      bouncing between 3+ tiny files (entity / mapper / DTO / helper
+      all for one Order operation) — recommend running
+      `/improve-codebase-architecture` for a deepening proposal
+- [ ] CA Port with **zero test adapter** (no `*.mock.ts` / `*.fake.ts`
+      / `*.test.ts` exercising it via an in-memory adapter) AND only
+      one production adapter — flag as dead indirection. *Do NOT* flag
+      a Port that has both production + test adapters; that's a real
+      seam by design
+
+Recommend:
+> *"Smells shallow. Run `/improve-codebase-architecture` to evaluate
+> whether the X / Y / Z files should be merged into one deeper module
+> behind a smaller interface. The skill walks the deletion test and the
+> grilling loop properly."*
+
+Do NOT propose the merged interface here — that belongs in the deep
+skill's grilling loop. This lens is detection, not redesign.
+
+#### 4.7 CLAUDE.md Convention Compliance (Low-High)
 - [ ] Utility/handler: arrow syntax `export const fn = () => {}`
 - [ ] React components: `export default function Component() {}`
 - [ ] **NO `any` type** → Flag as High (use `unknown` + type guards)

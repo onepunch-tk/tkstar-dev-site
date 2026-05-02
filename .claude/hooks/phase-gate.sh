@@ -30,7 +30,7 @@ TOOL_NAME=$(echo "$INPUT" | jq -r '.tool_name // empty')
 [[ -z "$TOOL_NAME" ]] && exit 0
 
 PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$PWD}"
-STATE_FILE="$PROJECT_DIR/.claude/pipeline-state.json"
+STATE_FILE="$PROJECT_DIR/.claude/runtime/pipeline-state.json"
 [[ ! -f "$STATE_FILE" ]] && exit 0
 
 CURRENT_PHASE=$(jq -r '.current_phase // "none"' "$STATE_FILE" 2>/dev/null || echo "none")
@@ -94,7 +94,7 @@ if is_validate_transition_write; then
     if (( REVIEW_COUNT > 0 )); then
         echo "Phase Gate BLOCKED [review → validate]: code-review has $REVIEW_COUNT unresolved issue(s)." >&2
         echo "  Fix all reported issues, then decrement review_unresolved_count to 0:" >&2
-        echo "    jq '.review_unresolved_count = 0' .claude/pipeline-state.json > /tmp/_s && mv /tmp/_s .claude/pipeline-state.json" >&2
+        echo "    jq '.review_unresolved_count = 0' .claude/runtime/pipeline-state.json > /tmp/_s && mv /tmp/_s .claude/runtime/pipeline-state.json" >&2
         FAIL=1
     fi
 

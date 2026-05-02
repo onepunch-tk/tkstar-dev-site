@@ -18,10 +18,13 @@
 > **Simplicity First**: Minimum code that solves the problem. No speculative abstractions, configurability, or error handling for impossible scenarios. Ask: "Would a senior engineer call this over-complicated?" Domain applications: code-style.md (type aliases/memoization), code-reviewer.md (quality checklist).
 > **Surgical Changes**: Do not improve, reformat, or refactor adjacent code outside the requested scope. Match existing style. Only clean orphans (imports/vars/fns) created by your own changes. Pre-existing dead code: mention, do not delete. Domain applications: starter-cleaner.md, ca-rules.
 > **Goal-Driven Execution**: Transform tasks into verifiable success criteria. Reject weak criteria like "make it work" — request clarification. Multi-step tasks: state a brief plan with per-step verification. Domain applications: tdd/SKILL.md (Red/Green/Refactor), harness-pipeline phase gates.
+> **Module Depth (Ousterhout)**: Prefer **deep modules** — simple interface, lots of functionality behind it — over shallow modules that surface complexity through their interface. AI defaults to shallow (small modules + complex interfaces); resist that default. Apply the *deletion test*: if removing a module concentrates complexity, it was earning its keep; if it just moves complexity around, it was a pass-through. For deepening opportunities and refactor workflows, invoke the `improve-codebase-architecture` skill.
 
-## Ubiquitous Language
+## Harness Vocabulary
 
-> Shared vocabulary for user ↔ agent communication. When asking a question, writing a plan, naming a task, or describing a fix, **use exactly these terms**. Do not invent synonyms ("the discovery step" → say **Phase 0**; "the planning agent" → say **development-planner sub-agent**). Framework-specific terms live in `.claude/rules/glossary-{react-router|nestjs|expo|nextjs}.md` and are read by agents after framework-detection.
+> Shared vocabulary for harness/pipeline machinery. When asking a question, writing a plan, naming a task, or describing a fix, **use exactly these terms**. Do not invent synonyms ("the discovery step" → say **Phase 0**; "the planning agent" → say **development-planner sub-agent**).
+>
+> **Domain Ubiquitous Language** (per-project business vocabulary — entities, technical verbs) lives in [`docs/glossary.md`](docs/glossary.md), auto-imported via the `@docs/glossary.md` line at the bottom of this file.
 
 ### Harness meta (12)
 
@@ -44,39 +47,10 @@
 
 | Term | Meaning |
 |------|---------|
-| **Pipeline State** | `.claude/pipeline-state.json` — the single source of truth for current phase, mode, branch, plan/task gates. Hook-owned fields are off-limits to agents. |
-| **Ownership (ReBAC)** | `.claude/ownership.json` (Team Mode only) — per-teammate file allowlist. Violations are detected post-hoc by the TeammateIdle hook. |
+| **Pipeline State** | `.claude/runtime/pipeline-state.json` — the single source of truth for current phase, mode, branch, plan/task gates. Hook-owned fields are off-limits to agents. |
+| **Ownership (ReBAC)** | `.claude/runtime/ownership.json` (Team Mode only) — per-teammate file allowlist. Violations are detected post-hoc by the TeammateIdle hook. |
 | **Doc Sync Gate** | The `docs-sync-gate.sh` hook that blocks PRs when ROADMAP/task checkbox state drifts from task body Status fields. |
 | **Coverage Gate** | The `coverageThreshold` enforced by `jest.config.js` and verified by Phase 4 validation. |
-
-### Clean Architecture (8)
-
-| Term | Meaning |
-|------|---------|
-| **Layer** | One of Domain / Application / Infrastructure / Presentation. Inner must not import from outer. Enforced by `ca-rules` skill. |
-| **Domain Entity** | A class/object in the Domain layer that owns business invariants. Pure TypeScript, no framework imports. |
-| **Value Object** | An immutable Domain object identified by its values, not by identity (e.g., `Email`, `Money`). |
-| **Use Case** | An Application-layer function that orchestrates Domain operations to fulfill a single user intent. |
-| **Port** | An interface declared by Application defining what Infrastructure must provide (e.g., `PostRepositoryPort`). |
-| **Adapter** | An Infrastructure-layer concrete implementation of a Port (e.g., `DrizzlePostRepository`). |
-| **Repository** | A specific kind of Port/Adapter pair for persistence. Domain-shaped reads/writes; ORM details hidden. |
-| **CA Template** | The framework-specific layer scaffold under `.claude/skills/project-structure/references/{react-router|nestjs|expo}.md`, loaded in Phase 1 Step 1b. |
-
-### TDD (3)
-
-| Term | Meaning |
-|------|---------|
-| **Red Phase** | Phase 2 step where `unit-test-writer` writes a failing test that pins the next behavior contract. Commit prefix `✅ test:`. |
-| **Green Phase** | Phase 2 step where the implementation makes the Red test pass — minimum code only. Commit prefix `✨ feat:`. |
-| **Refactor** | Optional post-Green cleanup that preserves Green-state passing tests. Style/structure changes only, no new behavior. |
-
-### Principles (3)
-
-| Term | Meaning |
-|------|---------|
-| **Context Engineering** | The discipline of loading only the context strictly required for the current phase and discarding it once consumed. See harness-pipeline §Context Management. |
-| **Surgical Changes** | Edit only what the task requires. No incidental refactor of adjacent code. Pre-existing dead code: mention, do not delete. |
-| **Goal-Driven Execution** | Translate tasks into verifiable success criteria up front; reject "make it work" framings; verify per step. |
 
 ## Tech Stack
 
@@ -195,3 +169,5 @@ bunx expo prebuild --clean   # regenerate native projects
 bun run ios                  # verify iOS build
 bun run android              # verify Android build
 ```
+
+@docs/glossary.md

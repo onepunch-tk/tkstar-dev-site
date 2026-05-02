@@ -49,6 +49,55 @@ The loaded `prd` skill provides all common rules (Platform Detection, Scale Dete
 7. **Generate PRD** following common rules (skill) + platform rules + template
 8. **Run Consistency Validation** (platform-specific checklist from rules file)
 9. **Output** to `docs/PRD.md`
+10. **Glossary Seed** (post-step) — see §Glossary Seed below
+
+## Glossary Seed (Post-Step)
+
+After `docs/PRD.md` is written, **seed `docs/glossary.md`** with domain
+nouns extracted from the freshly generated PRD. The glossary is the
+project's Ubiquitous Language Single Source of Truth — every later
+agent (development-planner, project-structure-analyzer) reads it before
+naming anything.
+
+**Procedure**:
+
+1. Read `docs/glossary.md`. Build a set of English identifiers already
+   present in the **Domain Entities** table.
+2. Re-read the generated `docs/PRD.md` and extract domain noun
+   candidates — typically:
+   - Section headings under `## Data Model` / `## Entities` / `## Domain`
+   - Capitalized nouns repeated 2+ times across feature descriptions
+   - User-supplied Korean nouns paired with English identifiers in the
+     interview transcript
+3. **Diff** candidates against the existing glossary entries:
+   - Already present (exact match) → skip
+   - New entry → stage for confirmation
+   - Conflict (same English id, different Korean phrase OR same
+     Korean phrase, different English id) → MUST resolve via
+     `AskUserQuestion` before writing
+4. For each new entry, ask the user (Korean, batched ≤ 4 per call):
+   - Korean canonical phrase
+   - One-line definition
+   - Forbidden synonyms the user would like blocked (optional)
+5. Append confirmed entries to the **Domain Entities** table in
+   `docs/glossary.md`, alphabetized by English identifier.
+6. Print a Korean summary: `Glossary seed: 신규 N개 / 충돌 해결 N건 /
+   건너뜀 N개`. If nothing was added, print `Glossary 변경 없음`.
+
+**Out of scope for the seed step**:
+
+- Technical Verbs — those come from `development-planner`'s
+  ROADMAP/task pass (Augment step). Do not invent verbs from the PRD.
+- Source code identifier scan — that is `/glossary-sync`'s job.
+- Cross-PRD reconciliation — each `prd-generator` invocation seeds
+  only nouns introduced by the current PRD.
+
+**Anti-patterns**:
+
+- ❌ Writing entries without `AskUserQuestion` confirmation on conflict
+- ❌ Inventing English identifiers the user did not approve
+- ❌ Editing PRD content from this step — glossary is the only write
+  target after Step 9
 
 ## Multi-Platform PRD Structure
 
