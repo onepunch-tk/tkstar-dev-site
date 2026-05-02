@@ -61,8 +61,6 @@ function LegalDoc({ kind, app }) {
             <span>버전 1.0</span>
             <span>·</span>
             <span>시행일 2026.04.01</span>
-            <span>·</span>
-            <span>최종 수정 2026.03.20</span>
           </div>
         </header>
         <div className="legal-body">
@@ -136,8 +134,6 @@ function LegalDoc({ kind, app }) {
           <span>버전 1.0</span>
           <span>·</span>
           <span>시행일 2026.04.01</span>
-          <span>·</span>
-          <span>최종 수정 2026.03.20</span>
         </div>
       </header>
       <div className="legal-body">

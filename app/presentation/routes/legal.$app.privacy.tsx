@@ -1,12 +1,26 @@
-import type { MetaFunction } from "react-router";
+import MdxRenderer from "../components/content/MdxRenderer";
+import LegalDocLayout from "../components/legal/LegalDocLayout";
 
-export const meta: MetaFunction = () => [{ title: "Privacy — tkstar.dev" }];
+import type { Route } from "./+types/legal.$app.privacy";
 
-export default function AppPrivacy() {
+export const meta: Route.MetaFunction = () => [{ title: "Privacy — tkstar.dev" }];
+
+export const loader = async ({ context, params }: Route.LoaderArgs) => {
+	if (!params.app) throw new Response(null, { status: 404 });
+	const doc = await context.container.findAppDoc(params.app, "privacy");
+	if (!doc) throw new Response(null, { status: 404 });
+	return { doc };
+};
+
+export default function AppPrivacy({ loaderData }: Route.ComponentProps) {
+	const { doc } = loaderData;
 	return (
-		<article>
-			<h1 className="text-2xl font-semibold">App Privacy</h1>
-			<p>placeholder — content lands in T015.</p>
-		</article>
+		<LegalDocLayout
+			title={`${doc.app_slug} 개인정보 처리방침`}
+			version={doc.version}
+			effectiveDate={doc.effective_date}
+		>
+			{doc.body ? <MdxRenderer code={doc.body} /> : null}
+		</LegalDocLayout>
 	);
 }

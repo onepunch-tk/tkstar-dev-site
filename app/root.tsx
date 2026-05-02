@@ -16,6 +16,10 @@ import "./app.css";
 
 const CHROME_FREE_PATHNAME = /^\/legal\/[^/]+\/(terms|privacy)$/;
 
+export const loader = async ({ context }: Route.LoaderArgs) => ({
+	appCount: (await context.container.listApps()).length,
+});
+
 // localStorage 값 화이트리스트 — 잘못된 값(브라우저 확장 / 콘솔 조작)이 들어와도 dark/light로만 좁힌다.
 const themeScript = `(()=>{try{var s=localStorage.getItem('proto-theme');var t=(s==='dark'||s==='light')?s:(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.dataset.theme=t;}catch(e){document.documentElement.dataset.theme='dark';}})();`;
 

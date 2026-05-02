@@ -1,6 +1,13 @@
 import { render } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+// Footer는 useRouteLoaderData("root") 를 호출하므로 data router 컨텍스트가 필요.
+// MemoryRouter는 data router 가 아니므로 hook 을 vi.mock 으로 모킹해 회피.
+vi.mock("react-router", async (importOriginal) => {
+	const actual = await importOriginal<typeof import("react-router")>();
+	return { ...actual, useRouteLoaderData: vi.fn().mockReturnValue({ appCount: 0 }) };
+});
 
 import Footer from "../Footer";
 import ThemeToggle from "../ThemeToggle";

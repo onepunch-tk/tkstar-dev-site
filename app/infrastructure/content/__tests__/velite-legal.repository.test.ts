@@ -7,7 +7,7 @@ vi.mock("#content", () => ({
 			doc_type: "terms",
 			version: "1.0.0",
 			effective_date: "2026-01-01",
-			body: "",
+			body: "## Terms body content",
 		},
 		{
 			app_slug: "moai",
@@ -22,6 +22,13 @@ vi.mock("#content", () => ({
 			version: "1.2.0",
 			effective_date: "2026-02-15",
 			body: "",
+		},
+		{
+			app_slug: "jagi",
+			doc_type: "privacy",
+			version: "2.0.0",
+			effective_date: "2026-03-01",
+			// body 필드 없음 — undefined 매핑 검증용
 		},
 	],
 }));
@@ -53,9 +60,32 @@ describe("veliteLegalRepository", () => {
 		});
 
 		it("같은 app이라도 정의되지 않은 doc_type은 null", async () => {
-			const result = await veliteLegalRepository.findAppDoc("jagi", "privacy");
+			// Arrange: mock에 존재하지 않는 app_slug + doc_type 조합
+			const result = await veliteLegalRepository.findAppDoc("unknown-app", "privacy");
 
 			expect(result).toBeNull();
+		});
+
+		it("velite raw body 를 entity.body 로 그대로 mapping 한다", async () => {
+			// Arrange: mock의 moai/terms는 body: "## Terms body content"
+
+			// Act
+			const result = await veliteLegalRepository.findAppDoc("moai", "terms");
+
+			// Assert
+			expect(result).not.toBeNull();
+			expect(result?.body).toBe("## Terms body content");
+		});
+
+		it("raw 에 body 가 없으면 entity.body 는 undefined", async () => {
+			// Arrange: mock의 jagi/privacy는 body 필드 없음
+
+			// Act
+			const result = await veliteLegalRepository.findAppDoc("jagi", "privacy");
+
+			// Assert
+			expect(result).not.toBeNull();
+			expect(result?.body).toBeUndefined();
 		});
 	});
 

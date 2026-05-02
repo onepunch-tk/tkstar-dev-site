@@ -13,4 +13,5 @@ export const toAppLegalDoc = (raw: VeliteLegalInput): AppLegalDoc => ({
 	doc_type: raw.doc_type,
 	version: raw.version,
 	effective_date: raw.effective_date,
+	body: raw.body,
 });

@@ -5,13 +5,13 @@
 | **Task ID** | T015 |
 | **Phase** | Phase 3 — Core Pages UI |
 | **Layer** | Presentation |
-| **Branch** | `feature/issue-N-legal-pages` |
+| **Branch** | `feature/issue-55-legal-pages` |
 | **Depends on** | T005, T007, T008, T009 |
 | **Blocks** | — |
 | **PRD Features** | **F014** (앱 약관 라우팅) |
 | **PRD AC** | — (Page-by-Page Key Features 검증, F018 차등 인덱싱은 Phase 5) |
 | **예상 작업 시간** | 1d |
-| **Status** | Not Started |
+| **Status** | Completed (2026-05-02) |
 
 ## Goal
 Legal Index(`/legal`)에 등록된 앱 카드를 표시하고, `/legal/:app/terms` / `/legal/:app/privacy`를 chrome-free 레이아웃(Topbar/Footer 미노출, max-width 680px)으로 렌더한다. Footer Legal 링크는 앱 1개 이상일 때만 노출.
@@ -37,10 +37,10 @@ Legal Index(`/legal`)에 등록된 앱 카드를 표시하고, `/legal/:app/term
 - chrome-free 레이아웃 자체 (T004에서 만든 `<ChromeFreeLayout />` 재사용)
 
 ## Acceptance Criteria
-- [ ] `/legal` 인덱스에 등록된 앱 카드(`<AppCard />`) 갯수 = `listApps()` 결과 길이 (seed: 1개 `moai`)
-- [ ] `/legal/moai/terms`와 `/legal/moai/privacy`가 chrome-free 레이아웃으로 렌더 (Topbar/Footer 미노출, max-width 680px)
-- [ ] Footer가 일반 페이지에서 — `appCount === 0`이면 Legal 링크 미렌더, `appCount > 0`이면 노출
-- [ ] DOM 구조 snapshot/className assertion으로 chrome-free 본문 영역 보장 (Issue #1 보강)
+- [x] `/legal` 인덱스에 등록된 앱 카드(`<AppCard />`) 갯수 = `listApps()` 결과 길이 (seed: 1개 `moai`)
+- [x] `/legal/moai/terms`와 `/legal/moai/privacy`가 chrome-free 레이아웃으로 렌더 (Topbar/Footer 미노출, max-width 680px)
+- [x] Footer가 일반 페이지에서 — `appCount === 0`이면 Legal 링크 미렌더, `appCount > 0`이면 노출
+- [x] DOM 구조 snapshot/className assertion으로 chrome-free 본문 영역 보장 (Issue #1 보강)
 
 ## Implementation Plan (TDD Cycle)
 
@@ -118,4 +118,4 @@ Legal Index(`/legal`)에 등록된 앱 카드를 표시하고, `/legal/:app/term
 ## Change History
 | Date | Changes | Author |
 |------|---------|--------|
-| - | - | - |
+| 2026-05-02 | T015 implementation completed — AppLegalDoc.body schema + legal mapper body + Container listApps/findAppDoc 위임 + root loader appCount + Footer Legal 조건부 + AppCard/LegalDocLayout 컴포넌트 + legal._index/legal.$app.{terms,privacy} 라우트. design-review pa-md01/02/05 적용, pa-md06 정본 축소. Issue #55. | tkstart |

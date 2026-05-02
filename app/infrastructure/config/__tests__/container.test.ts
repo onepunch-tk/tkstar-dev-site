@@ -51,7 +51,29 @@ vi.mock("#content", () => ({
 			body: "",
 		},
 	],
-	legal: [],
+	legal: [
+		{
+			app_slug: "moai",
+			doc_type: "terms",
+			version: "1.0.0",
+			effective_date: "2026-01-01",
+			body: "## moai terms",
+		},
+		{
+			app_slug: "moai",
+			doc_type: "privacy",
+			version: "1.0.0",
+			effective_date: "2026-01-01",
+			body: "",
+		},
+		{
+			app_slug: "jagi",
+			doc_type: "terms",
+			version: "1.0.0",
+			effective_date: "2026-01-01",
+			body: "",
+		},
+	],
 }));
 
 import { ProjectNotFoundError } from "~/domain/project/project.errors";
@@ -60,7 +82,7 @@ import { buildContainer, type Container } from "../container";
 describe("buildContainer", () => {
 	const env = {} as Env;
 
-	it("Container에 7개 service 함수가 모두 노출된다", () => {
+	it("Container에 9개 service 함수가 모두 노출된다", () => {
 		const c = buildContainer(env);
 		const keys: (keyof Container)[] = [
 			"listProjects",
@@ -74,6 +96,13 @@ describe("buildContainer", () => {
 		for (const k of keys) {
 			expect(typeof c[k]).toBe("function");
 		}
+		// legal 위임 — Green 단계 전에는 undefined → fail
+		const legalContainer = c as Container & {
+			listApps?: () => Promise<string[]>;
+			findAppDoc?: (appSlug: string, docType: "terms" | "privacy") => Promise<unknown>;
+		};
+		expect(typeof legalContainer.listApps).toBe("function");
+		expect(typeof legalContainer.findAppDoc).toBe("function");
 	});
 
 	describe("project services delegation", () => {
@@ -145,6 +174,37 @@ describe("buildContainer", () => {
 			expect(itemMatches).toHaveLength(2);
 			expect(xml).toContain("<link>https://tkstar.dev/blog/post-1</link>");
 			expect(xml).toContain("<link>https://tkstar.dev/blog/post-2</link>");
+		});
+	});
+
+	describe("legal services delegation", () => {
+		// Green 단계 전에는 listApps / findAppDoc 가 Container 에 없으므로 모두 fail
+		type LegalContainer = Container & {
+			listApps: () => Promise<string[]>;
+			findAppDoc: (appSlug: string, docType: "terms" | "privacy") => Promise<unknown>;
+		};
+
+		it("listApps()는 mock legal fixture에서 중복 제거된 app slug 목록을 반환한다", async () => {
+			const c = buildContainer(env) as LegalContainer;
+			const result = await c.listApps();
+			// fixture: moai(terms), moai(privacy), jagi(terms) → ["moai", "jagi"] 순서 무관
+			expect(result).toHaveLength(2);
+			expect(result).toContain("moai");
+			expect(result).toContain("jagi");
+		});
+
+		it("findAppDoc('moai', 'terms')는 해당 AppLegalDoc를 반환한다", async () => {
+			const c = buildContainer(env) as LegalContainer;
+			const result = await c.findAppDoc("moai", "terms");
+			expect(result).not.toBeNull();
+			expect((result as { app_slug: string }).app_slug).toBe("moai");
+			expect((result as { doc_type: string }).doc_type).toBe("terms");
+		});
+
+		it("findAppDoc('unknown', 'terms')는 null을 반환한다", async () => {
+			const c = buildContainer(env) as LegalContainer;
+			const result = await c.findAppDoc("unknown", "terms");
+			expect(result).toBeNull();
 		});
 	});
 });

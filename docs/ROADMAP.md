@@ -344,7 +344,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
     - `app/presentation/components/post/ShareTools.tsx`
   - PR 1개 / 브랜치: `feature/issue-N-blog-detail`
 
-- [ ] **Task 015: Legal Index + App Terms + App Privacy (F014, chrome-free)**
+- [x] **Task 015: Legal Index + App Terms + App Privacy (F014, chrome-free)** — Issue #55, PR TBD, 완료 2026-05-02
   - **Must** Read: [tasks/T015-legal-pages.md](tasks/T015-legal-pages.md)
   - blockedBy: Task 005, Task 007, Task 008, Task 009
   - Layer: Presentation

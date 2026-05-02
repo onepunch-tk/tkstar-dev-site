@@ -1,10 +1,13 @@
-import { Link } from "react-router";
+import { Link, useRouteLoaderData } from "react-router";
 import { FOOTER_LINKS } from "../../lib/chrome-links";
 
 const linkClass =
 	"rounded-sm hover:text-fg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent";
 
 export default function Footer() {
+	const rootData = useRouteLoaderData("root") as { appCount?: number } | undefined;
+	const showLegal = (rootData?.appCount ?? 0) > 0;
+
 	return (
 		<footer data-chrome="footer" className="border-t border-line text-muted text-xs">
 			<div className="mx-auto flex max-w-5xl flex-col gap-3 px-4 py-6 sm:flex-row sm:items-center sm:justify-between">
@@ -23,6 +26,13 @@ export default function Footer() {
 							)}
 						</li>
 					))}
+					{showLegal && (
+						<li>
+							<Link to="/legal" className={linkClass}>
+								legal
+							</Link>
+						</li>
+					)}
 				</ul>
 			</div>
 		</footer>

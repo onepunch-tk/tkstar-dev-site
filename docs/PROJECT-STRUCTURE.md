@@ -316,6 +316,9 @@ app/presentation/
 │   ├── contact/
 │   │   ├── ContactForm.tsx           # F008
 │   │   └── TurnstileWidget.tsx       # F009
+│   ├── legal/
+│   │   ├── AppCard.tsx               # F014 — 등록 앱 카드 (slug + terms/privacy 링크)
+│   │   └── LegalDocLayout.tsx        # F014 — chrome-free sober wrapper (header + article)
 │   └── notfound/
 │       └── TerminalNotFound.tsx      # `cd: no such route: <path>`
 ├── hooks/
