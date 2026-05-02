@@ -4,7 +4,7 @@
 
 **Purpose**: 1인 기업(개발자)의 개인 브랜드 웹사이트로, 사이트 자체가 이력서 역할을 하며 B2B(기업/HR) 채용 제안과 B2C(프리랜서 플랫폼) 의뢰 모두를 단일 도메인(tkstar.dev)에서 수렴시킨다. 주 네비게이션은 **검색 중심(Cmd+K Command Palette)**이며, 청중 분기는 별도 분기 CTA가 아닌 **콘텐츠 라우팅(About는 B2B 친화 / Projects·Case Study는 B2C 친화)**으로 자연스럽게 수행된다.
 **Users**: ① B2B 청중 — 기업 채용/HR 담당자, B2B 프리랜서 프로젝트 매니저 (이력·기술 깊이·신뢰성 검토). ② B2C 청중 — 크몽 등 프리랜서 플랫폼에서 유입된 클라이언트 (결과물·후기·문제 해결 능력 검토).
-**Scope Note**: 콘텐츠 100% static (DB 없음). 한국어 only(i18n 없음). 결제·가격 페이지 없음(메일 문의로 대체). 모든 콘텐츠는 velite + MDX로 관리되며 빌드 타임에 정적 생성된다. 디자인 정본은 `docs/design-system/prototype.html` + `docs/design-system/proto/*` (React 18 + babel-standalone 데모) — 구현 시 React Router v7 ESM 모듈로 포팅 필요.
+**Scope Note**: **콘텐츠 분리 정책** — Post 는 Cloudflare D1 (SQLite, edge-native) 에 저장하고 Admin Editor (F020/F021) 로 외부 작성·발행. Project / AppLegalDoc 은 velite + MDX 정적 파이프라인 유지 (Project 의 cover 이미지 메타만 D1 이관, F022). 한국어 only(i18n 없음). 결제·가격 페이지 없음(메일 문의로 대체). `/admin/*` 은 Cloudflare Access 로 보호되는 본인 1명 전용 (F023). 디자인 정본은 `docs/design-system/prototype.html` + `docs/design-system/proto/*` (React 18 + babel-standalone 데모) — 구현 시 React Router v7 ESM 모듈로 포팅 필요. **본 PRD 의 F020~F023 은 향후 CMS 인프라 도입을 위한 계획 정본으로, 현 시점에는 미구현 (ROADMAP 별도 Phase 참조)**.
 
 ## User Journey
 
@@ -76,7 +76,11 @@
 | **F007** | Blog 상세 | MDX 본문, shiki 코드블록, Satori OG, 데스크탑 880px+에서 sticky sidebar(on-this-page TOC + 공유 도구: copy link / X 공유). 하단 prev/next + 가운데 "모든 글" 버튼 | Core (글 단위 SEO 진입점) | Blog Detail Page |
 | **F008** | Contact Form | 이름/회사(선택)/이메일/의뢰 유형(B2B·B2C·기타)/메시지 입력. Resend로 hello@tkstar.dev → 본인 메일 발신, 제출자에게 React Email 템플릿 자동응답 | Core (모든 분기의 수렴점) | Contact Page |
 | **F009** | Contact 스팸 방지 | Cloudflare Turnstile 위젯으로 폼 제출 검증 (Workers 친화 선택) | Core (메일 only 채널 보호) | Contact Page |
-| **F016** | Cmd+K Command Palette (글로벌 검색 네비) | 모든 routes(/about, /projects, /blog, /contact, /legal) + projects 슬러그 + posts 슬러그를 인덱싱한 클라이언트 사이드 검색. ⌘K(macOS) / Ctrl+K(Windows·Linux) / `/` 단축키로 오픈(입력 포커스 중엔 무시). 토큰 기반 다중 키워드 필터, ↑↓ 네비, ↵ 진입, Esc 닫기, 그룹 헤더(pages/projects/posts). **사이트의 주 네비게이션 패러다임** | Core (주 네비게이션) | All Pages (root layout 마운트) |
+| **F016** | Cmd+K Command Palette (글로벌 검색 네비) | 모든 routes(/about, /projects, /blog, /contact, /legal) + projects 슬러그 + posts 슬러그를 인덱싱한 클라이언트 사이드 검색. ⌘K(macOS) / Ctrl+K(Windows·Linux) / `/` 단축키로 오픈(입력 포커스 중엔 무시). 토큰 기반 다중 키워드 필터, ↑↓ 네비, ↵ 진입, Esc 닫기, 그룹 헤더(pages/projects/posts). **사이트의 주 네비게이션 패러다임**. `/admin/*` 경로는 인덱스에서 제외 | Core (주 네비게이션) | All Pages (root layout 마운트) |
+| **F020** | Admin Editor (Tiptap WYSIWYG, markdown only) | `/admin/posts` 목록 + `/admin/posts/new` · `/admin/posts/{slug}/edit` 라우트. 좌측 Tiptap 에디터 (markdown serialize 보장, 커스텀 JSX 컴포넌트 X — round-trip 안정), 우측 SSR-style preview, 상단 toolbar (bold/italic/link/code/image). 이미지 toolbar 버튼 → R2 업로드 (F022) → 본문에 `![alt](R2 URL)` 자동 삽입. Status: `draft` / `published`. `[Save]` 와 `[Publish]` 버튼 (수동, auto-save 없음). Save/Publish 시 `search-index.json` 재생성 (F016 인덱스 갱신). **Out of Scope**: draft auto-save, scheduled publish | Core (모바일/외부 글 작성) | Admin Posts List, Admin Post Editor |
+| **F021** | D1 Post Storage | Post 만 Cloudflare D1 (SQLite) 로 이관 — Project / AppLegalDoc 은 velite + MDX 유지. Drizzle ORM + drizzle-kit migration. 컬럼: `id` / `slug` / `title` / `summary` / `raw_markdown` / `tags` (JSON) / `date_published` / `status` (`draft` / `published`) / `created_at` / `updated_at`. **Read path**: SSR 런타임에서 `raw_markdown` → MDX-like compile (런타임 컴파일러) + Workers KV cache (key: `post:{slug}:body:v{updated_at-hash}`). 일회성 migration 스크립트로 기존 `content/posts/*.mdx` → D1 INSERT 후 원본 파일 정리. **Out of Scope**: post 버전 히스토리 / 롤백 | Core (Post CMS 데이터 정본) | Blog List, Blog Detail, Admin Posts List, Admin Post Editor |
+| **F022** | R2 Media | Cloudflare R2 + `@aws-sdk/client-s3`. **업로드 경로**: Workers proxy `POST /admin/api/upload` (Cloudflare Access 보호 하 — F023). **파일 키**: `media/{yyyy}/{mm}/{nanoid}.{ext}`. **Public read**: R2 public bucket URL 또는 Workers 라우트로 서빙. **Project 메타 일부 D1 이관**: `cover_image_url` / `cover_alt` 만 D1 으로 분리 (Project 본문 MDX 는 그대로 유지). Admin Media Library 에서 업로드된 자산 목록·삭제 가능. **Out of Scope**: Cloudflare Images (자동 WebP/AVIF 변환) — MVP 는 R2 단순 제공 | Core (이미지 업로드 채널) | Admin Media Library, Project Detail, Admin Post Editor |
+| **F023** | Cloudflare Access (Zero Trust) | `/admin/*` path application 단위 보호. **Identity provider**: GitHub OAuth (Cloudflare Zero Trust Free 플랜, 본인 1명 email allowlist). Workers 코드는 `Cf-Access-Authenticated-User-Email` 헤더 + `Cf-Access-Jwt-Assertion` JWT 만 검증, **자체 세션·쿠키·비밀번호 코드 없음**. JWT 공개키는 `https://<team>.cloudflareaccess.com/cdn-cgi/access/certs` 에서 fetch 후 캐시. 미인증 요청은 Cloudflare Access 가 가로채 GitHub OAuth 로 리다이렉트 — Workers 까지 도달하지 않음. **Out of Scope**: multi-user collaboration / 권한 분리 | Core (Admin 게이트, 외부 노출 차단) | Admin Layout (모든 /admin/* 라우트의 게이트) |
 
 ### 2. Required Support Features
 
@@ -101,8 +105,13 @@
 - 가격표 / 결제 페이지
 - `/uses`, `/now` 페이지 (운영 부담 대비 가치 낮아 제외)
 - 별도 PDF 이력서 트리 (CSS print로 충분)
-- DB 기반 콘텐츠 관리 (CMS, Supabase 등 — 현재 static MDX로 충분)
-- 인증/회원가입/로그인 (1인 기업 사이트, 사용자 계정 불필요)
+- ~~DB 기반 콘텐츠 관리~~ — **(Updated)** Post 만 Cloudflare D1 로 부분 이관 (F021). Project / AppLegalDoc 은 여전히 static MDX 유지.
+- ~~인증/회원가입/로그인~~ — **(Updated)** 일반 방문자 인증은 여전히 없음. 본인 1명 admin 인증만 Cloudflare Access (F023) 위임 — Workers 자체 세션/쿠키/비밀번호 코드 없음.
+- Draft auto-save (주기 자동 저장) — F020 명시적 보류
+- Scheduled publish (예약 발행) — F020 명시적 보류
+- Post 버전 히스토리 / 롤백 — F021 명시적 보류
+- Cloudflare Images (자동 WebP/AVIF 변환) — F022 명시적 보류 (MVP 는 R2 단순 제공)
+- Multi-user collaboration / 권한 분리 — F023 명시적 보류 (본인 1명 전용)
 - Motion 라이브러리 도입 — design 정본은 절제된 CSS-only motion(`@keyframes blink/fade` + 120ms hover transition)만 사용. **MVP에서는 CSS-only로 충분, Motion 라이브러리 도입 보류** [ASSUMPTION: 추후 인터랙션 보강 시 재검토]
 
 ## Menu Structure
@@ -147,6 +156,14 @@
 
 🪟 chrome-free Layout (App Terms / App Privacy)
 └── Topbar/Footer 미노출, `.legal` 컨테이너만 (max-width 680px, sober mode)
+
+🔒 Admin (Cloudflare Access 보호 — F023, 본인 1명 전용)
+└── 일반 방문자 비노출. Topbar/Footer/Command Palette 인덱스 모두 제외
+    ├── /admin/posts          → Admin Posts List (F020, F021)
+    ├── /admin/posts/new      → Admin Post Editor — 신규 (F020, F021, F022)
+    ├── /admin/posts/{slug}/edit → Admin Post Editor — 편집 (F020, F021, F022)
+    ├── /admin/media          → Admin Media Library (F022)
+    └── /admin/api/upload     → R2 업로드 proxy (F022, F023)  // (UI 없음, internal endpoint)
 ```
 
 ## Page-by-Page Detailed Features
@@ -283,9 +300,57 @@
 | **Key Features** | • 터미널 메시지: `cd: no such route: <path>`<br>• "← /home" 복귀 링크<br>• [ASSUMPTION: React Router v7 splat(`*`) 라우트 또는 ErrorBoundary로 구현]<br>• **SEO 정책**: `<meta name='robots' content='noindex, nofollow'>` + 404 응답 코드. splat 라우트가 어떤 path든 받기 때문에 명시적 차단 필수. sitemap.xml에서 제외 |
 | **Next Navigation** | Home / Command Palette |
 
+### Admin Layout (`/admin/*` 게이트)
+
+> **Implemented Features:** `F023` | **Menu Location:** 본인 1명 전용, 일반 노출 X (palette/topbar/footer 모두 제외)
+
+| Item | Content |
+|------|---------|
+| **Role** | 모든 `/admin/*` 라우트의 인증 게이트 + 공통 레이아웃. Cloudflare Access 가 미인증 요청을 가로채 GitHub OAuth 로 리다이렉트 → 인증 후 Workers 도달 |
+| **Entry Path** | 본인이 직접 URL 입력 (예: `tkstar.dev/admin/posts`) → Cloudflare Access 게이트 → GitHub 로그인 → Admin 화면 |
+| **User Actions** | 좌측 nav 로 Posts List / Media Library 이동, 상단에 로그인 이메일 표시 |
+| **Key Features** | • Cloudflare Access path application 으로 `/admin/*` 보호 (F023)<br>• Workers 코드는 `Cf-Access-Authenticated-User-Email` 헤더 + `Cf-Access-Jwt-Assertion` JWT 만 검증, 자체 세션 코드 없음<br>• JWT 공개키는 `https://<team>.cloudflareaccess.com/cdn-cgi/access/certs` fetch 후 캐시<br>• 일반 ChromeLayout (Topbar/Footer) 과 분리된 별도 admin shell — 좌측 nav (Posts / Media), 상단 로그인 이메일 표시<br>• **SEO 정책**: 모든 `/admin/*` 페이지 `<meta name='robots' content='noindex, nofollow'>`, sitemap.xml 제외, F016 palette 인덱스 제외 |
+| **Next Navigation** | Admin Posts List / Admin Media Library |
+
+### Admin Posts List (`/admin/posts`)
+
+> **Implemented Features:** `F020`, `F021`, `F023` | **Menu Location:** Admin Layout 좌측 nav
+
+| Item | Content |
+|------|---------|
+| **Role** | D1 에 저장된 모든 Post (draft + published) 목록. 신규 작성 진입점 + 기존 글 편집 진입점 |
+| **Entry Path** | Admin Layout 좌측 nav `/admin/posts` / 직접 URL 입력 (Cloudflare Access 통과 후) |
+| **User Actions** | 목록 훑기 → status 필터 (draft / published / 전체) → `[+ New Post]` 클릭 → `/admin/posts/new` / 행 클릭 → `/admin/posts/{slug}/edit` |
+| **Key Features** | • D1 `posts` 테이블 SELECT — `slug` / `title` / `status` / `date_published` / `updated_at` 컬럼 (F021)<br>• status 필터 칩 (draft / published / 전체)<br>• `[+ New Post]` primary 버튼 → Admin Post Editor 신규 모드<br>• 행 클릭 → Admin Post Editor 편집 모드 (slug 라우트 파라미터)<br>• 삭제 버튼 (확인 모달, soft delete 아닌 hard delete — F021 Out of Scope: 버전 히스토리)<br>• 인증 실패 시 도달 불가 (F023 가로챔) |
+| **Next Navigation** | Admin Post Editor (신규/편집) / Admin Layout 다른 nav |
+
+### Admin Post Editor (`/admin/posts/new`, `/admin/posts/{slug}/edit`)
+
+> **Implemented Features:** `F020`, `F021`, `F022`, `F023` | **Menu Location:** Admin Posts List `[+ New Post]` 또는 행 클릭
+
+| Item | Content |
+|------|---------|
+| **Role** | Tiptap WYSIWYG markdown 에디터로 Post 작성·편집. Save (draft 저장) / Publish (status=published) 분리. 모바일/외부에서 글 작성 가능하도록 함 |
+| **Entry Path** | Admin Posts List `[+ New Post]` (`/admin/posts/new`) / 기존 글 행 클릭 (`/admin/posts/{slug}/edit`) |
+| **User Actions** | frontmatter 메타 (title / summary / tags / date_published) 입력 → Tiptap 본문 작성 → toolbar (bold/italic/link/code/image) 사용 → 이미지 버튼 → R2 업로드 → `[Save]` (draft) 또는 `[Publish]` (published) 클릭 |
+| **Key Features** | • frontmatter 폼: title / summary / tags (chip input) / date_published (date picker)<br>• 좌측 Tiptap 에디터 — markdown serialize 보장 (커스텀 JSX 컴포넌트 X, round-trip 안정 — F020)<br>• 상단 toolbar: bold / italic / link / inline code / image 업로드<br>• 우측 SSR-style preview — 입력한 markdown 을 본 사이트 Blog Detail 과 동일한 스타일로 렌더<br>• 이미지 toolbar 버튼 → file picker → `POST /admin/api/upload` (F022, F023) → R2 업로드 응답으로 받은 URL 을 본문에 `![alt](URL)` 자동 삽입<br>• `[Save]` 버튼 — D1 INSERT/UPDATE with `status='draft'` (F021)<br>• `[Publish]` 버튼 — D1 INSERT/UPDATE with `status='published'` + `date_published` 확정<br>• Save/Publish 성공 시 `search-index.json` 재생성 (F016 인덱스 갱신, R2 또는 KV 에 직렬화)<br>• Save/Publish 후 KV cache 무효화 (`post:{slug}:body:v*`)<br>• **Out of Scope (F020 명시)**: draft auto-save, scheduled publish |
+| **Next Navigation** | Save 성공 → 같은 편집 화면 유지 (toast) / Publish 성공 → Admin Posts List 복귀 / 실패 → 인라인 에러 + 폼 유지 |
+
+### Admin Media Library (`/admin/media`)
+
+> **Implemented Features:** `F022`, `F023` | **Menu Location:** Admin Layout 좌측 nav
+
+| Item | Content |
+|------|---------|
+| **Role** | R2 에 업로드된 모든 미디어 자산 목록. Project cover / Post 본문 이미지의 재사용 + 삭제 |
+| **Entry Path** | Admin Layout 좌측 nav `/admin/media` / Admin Post Editor 의 "라이브러리에서 선택" (옵션) |
+| **User Actions** | 그리드로 자산 훑기 → 파일 클릭 → 미리보기 + URL 복사 / 삭제 버튼 → 확인 후 R2 DELETE |
+| **Key Features** | • R2 list objects (prefix `media/`) — `key` / `size` / `uploaded` 표시 (F022)<br>• 그리드 썸네일 + 파일 메타 (key, 업로드 일시, 크기)<br>• `[Copy URL]` — 본문 삽입용 public URL 복사<br>• `[Delete]` — R2 DELETE + 확인 모달 (참조 추적 없음, 사용자 책임)<br>• **Out of Scope**: Cloudflare Images 변환, 검색/태그, 사용처 추적 |
+| **Next Navigation** | Admin Post Editor (URL 복사 후 복귀) / Admin Layout 다른 nav |
+
 ## Acceptance Criteria
 
-> 핵심 5개 Feature(F003, F008, F009, F011, F016)에 대해 Given-When-Then 형식의 검증 가능 기준. TDD-First 원칙에 따라 각 항목은 테스트로 자동화 가능해야 한다. 그 외 Feature(F001/F002/F004-F007/F010/F012-F019)는 콘텐츠/SEO/UI 표시 위주로, 별도 AC 없이 Page-by-Page Key Features의 bullet을 검증 기준으로 사용한다.
+> 핵심 9개 Feature(F003, F008, F009, F011, F016, F020, F021, F022, F023)에 대해 Given-When-Then 형식의 검증 가능 기준. TDD-First 원칙에 따라 각 항목은 테스트로 자동화 가능해야 한다. F020~F023 은 외부 노출 위험·데이터 정본 변경·인증 게이트 등 잘못되면 영향이 큰 영역이라 모두 AC 작성. 그 외 Feature(F001/F002/F004-F007/F010/F012-F019)는 콘텐츠/SEO/UI 표시 위주로, 별도 AC 없이 Page-by-Page Key Features의 bullet을 검증 기준으로 사용한다.
 
 ### F003 — PDF 저장 (CSS print)
 
@@ -320,6 +385,37 @@
 - **AC-F016-4**: Given 결과 리스트 / When ↓ ↑로 네비 + ↵로 진입 + Esc로 닫기 / Then 키보드만으로 모든 동작이 수행되고, 마우스 호버로 선택 인덱스가 동기화된다.
 - **AC-F016-5**: Given 사이트가 처음 로드된다 / When 검색 인덱스 fetch / Then 인덱스 JSON은 gzip 100KB 이하 + 본문(body)을 포함하지 않으며 세션당 1회만 fetch된다.
 
+### F020 — Admin Editor (Tiptap WYSIWYG, markdown only)
+
+- **AC-F020-1**: Given Admin Post Editor 신규 모드(`/admin/posts/new`) / When Tiptap toolbar 의 [bold] 클릭 → 텍스트 입력 → `[Save]` 클릭 / Then D1 `posts` 테이블에 `status='draft'` 레코드가 INSERT 되고, `raw_markdown` 필드는 `**...**` 형태의 순수 markdown 으로 직렬화된다(커스텀 JSX 컴포넌트 또는 HTML 미포함).
+- **AC-F020-2**: Given Admin Post Editor 에서 toolbar 의 image 버튼 클릭 → 파일 선택 / When 파일이 `POST /admin/api/upload` 로 전송되어 R2 업로드 성공(F022) / Then 본문 커서 위치에 `![{fileName}]({R2 public URL})` 마크다운이 자동 삽입되고, 우측 preview 에 즉시 이미지가 렌더된다.
+- **AC-F020-3**: Given draft 상태의 기존 Post 편집 화면 / When `[Publish]` 클릭 / Then D1 UPDATE 로 `status='published'` + `date_published` (입력값 또는 now) + `updated_at=now` 가 반영되고, 동일 트랜잭션 외부에서 `search-index.json` 이 R2/KV 에 재생성되며, KV cache 키 `post:{slug}:body:v*` 가 무효화된다.
+- **AC-F020-4**: Given 좌측 markdown 입력 / When 우측 preview 가 렌더 / Then preview 는 본 사이트 Blog Detail (F007) 과 **동일한 컴파일러·스타일** 로 렌더되어 round-trip 일관성을 보장한다(에디터에서 본 모습 = 실제 발행 모습).
+- **AC-F020-5**: Given 인증되지 않은 사용자가 `/admin/posts/new` 직접 접근 시도 / When 요청이 Cloudflare Access 게이트 통과 전 / Then Workers 코드는 실행되지 않고(F023) GitHub OAuth 로그인 화면으로 리다이렉트된다.
+
+### F021 — D1 Post Storage
+
+- **AC-F021-1**: Given Drizzle 마이그레이션 적용 후의 빈 D1 / When 마이그레이션 스크립트가 기존 `content/posts/*.mdx` 를 읽어 INSERT / Then 모든 기존 Post 가 `status='published'` + `date_published` (frontmatter 기준) + `raw_markdown` (frontmatter 제외 본문) 으로 이관되며, slug 중복 INSERT 시 fail-fast (마이그레이션 스크립트 abort).
+- **AC-F021-2**: Given D1 에 `slug='hello-world'`, `status='published'` 레코드 / When 방문자가 `/blog/hello-world` 진입 / Then SSR 핸들러가 `raw_markdown` 을 런타임 컴파일하여 MDX-like AST 로 렌더하고, KV cache (`post:hello-world:body:v{updated_at-hash}`) 에 컴파일 결과 저장 — 다음 요청은 캐시 hit.
+- **AC-F021-3**: Given D1 에 `status='draft'` 레코드 / When 익명 방문자가 해당 slug 로 `/blog/{slug}` 진입 / Then 404 (Not Found Fallback) 응답. draft 는 Admin Layout 경로 (`/admin/posts/{slug}/edit`) 로만 접근 가능하다.
+- **AC-F021-4**: Given listPosts 호출 (Blog Page F006 로더) / When D1 SELECT 실행 / Then `WHERE status='published' ORDER BY date_published DESC` 결과만 반환되며 draft 는 Blog 목록·RSS·sitemap·search index 모두에서 제외된다.
+- **AC-F021-5**: Given Post UPDATE 가 일어난다 / When `updated_at` 변경 / Then KV 캐시 키의 버전 해시가 자동으로 바뀌어(`v{new-hash}`) 이전 캐시 항목은 다음 SSR 요청에서 hit 되지 않는다(자연 invalidation, TTL 의존 X).
+
+### F022 — R2 Media
+
+- **AC-F022-1**: Given Admin Post Editor 에서 image 업로드 트리거 / When `POST /admin/api/upload` 가 multipart/form-data 로 파일 전송 / Then Workers 가 `media/{yyyy}/{mm}/{nanoid}.{ext}` 키로 R2 PUT 후 `{ url, key }` JSON 응답하며, `nanoid` 는 21자 url-safe (slug 충돌 방지).
+- **AC-F022-2**: Given Cloudflare Access 미인증 요청 / When `POST /admin/api/upload` 호출 / Then Cloudflare Access 게이트에서 차단되어 Workers 도달 X (F023). 헤더 위조로 Workers 직접 호출되더라도 `Cf-Access-Jwt-Assertion` JWT 검증 실패 → 401.
+- **AC-F022-3**: Given Project frontmatter 의 `cover` 필드가 D1 `project_meta.cover_image_url` 로 이관된 상태 / When Project Detail (F005) 또는 Home Featured (F017) 가 cover 표시 / Then D1 SELECT 한 URL 을 사용하며, MDX frontmatter 의 cover 필드는 더 이상 읽히지 않는다(이중 정본 방지).
+- **AC-F022-4**: Given Admin Media Library 에서 자산 `[Delete]` 클릭 → 확인 / When R2 DELETE 실행 / Then R2 에서 객체가 사라지고 목록에서 제거되지만, 본문에서 해당 URL 을 참조하는 Post/Project 가 있더라도 자동 추적·교체는 일어나지 않는다(사용자 책임 — 명시적 Out of Scope).
+
+### F023 — Cloudflare Access (Zero Trust)
+
+- **AC-F023-1**: Given `/admin/*` path application 이 Cloudflare Access 에 등록되고 GitHub OAuth IdP + 본인 email allowlist 가 설정된 상태 / When 익명 사용자가 `/admin/posts` 접근 / Then Cloudflare Access 가 가로채 GitHub OAuth 로그인 페이지로 리다이렉트, Workers 코드는 호출되지 않는다.
+- **AC-F023-2**: Given 본인이 GitHub OAuth 로그인 성공 / When `/admin/posts` 재요청 / Then 요청 헤더에 `Cf-Access-Authenticated-User-Email: 86tkstar@gmail.com` + `Cf-Access-Jwt-Assertion: <JWT>` 가 포함되어 Workers 도달, Workers 가 JWT 서명을 `https://<team>.cloudflareaccess.com/cdn-cgi/access/certs` 의 공개키로 검증하여 통과시킨다.
+- **AC-F023-3**: Given 위조된 `Cf-Access-Authenticated-User-Email` 헤더 + 누락/위조된 JWT 로 직접 Workers 호출 시도 / When Workers 의 access-guard 미들웨어 실행 / Then JWT 검증 실패 → 401 응답, D1/R2 작업 모두 차단.
+- **AC-F023-4**: Given Cloudflare Access 가 설정 누락(또는 일시 장애)로 헤더가 비어있는 상태 / When `/admin/*` 요청 도달 / Then Workers 는 fail-closed — 요청을 거부 (500 또는 401), 본인 1명 인증이 보장되지 않으면 절대 admin 동작 수행 X.
+- **AC-F023-5**: Given JWT 공개키 fetch 가 매 요청 발생하면 latency·요금 증가 / When Workers 가 첫 admin 요청 처리 / Then 공개키를 in-memory 또는 Workers Cache API 로 1시간 단위 캐시하여 후속 요청은 fetch 생략한다.
+
 ---
 
 ## Assumptions Register
@@ -341,6 +437,14 @@
 | A011 | F019 — Bing | Bing Webmaster Tools는 MVP 후 등록 | MVP 완료 후 | 운영 안정화 후 |
 | A012 | Deferred — Motion | Motion 라이브러리는 추후 인터랙션 보강 시 재검토 | MVP 완료 후 | 사용자 피드백 수집 후 |
 | A013 | About Page Career — solo 통합 | 경력 timeline에 회사 재직 + solo 프로젝트를 통합. solo entry는 velite project frontmatter의 신규 필드(예: `about_career_role`, `about_career_period`) 끌어오기. `CareerEntry` 타입은 `type: "company" \| "solo"` discriminated union | 후속 운영 PR (T012 이후 또는 T011 follow-up) | 회사 경력 1건 이상 + solo 프로젝트 데이터 입력 시점 |
+| A014 | F020 — Tiptap markdown serializer | Tiptap 의 markdown serialize 는 공식 starter-kit 만으로는 부족. 후보: ① 공식 `@tiptap/markdown` (Tiptap v3 전용, 활발히 유지) ② `tiptap-markdown` (커뮤니티, v2 호환, 메인테이너가 v3 후 신규 PR 처리 X — fork 권장) ③ 자체 serializer. **Tiptap 메이저 버전 (v2 vs v3) 결정과 묶임** — 어느 조합 채택할지 미정 | F020 구현 PR | CMS Phase 시작 시 |
+| A015 | F021 — Runtime MDX compiler | D1 의 `raw_markdown` → SSR 런타임 컴파일에 `mdx-bundler` / `next-mdx-remote` 류 또는 자체 마크다운→React 컴파일러 채택 미정. shiki 코드블록 highlight 도 런타임 적용 가능 여부 검증 필요 | F021 구현 PR | CMS Phase Read path 작업 시 |
+| A016 | F021 — KV cache key 해싱 알고리즘 | `post:{slug}:body:v{updated_at-hash}` 의 `hash` 알고리즘 (sha256 truncate / xxhash 등) 미정 | F021 구현 PR | KV cache 도입 시 |
+| A017 | F022 — R2 public read 방식 | R2 public bucket URL 직접 노출 vs Workers 라우트로 proxy 서빙 둘 중 선택 미정. 비용·캐시·헤더 제어 트레이드오프 검토 필요 | F022 구현 PR | R2 bucket 생성 시 |
+| A018 | F022 — Project meta 분리 schema | `project_meta` 테이블의 정확한 컬럼 (`slug` PK + `cover_image_url` + `cover_alt` 만? `featured` 도 옮길지?) 미정. velite frontmatter ↔ D1 동기화 책임 위치 미정 | F022 구현 PR (Project 메타 이관 task) | 첫 Project 메타 D1 이관 시 |
+| A019 | F023 — Cloudflare Access 팀 도메인 | `<team>.cloudflareaccess.com` 의 team subdomain 미발급. Free 플랜으로 충분한지 검증 필요 | F023 구현 PR | Cloudflare Zero Trust 활성화 시 |
+| A020 | F020 — search-index.json 저장 위치 | Save/Publish 트리거 인덱스 재생성 산출물의 저장 위치 — R2 (현 정적 자산 패턴과 일치) vs KV (저지연 read 우선) 미정 | F020 구현 PR | search-index.json 재빌드 task |
+| A021 | F021 — Drizzle ORM 버전 pin | Drizzle ORM 의 메이저 버전 결정 미정. 현재 `0.44.x` 가 stable 이며 `v1.0` 출시 예정. D1 dialect (sqliteTable) 호환·typegen 안정성·drizzle-kit 호환을 함께 검증 필요. (development-planner hand-off Issue #4) | F021 구현 PR | Phase 7.1 D1 셋업 시점 (T024) |
 
 > **운용 규칙**: 새 `[ASSUMPTION]` 태그를 PRD 본문에 추가할 때는 반드시 본 표에 ID와 해소 게이트를 함께 등록한다. ROADMAP의 각 phase 종료 시점에 본 표를 점검하여 해당 phase가 게이트인 항목이 모두 [FACT]로 전환됐는지 확인한다.
 
@@ -348,9 +452,9 @@
 
 ## Data Model
 
-> 본 프로젝트는 **DB를 사용하지 않는다**. 아래 "모델"은 빌드 타임에 velite가 MDX 파일을 파싱하여 생성하는 **콘텐츠 컬렉션 스키마**이다(frontmatter Zod 검증). 런타임에는 정적 JSON으로 번들된다. 명명은 design 정본(`docs/design-system/proto/data.jsx`)을 따른다.
+> **콘텐츠 분리 정책**: Project / AppLegalDoc 은 **velite + MDX 정적 컬렉션 스키마**(frontmatter Zod 검증, 빌드 타임 정적 JSON 번들). Post 는 **Cloudflare D1 SQLite 테이블**(F021, Drizzle ORM). Project 의 cover 메타만 D1 의 `project_meta` 테이블로 분리(F022). 명명은 design 정본(`docs/design-system/proto/data.jsx`) + 본 PRD 의 글로서리 표(`docs/glossary.md`) 와 1:1 매핑된다.
 
-### Project (프로젝트 Case Study 콘텐츠)
+### Project (프로젝트 Case Study 콘텐츠 — velite + MDX 유지)
 
 | 필드 | 타입 | 비고 |
 |------|------|------|
@@ -362,20 +466,55 @@
 | `stack` | string[] | 사용 기술 (사이드바 stack pills + 행 리스트의 stack pills) |
 | `metrics` | [string, string][] | 결과 지표 키-값 쌍 (예: `["MAU", "12k"]`) |
 | `featured` | boolean (optional) | Home Featured 섹션 노출 여부 (`true`인 첫 항목 사용) |
-| `cover` | string (optional) | 1200×630 cover 이미지 경로 (Project Detail의 `.cover` + Satori OG fallback) |
+| `cover` | string (optional) | **D1 store (F022 이후)** — `project_meta.cover_image_url` 로 이관. 이관 후 frontmatter 의 cover 필드는 deprecation, MDX 본문 자체는 그대로 유지 |
+| `cover_alt` | string (optional) | **D1 store (F022 이후)** — `project_meta.cover_alt`. 신규 필드로 D1 에서만 관리 |
 | `body` | MDX | 본문 — 내부에 problem / approach / results 섹션을 작성. frontmatter 필드 아님 |
 
-### Post (블로그 글 콘텐츠)
+### Post (블로그 글 콘텐츠 — Cloudflare D1 backed, F021)
+
+> **저장소**: Cloudflare D1 (SQLite, edge-native), Drizzle ORM 으로 액세스. velite 컬렉션에서 제거되어 일회성 마이그레이션 스크립트로 기존 `content/posts/*.mdx` → D1 INSERT.
 
 | 필드 | 타입 | 비고 |
 |------|------|------|
-| `slug` | string | URL 경로용 |
+| `id` | integer (PK, autoincrement) | D1 내부 식별자 |
+| `slug` | string (UNIQUE) | URL 경로용 |
 | `title` | string | 글 제목 |
-| `lede` (alias `summary`) | string | 한 줄 요약 |
-| `date` | string (ISO) | 발행일 |
-| `tags` | string[] | 분류 태그 |
-| `read` (alias `reading_time`) | number (분) | 예상 읽는 시간 |
-| `body` | MDX | 본문 |
+| `summary` (alias `lede`) | string | 한 줄 요약 |
+| `raw_markdown` | text | 본문 markdown 원본 (frontmatter 제외). SSR 런타임 컴파일 + KV cache (`post:{slug}:body:v{updated_at-hash}`) 로 렌더 |
+| `tags` | text (JSON array) | 분류 태그 — `JSON.stringify(string[])` 으로 직렬화 |
+| `date_published` | string (ISO) | 발행일 (draft 단계에선 nullable) |
+| `status` | enum: `'draft' \| 'published'` | F020 Save 는 `draft`, Publish 는 `published`. 익명 사용자는 `published` 만 노출 |
+| `created_at` | string (ISO) | INSERT 시각 |
+| `updated_at` | string (ISO) | UPDATE 시각 (KV cache 키 해시 입력) |
+
+### ProjectMeta (Project 의 D1 backed 메타 — F022)
+
+> **저장소**: Cloudflare D1, Drizzle ORM. velite Project 의 `cover` 필드 분리 산출물. velite Project 본문 MDX 자체는 그대로 유지.
+
+| 필드 | 타입 | 비고 |
+|------|------|------|
+| `slug` | string (PK) | velite Project 의 `slug` 와 1:1 매핑 |
+| `cover_image_url` | string (nullable) | R2 public URL (`media/{yyyy}/{mm}/{nanoid}.{ext}`) 또는 외부 URL |
+| `cover_alt` | string (nullable) | 접근성용 alt 텍스트 |
+| `updated_at` | string (ISO) | UPDATE 시각 |
+
+### MediaAsset (R2 업로드 자산 메타 — F022)
+
+> **저장소**: R2 자체가 정본. 별도 D1 테이블 없이 R2 list objects API 로 조회 (`Admin Media Library` 가 직접 R2 query). 본 항목은 응답 형태 정의용 인메모리 모델.
+
+| 필드 | 타입 | 비고 |
+|------|------|------|
+| `key` | string | R2 object key (`media/{yyyy}/{mm}/{nanoid}.{ext}`) |
+| `url` | string | public read URL (R2 public bucket 또는 Workers proxy 라우트) |
+| `size` | number (bytes) | R2 metadata |
+| `uploaded` | string (ISO) | R2 metadata |
+
+### AccessIdentity (Cloudflare Access 인증 컨텍스트 — F023)
+
+> **저장소**: 영속 저장 X. 매 요청마다 Cloudflare Access 헤더에서 추출하는 인메모리 값. Workers 자체 세션·쿠키 코드 없음.
+
+- `email`: string — `Cf-Access-Authenticated-User-Email` 헤더 값. 본인 1명 allowlist 와 비교
+- `jwt`: string — `Cf-Access-Jwt-Assertion` 헤더 값. `https://<team>.cloudflareaccess.com/cdn-cgi/access/certs` 의 공개키로 서명 검증
 
 ### AppLegalDoc (앱별 약관/개인정보처리방침 콘텐츠)
 
@@ -421,16 +560,19 @@
 
 ### Content Pipeline
 
-- **velite** — MDX 컬렉션 빌더 (Project, Post, AppLegalDoc) [ASSUMPTION: 미설치, 작업 시 `bun add -D velite`]
-- **MDX** — 콘텐츠 작성 포맷
-- **shiki** — 코드블록 syntax highlight (rehype-shiki 또는 velite 플러그인) [ASSUMPTION: 미설치]. `.codeblock` 외곽 컨테이너만 디자인 토큰을 따르고 내부 토큰 색상은 shiki 출력에 위임
-- **Satori** — 빌드 타임/SSR 동적 OG 이미지 생성 (1200×630 표준) [ASSUMPTION: 미설치]
-- **Zod** — frontmatter 스키마 검증 (velite 내장 사용) [ASSUMPTION: velite 의존으로 자동 포함]
-- **on-this-page TOC** — MDX 헤딩 자동 추출 [ASSUMPTION: rehype-slug + 자체 TOC 추출 또는 velite 후처리]
+- **velite 0.3.1** — MDX 컬렉션 빌더 (**F021 이후 Project / AppLegalDoc 만**, Post 는 D1 으로 분리)
+- **MDX** — 콘텐츠 작성 포맷 (Project / AppLegalDoc). Post 는 raw markdown 으로 D1 에 저장 후 SSR 런타임 컴파일
+- **shiki 4.0.2 + @shikijs/rehype 4.0.2** — 빌드 타임 코드블록 highlight (Project / AppLegalDoc). Post 는 동일 highlighter 를 런타임에 호출 (F021 컴파일러 결정과 연동)
+- **Satori** — 빌드 타임/SSR 동적 OG 이미지 생성 (1200×630 표준)
+- **Zod 4.3.6** — frontmatter 스키마 검증 (velite collection)
+- **rehype-slug 6.0.0** + **github-slugger 2.0.0** — on-this-page TOC 의 anchor id 1:1 매칭 (한국어 anchor 지원)
 
 ### Search Index (F016)
 
-- **velite collection JSON을 클라이언트 번들로 import** — routes / projects 슬러그 / posts 슬러그를 in-memory 토큰 검색 [ASSUMPTION: 별도 검색 라이브러리 없이 단순 includes/score, 데이터 규모 작음]
+- **`public/search-index.json`** — `{slug, title, summary, tags}` 만 포함하는 클라이언트 사이드 토큰 검색 인덱스. **두 가지 트리거로 빌드**:
+  1. **빌드 타임** (Project / AppLegalDoc) — velite collection 후처리로 생성
+  2. **런타임** (Post) — Admin Editor (F020) 의 Save / Publish 시 D1 의 published Post 와 머지하여 R2 또는 KV 에 재생성 [ASSUMPTION: A020 — 저장 위치 미정]
+- 별도 검색 라이브러리 없이 단순 includes/score (데이터 규모 작음). `/admin/*` 경로는 인덱스 제외
 
 ### SEO & Indexing
 
@@ -445,6 +587,33 @@
 - **React Email** — Contact 자동응답 메일 템플릿 [ASSUMPTION: 미설치]
 - **Resend** — Contact form 발신 (hello@tkstar.dev → 본인 메일, 제출자 자동응답 메일). 월 3,000건 무료 [ASSUMPTION: 미설치, 환경변수 `RESEND_API_KEY` 필요]
 - **Cloudflare Turnstile** — Contact form 스팸 방지. Workers 친화 [ASSUMPTION: 클라이언트 위젯 + 서버 검증, 환경변수 `TURNSTILE_SECRET` 필요]
+
+### CMS — Editor (F020)
+
+- **Tiptap** — `/admin/posts/{new,edit}` 의 좌측 WYSIWYG 에디터. **markdown serialize 전제**(커스텀 JSX 컴포넌트 X — round-trip 안정) [ASSUMPTION: A014 — 미설치. Tiptap 메이저 버전 (v2 vs v3) + 마크다운 직렬화 라이브러리 (공식 `@tiptap/markdown` 또는 커뮤니티 `tiptap-markdown`) 조합 미정]
+- **Tiptap toolbar** — bold / italic / link / inline code / image 5개. image 클릭 시 file picker → `POST /admin/api/upload` → 응답 URL 을 `![alt](URL)` 로 본문 삽입
+- **Runtime markdown → React 컴파일러** — Blog Detail (F007) 과 동일한 컴파일러로 SSR 렌더 [ASSUMPTION: A015 — `mdx-bundler` / `next-mdx-remote` 또는 자체 컴파일러 미정. shiki 런타임 highlight 호환성 검증 필요]
+
+### CMS — Storage (F021)
+
+- **Cloudflare D1** — Post 정본 SQLite 데이터베이스 (edge-native). Workers binding `DB` [ASSUMPTION: 미바인딩, `wrangler.toml` 에 `[[d1_databases]]` 추가 필요]
+- **Drizzle ORM** + **drizzle-kit** — D1 호환 ORM + migration 도구 [ASSUMPTION: 미설치, `bun add drizzle-orm` / `bun add -D drizzle-kit` 필요]
+- **Workers KV** — D1 raw_markdown 의 컴파일 결과 캐시. Workers binding `POSTS_CACHE_KV`. cache 키 패턴 `post:{slug}:body:v{updated_at-hash}` [ASSUMPTION: A016 — 해싱 알고리즘 (sha256 truncate / xxhash 등) 미정]
+- **One-shot migration script** — `scripts/migrate-posts-to-d1.ts` (가칭). 기존 `content/posts/*.mdx` frontmatter + 본문을 파싱해 D1 INSERT. slug 충돌 시 fail-fast [ASSUMPTION: 마이그레이션 PR 단계에서 작성]
+
+### CMS — Media (F022)
+
+- **Cloudflare R2** — 미디어 객체 저장소. Workers binding `MEDIA_BUCKET` [ASSUMPTION: 미바인딩, `wrangler.toml` 에 `[[r2_buckets]]` 추가 필요]
+- **`@aws-sdk/client-s3`** — R2 가 S3 호환 API 라 SDK 재사용. PUT/DELETE/list objects 용 [ASSUMPTION: 미설치, `bun add @aws-sdk/client-s3` 필요]
+- **`nanoid`** — 파일 키의 url-safe 21자 식별자 (`media/{yyyy}/{mm}/{nanoid}.{ext}`). slug 충돌·예측 공격 방지 [ASSUMPTION: 미설치, `bun add nanoid` 필요]
+- **R2 public read** — public bucket URL 직접 노출 vs Workers proxy 라우트 — 트레이드오프 미정 [ASSUMPTION: A017 — 결정 시점 = R2 bucket 생성 PR]
+
+### CMS — Auth (F023)
+
+- **Cloudflare Access (Zero Trust)** — `/admin/*` path application 단위 보호. **Free 플랜 본인 1명 email allowlist** [ASSUMPTION: A019 — 팀 도메인 미발급, Free 플랜 적용 가능 여부 검증 필요]
+- **Identity provider**: GitHub OAuth — Cloudflare Zero Trust 콘솔에서 IdP 연결
+- **JWT verifier (Workers 측)** — `Cf-Access-Jwt-Assertion` 헤더 검증용 (예: `jose` 라이브러리). 공개키 fetch 후 Workers Cache API 로 1시간 캐시 [ASSUMPTION: 라이브러리 선택 미정, `bun add jose` 후보]
+- **자체 세션·쿠키·비밀번호 코드 없음** — Cloudflare Access 가 단일 인증 게이트. 헤더 부재 시 fail-closed (401)
 
 ### Hosting / Edge / Email Routing
 
@@ -477,20 +646,25 @@
 ## Consistency Validation (Web)
 
 ### Step 1: Feature Specs → Page Connection
-- F001 → Home / F002, F003 → About / F004 → Projects / F005 → Project Detail / F006 → Blog / F007 → Blog Detail / F008, F009 → Contact / F010 → All Pages / F011 → Project Detail, Blog Detail / F012 → Blog (RSS) / F013 → All Pages / F014 → Legal Index, App Terms, App Privacy / F016 → All Pages (root layout) / F017 → Home / F018 → All Pages (차등 인덱싱 정책 — App Terms/Privacy noindex,follow / 404 noindex,nofollow) / F019 → All Pages (root layout) — 모두 매핑됨.
+- F001 → Home / F002, F003 → About / F004 → Projects / F005 → Project Detail / F006 → Blog / F007 → Blog Detail / F008, F009 → Contact / F010 → All Pages / F011 → Project Detail, Blog Detail / F012 → Blog (RSS) / F013 → All Pages / F014 → Legal Index, App Terms, App Privacy / F016 → All Pages (root layout, /admin/* 제외) / F017 → Home / F018 → All Pages (차등 인덱싱 정책 — App Terms/Privacy noindex,follow / 404 noindex,nofollow / /admin/* noindex,nofollow) / F019 → All Pages (root layout)
+- **F020** → Admin Posts List, Admin Post Editor / **F021** → Blog List, Blog Detail, Admin Posts List, Admin Post Editor / **F022** → Admin Media Library, Project Detail, Admin Post Editor / **F023** → Admin Layout (모든 /admin/* 라우트의 게이트). 모두 매핑됨.
 
 ### Step 2: Menu Structure → Page Connection
 - Header(Brand→Home, 검색트리거→F016, 토글→F010), Footer(GitHub/X/RSS/Contact/Legal Index), Cmd+K palette(F016), 콘텐츠 내부(Project Detail / Blog Detail / Legal Index / App Terms / App Privacy / Not Found Fallback) 모두 Page-by-Page에 정의됨.
+- **🔒 Admin 블록** (Cloudflare Access 보호) → Admin Layout / Admin Posts List / Admin Post Editor / Admin Media Library. `/admin/api/upload` 는 UI 없는 internal endpoint 로 F022 Key Features 안에 흡수 — 별도 페이지 항목 X (정합성 유지).
 
 ### Step 3: Page-by-Page → Back-reference
-- 모든 페이지의 Implemented Features는 Feature Specifications에 정의됨. 모든 페이지는 palette(F016) 또는 콘텐츠 내부 링크로 도달 가능. App Terms/Privacy는 chrome-free + Legal Index/앱 내부 링크 경유.
+- 모든 페이지의 Implemented Features는 Feature Specifications에 정의됨. 일반 페이지는 palette(F016) 또는 콘텐츠 내부 링크로 도달 가능. App Terms/Privacy는 chrome-free + Legal Index/앱 내부 링크 경유.
+- **Admin 페이지 4종**(Layout / Posts List / Post Editor / Media Library) 은 palette·topbar·footer 모두 비노출. 본인 1명이 직접 URL 입력 → Cloudflare Access (F023) 통과 후 Admin Layout 좌측 nav 로만 도달.
 
 ### Step 4: Missing & Orphan
 - Feature Specs에만 있고 페이지에 없는 항목: 없음.
 - 페이지에만 있고 Feature Specs에 없는 항목: 없음.
-- 메뉴에만 있고 페이지가 없는 항목: 없음.
+- 메뉴에만 있고 페이지가 없는 항목: 없음 (`/admin/api/upload` 는 internal endpoint 로 F022 안에 흡수).
 - F018, F019는 root layout 마운트 패턴(F016과 동일)으로 모든 페이지에 매핑됨 — Missing/Orphan 없음.
-- F018의 차등 인덱싱 정책은 페이지 Key Features에 명시되어 있어 정합성 유지.
+- F018의 차등 인덱싱 정책은 페이지 Key Features에 명시되어 있어 정합성 유지 (`/admin/*` noindex,nofollow 추가).
+- **F020 Save/Publish 의 search-index.json 재생성** 은 F016 Search Index 정의와 cross-reference 됨 — Tech Stack `Search Index (F016)` 섹션의 "런타임 트리거" 항목으로 명시.
+- **F022 Project 메타 D1 이관** 은 Data Model 의 Project 표 cover/cover_alt 행 + 신규 ProjectMeta 테이블 + Project Detail (F005) Key Features 에서 cross-reference 됨.
 
 ### Step 5–6 (Medium ONLY)
-- Small scale, 단일 사용자, 인증 없음 → 해당 없음.
+- Small scale. 일반 사용자 인증은 여전히 없음. 본인 1명 admin 인증만 Cloudflare Access (F023) 위임 — Workers 자체 권한 매트릭스 없음 → Medium-only 섹션 해당 없음.
