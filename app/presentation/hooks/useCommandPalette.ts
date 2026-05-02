@@ -120,10 +120,7 @@ export const useCommandPalette = (): CommandPaletteApi => {
 
 	const visibleRecents = trimmed ? [] : recents;
 	const flatItems = useMemo(
-		() =>
-			visibleRecents.length > 0
-				? visibleRecents
-				: [...groups.pages, ...groups.projects, ...groups.posts],
+		() => [...visibleRecents, ...groups.pages, ...groups.projects, ...groups.posts],
 		[visibleRecents, groups],
 	);
 
