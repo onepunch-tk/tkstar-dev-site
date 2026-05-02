@@ -6,7 +6,8 @@
 - **Target Users**:
   - **B2B**: 기업 채용/HR 담당자, B2B 프리랜서 PM (이력·기술 깊이·신뢰성 검토)
   - **B2C**: 크몽 등 프리랜서 플랫폼 유입 클라이언트 (결과물·후기·문제 해결 능력 검토)
-- **Scope Note**: 콘텐츠 100% static (DB 없음). 한국어 only (i18n 없음). 결제/가격 페이지 없음 (메일 문의로 대체). 모든 콘텐츠는 velite + MDX로 빌드 타임 정적 생성.
+- **Scope Note**: 한국어 only (i18n 없음). 결제/가격 페이지 없음 (메일 문의로 대체).
+  - **콘텐츠 파이프라인 (이중 모델)**: Project 와 AppLegalDoc 은 `velite + MDX` 로 빌드 타임 정적 생성을 유지한다. Post 는 향후 D1 (SQLite) 에 원본 markdown 으로 저장되며 SSR runtime 에 컴파일·KV 캐시된다 — admin (본인 1명) 이 모바일/외부에서 글을 작성하기 위함. **본 시점에는 미구현**, 도입 task 분해는 ROADMAP `Phase: CMS 인프라` 참조.
 - **My Role**: PM
 
 ## Core Principles
@@ -101,6 +102,16 @@
 - **Cloudflare Email Routing** — `hello@tkstar.dev` → 개인 Gmail forward
 - **Cloudflare Web Analytics** — 쿠키 없는 분석 스니펫
 - **Domain**: `tkstar.dev`
+
+### CMS 인프라 (계획 — 본 PR 시점에는 미구현)
+> 도입 일정과 task 분해는 [docs/ROADMAP.md](docs/ROADMAP.md) `Phase: CMS 인프라` 참조. 신규 기능 명세는 [docs/PRD.md](docs/PRD.md) F020~F023 참조.
+
+- **Cloudflare D1 (SQLite, edge-native)** — Post 원본 markdown / 메타 / Project 커버 메타 저장. binding: `DB`
+- **Drizzle ORM** + `drizzle-kit` — D1 first-class, 경량 (~10KB), runtime 의존 0. migration 관리
+- **Cloudflare R2** — Post 본문 이미지 / Project 커버 이미지 / 기타 미디어. S3 호환
+- **R2 클라이언트** — 후보 3개 (T023 PoC 후 T033 결정): (a) **R2 Workers binding** 1순위 (`MEDIA_BUCKET.put/get/delete/list`, 의존성 0) / (b) `aws4fetch` 2순위 (~2.5KB) / (c) `@aws-sdk/client-s3` 3순위 (~500KB, `compatibility_flags = ["nodejs_compat"]` 활성으로 import 가능 — multipart/streaming 진짜 필요 시만)
+- **Cloudflare Access (Zero Trust)** — `/admin/*` path 보호. 본인 1명 (이메일 1건 allowlist). Workers 는 `Cf-Access-Authenticated-User-Email` 헤더만 검증 — 자체 세션/쿠키/비밀번호 코드 X
+- **Tiptap (or Lexical) WYSIWYG** — admin editor. **순수 markdown 만** 직렬화 (커스텀 JSX 컴포넌트 X) → DB 에 markdown 문자열 저장
 
 ### Build / Dev / Quality
 - **Vite 8.0.3** + `@vitejs/plugin-react 6.0.1`
