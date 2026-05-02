@@ -10,6 +10,9 @@
 # Velite
 /.velite/
 
+# Velite-derived search index (generated at build time)
+/public/search-index.json
+
 # Cloudflare Workers
 /.wrangler/
 /worker-configuration.d.ts
