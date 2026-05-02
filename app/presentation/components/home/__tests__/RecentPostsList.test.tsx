@@ -12,7 +12,7 @@ const mockPosts: Post[] = [
 		slug: "post-1",
 		title: "첫 번째 글",
 		lede: "lede 1",
-		date: "2026-04-01",
+		date: "2026-04-01T00:00:00.000Z",
 		tags: ["dev"],
 		read: 5,
 	},

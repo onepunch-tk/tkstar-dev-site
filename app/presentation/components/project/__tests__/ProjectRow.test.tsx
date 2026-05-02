@@ -17,7 +17,7 @@ const mockProject: Project = {
 };
 
 describe("ProjectRow", () => {
-	it("date(YYYY-MM), slug/, title, summary, stack pills를 모두 렌더한다", () => {
+	it("date(YYYY-MM-DD), slug/, title, summary, stack pills를 모두 렌더한다", () => {
 		// Arrange / Act
 		render(
 			<MemoryRouter>
@@ -26,7 +26,7 @@ describe("ProjectRow", () => {
 		);
 
 		// Assert
-		expect(screen.getByText("2026-04")).toBeInTheDocument();
+		expect(screen.getByText("2026-04-28")).toBeInTheDocument();
 		expect(screen.getAllByText("example-project/")).not.toHaveLength(0);
 		expect(screen.getByText("Example Project")).toBeInTheDocument();
 		expect(screen.getByText(/A short summary/)).toBeInTheDocument();

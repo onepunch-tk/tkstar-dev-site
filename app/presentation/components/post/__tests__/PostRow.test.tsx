@@ -16,7 +16,7 @@ const mockPost: Post = {
 };
 
 describe("PostRow", () => {
-	it("date(YYYY-MM), title, lede, tags, read 필드를 모두 렌더한다", () => {
+	it("date(YYYY-MM-DD), title, lede, tags, read 필드를 모두 렌더한다", () => {
 		// Arrange / Act
 		render(
 			<MemoryRouter>
@@ -25,7 +25,7 @@ describe("PostRow", () => {
 		);
 
 		// Assert
-		expect(screen.getAllByText("2026-04")).not.toHaveLength(0);
+		expect(screen.getAllByText("2026-04-28")).not.toHaveLength(0);
 		expect(screen.getByText("Example Post")).toBeInTheDocument();
 		expect(screen.getByText(/A short lede/)).toBeInTheDocument();
 		expect(screen.getByText("solo")).toBeInTheDocument();
