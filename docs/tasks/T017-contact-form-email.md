@@ -42,17 +42,17 @@ Contact 페이지의 폼 검증 + Cloudflare Turnstile 클라이언트 위젯 + 
 - Turnstile site key 발급 — 배포 단계 (T022) (dev에는 test key 사용)
 
 ## Acceptance Criteria (PRD AC 인용 — 7개)
-- [ ] **AC-F008-1**: 사용자가 `/contact`에서 이름·이메일·메시지(10자 이상)·의뢰 유형을 채우고 Turnstile 통과 → `submit` 클릭 → Resend API가 1회 호출되어 hello@tkstar.dev → 본인 메일 발신 + 제출자 자동응답 메일 + 성공 화면
-- [ ] **AC-F008-2**: 이메일 RFC 5322 위반 (`foo@`, `foo.com`) → `submit` 클릭 → 클라이언트에서 차단 + 인라인 에러 + 네트워크 요청 미발생
-- [ ] **AC-F008-3**: 메시지 길이 10자 미만 또는 5000자 초과 → `submit` → 인라인 에러 + 폼 상태 유지
-- [ ] **AC-F008-4**: Resend API가 5xx 또는 네트워크 오류 → 응답 수신 → 에러 토스트 + `mailto:hello@tkstar.dev?subject=...&body=...` 폴백 (폼 입력값 prefill)
-- [ ] **AC-F009-1**: Contact 폼 마운트 → Turnstile 위젯 렌더 → `cf-turnstile-response` 토큰이 폼 상태에 바인딩 + 토큰 비어있으면 submit 버튼 비활성화
-- [ ] **AC-F009-2**: 클라이언트가 위조 토큰 함께 submit → 서버가 `https://challenges.cloudflare.com/turnstile/v0/siteverify` 검증 → `success: false` → 400 응답 + Resend 호출 일어나지 않음
-- [ ] **AC-F009-3**: 동일 IP가 1시간 내 5회 이상 submit → 6번째 submit → 서버 429 응답 + "잠시 후 다시 시도해주세요"
+- [x] **AC-F008-1**: 사용자가 `/contact`에서 이름·이메일·메시지(10자 이상)·의뢰 유형을 채우고 Turnstile 통과 → `submit` 클릭 → Resend API가 1회 호출되어 hello@tkstar.dev → 본인 메일 발신 + 제출자 자동응답 메일 + 성공 화면
+- [x] **AC-F008-2**: 이메일 RFC 5322 위반 (`foo@`, `foo.com`) → `submit` 클릭 → 클라이언트에서 차단 + 인라인 에러 + 네트워크 요청 미발생
+- [x] **AC-F008-3**: 메시지 길이 10자 미만 또는 5000자 초과 → `submit` → 인라인 에러 + 폼 상태 유지
+- [x] **AC-F008-4**: Resend API가 5xx 또는 네트워크 오류 → 응답 수신 → 에러 토스트 + `mailto:hello@tkstar.dev?subject=...&body=...` 폴백 (폼 입력값 prefill)
+- [x] **AC-F009-1**: Contact 폼 마운트 → Turnstile 위젯 렌더 → `cf-turnstile-response` 토큰이 폼 상태에 바인딩 + 토큰 비어있으면 submit 버튼 비활성화
+- [x] **AC-F009-2**: 클라이언트가 위조 토큰 함께 submit → 서버가 `https://challenges.cloudflare.com/turnstile/v0/siteverify` 검증 → `success: false` → 400 응답 + Resend 호출 일어나지 않음
+- [x] **AC-F009-3**: 동일 IP가 1시간 내 5회 이상 submit → 6번째 submit → 서버 429 응답 + "잠시 후 다시 시도해주세요" (알려진 한계: TOCTOU race + fixed-window 경계 부스트 — 후속 task 에서 Cloudflare Rate Limiting binding 으로 교체)
 
 ### Task 추가 AC (Issue #5 보강)
-- [ ] `wrangler.toml`에 `[[kv_namespaces]]` 블록이 `binding = "RATE_LIMIT_KV"`, `id`, `preview_id` 모두 포함
-- [ ] `Env` 타입에 `RATE_LIMIT_KV: KVNamespace` 등록
+- [x] `wrangler.toml`에 `[[kv_namespaces]]` 블록이 `binding = "RATE_LIMIT_KV"`, `id`, `preview_id` 모두 포함 (default + staging + production 환경별 분리)
+- [x] `Env` 타입에 `RATE_LIMIT_KV: KVNamespace` 등록 (wrangler types 자동 생성)
 
 ## Implementation Plan (TDD Cycle)
 
