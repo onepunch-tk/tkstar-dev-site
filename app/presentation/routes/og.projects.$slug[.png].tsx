@@ -1,13 +1,28 @@
-const EMPTY_PNG_B64 =
-	"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
+import type { Route } from "./+types/og.projects.$slug[.png]";
 
-export const loader = () => {
-	const bytes = Uint8Array.from(atob(EMPTY_PNG_B64), (c) => c.charCodeAt(0));
-	return new Response(bytes, {
-		headers: {
-			"Content-Type": "image/png",
-			// TODO(T018): flip to `public, max-age=..., immutable` once Satori-generated
-			"Cache-Control": "no-store",
-		},
-	});
+const PNG_HEADERS = {
+	"Content-Type": "image/png",
+	"Cache-Control": "public, max-age=31536000, immutable",
+} as const;
+
+const toBody = (png: Uint8Array): ArrayBuffer =>
+	png.buffer.slice(png.byteOffset, png.byteOffset + png.byteLength) as ArrayBuffer;
+
+export const loader = async ({ context, params }: Route.LoaderArgs) => {
+	const { container } = context;
+	const slug = params.slug;
+
+	if (slug) {
+		try {
+			const png = await container.renderProjectOg(slug);
+			if (png) {
+				return new Response(toBody(png), { headers: PNG_HEADERS });
+			}
+		} catch (err) {
+			console.error("[og:projects] render failed", err);
+		}
+	}
+
+	const fallback = await container.loadFallbackOg();
+	return new Response(toBody(fallback), { headers: PNG_HEADERS });
 };
