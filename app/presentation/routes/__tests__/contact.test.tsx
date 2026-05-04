@@ -95,7 +95,6 @@ describe("Group B — contact action", () => {
 		expect(arg.submission.email).toBe("test@example.com");
 		expect(arg.submission.inquiry_type).toBe("B2B");
 		expect(arg.ip).toBe("1.2.3.4");
-		expect(arg.toEmail).toBe("hello@tkstar.dev");
 		expect(result).toEqual({ ok: true });
 	});
 

@@ -1,6 +1,12 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs, MetaFunction } from "react-router";
 import { useLoaderData } from "react-router";
+import {
+	EmailDeliveryError,
+	InvalidCaptchaError,
+	RateLimitExceededError,
+} from "~/application/contact/errors";
 import ContactForm from "~/presentation/components/contact/ContactForm";
+import { contactSubmissionSchema } from "~/domain/contact/contact-submission.schema";
 
 export const meta: MetaFunction = () => [
 	{ title: "Contact — tkstar.dev" },
@@ -32,9 +38,56 @@ export const loader = ({ context }: LoaderFunctionArgs): LoaderData => {
 	};
 };
 
-// Stub — Green 단계에서 실제 submitContactForm 호출 + 에러 매핑으로 교체
-export const action = async (_args: ActionFunctionArgs): Promise<ContactActionData> => {
-	throw new Error("contact action not yet implemented");
+const buildMailtoBody = (raw: Record<string, string>): string =>
+	[
+		`이름: ${raw.name ?? ""}`,
+		raw.company ? `회사: ${raw.company}` : null,
+		`이메일: ${raw.email ?? ""}`,
+		`유형: ${raw.inquiry_type ?? ""}`,
+		"",
+		"메시지:",
+		raw.message ?? "",
+	]
+		.filter((line): line is string => line !== null)
+		.join("\n");
+
+export const action = async ({
+	context,
+	request,
+}: ActionFunctionArgs): Promise<ContactActionData> => {
+	const formData = await request.formData();
+	const raw: Record<string, string> = {};
+	for (const [k, v] of formData.entries()) {
+		if (typeof v === "string") raw[k] = v;
+	}
+
+	const parsed = contactSubmissionSchema.safeParse(raw);
+	if (!parsed.success) {
+		return { ok: false, code: "VALIDATION_FAILED", message: parsed.error.message };
+	}
+
+	const ip =
+		request.headers.get("CF-Connecting-IP") ?? request.headers.get("x-forwarded-for") ?? "unknown";
+
+	try {
+		await context.container.submitContactForm({ submission: parsed.data, ip });
+		return { ok: true };
+	} catch (err) {
+		if (err instanceof RateLimitExceededError) {
+			return { ok: false, code: "RATE_LIMITED" };
+		}
+		if (err instanceof InvalidCaptchaError) {
+			return { ok: false, code: "INVALID_CAPTCHA" };
+		}
+		if (err instanceof EmailDeliveryError) {
+			return {
+				ok: false,
+				code: "EMAIL_DELIVERY_FAILED",
+				mailtoBody: buildMailtoBody(raw),
+			};
+		}
+		throw err;
+	}
 };
 
 export default function Contact() {
