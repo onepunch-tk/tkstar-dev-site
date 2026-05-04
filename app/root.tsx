@@ -16,6 +16,10 @@ import "./app.css";
 
 const CHROME_FREE_PATHNAME = /^\/legal\/[^/]+\/(terms|privacy)$/;
 
+export const links: Route.LinksFunction = () => [
+	{ rel: "alternate", type: "application/rss+xml", href: "/rss.xml", title: "tkstar.dev — Posts" },
+];
+
 export const loader = async ({ context }: Route.LoaderArgs) => ({
 	appCount: (await context.container.listApps()).length,
 });
