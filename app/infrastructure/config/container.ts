@@ -12,6 +12,7 @@ import {
 	type SubmitContactFormParams,
 } from "~/application/contact/services/submit-contact-form.service";
 import { buildRssFeed } from "~/application/feed/services/build-rss-feed.service";
+import { buildSitemap } from "~/application/seo/services/build-sitemap.service";
 import { renderPostOg } from "~/application/og/services/render-post-og.service";
 import { renderProjectOg } from "~/application/og/services/render-project-og.service";
 import type { AppLegalDoc } from "~/domain/legal/app-legal-doc.entity";
@@ -42,6 +43,7 @@ export type Container = {
 	getPostDetail: (slug: string) => Promise<{ post: Post; prev: Post | null; next: Post | null }>;
 	getRecentPosts: (n: number) => Promise<Post[]>;
 	buildRssFeed: () => Promise<string>;
+	buildSitemap: (origin: string) => Promise<string>;
 	listApps: () => Promise<string[]>;
 	findAppDoc: (appSlug: string, docType: "terms" | "privacy") => Promise<AppLegalDoc | null>;
 	submitContactForm: (params: Pick<SubmitContactFormParams, "submission" | "ip">) => Promise<void>;
@@ -72,6 +74,15 @@ export const buildContainer = (env: Env): Container => {
 		getPostDetail: (slug) => getPostDetail(postRepo, slug),
 		getRecentPosts: (n) => getRecentPosts(postRepo, n),
 		buildRssFeed: async () => buildRssFeed(await postRepo.findAll()),
+		buildSitemap: async (origin: string) => {
+			const [projects, posts] = await Promise.all([projectRepo.findAll(), postRepo.findAll()]);
+			return buildSitemap({
+				origin,
+				projects: projects.map((p) => ({ slug: p.slug, date: p.date })),
+				posts: posts.map((p) => ({ slug: p.slug, date: p.date })),
+				generatedAt: new Date(),
+			});
+		},
 		listApps: () => legalRepo.listApps(),
 		findAppDoc: (appSlug, docType) => legalRepo.findAppDoc(appSlug, docType),
 		submitContactForm: ({ submission, ip }) =>
