@@ -5,13 +5,15 @@
 | **Task ID** | T021 |
 | **Phase** | Phase 6 — Polish & Deploy |
 | **Layer** | 전 layer (회귀 테스트) |
-| **Branch** | `chore/qa-pass-mvp` |
+| **Branch** | `chore/issue-74-qa-pass-mvp` |
+| **Issue** | #74 |
 | **Depends on** | T020 |
-| **Blocks** | T022 |
+| **Blocks** | T021.5 (Critical fix) → T022 |
 | **PRD Features** | F001~F019 전체 |
 | **PRD AC** | AC-F003-1/2/3, AC-F008-1/2/3/4, AC-F009-1/2/3, AC-F011-1/2/3, AC-F016-1/2/3/4/5 — **18개 AC 전수** |
 | **예상 작업 시간** | 1d |
-| **Status** | Not Started |
+| **Status** | In Review (자동 영역 완료, 수동 검증 대기) |
+| **산출물** | [docs/reports/qa-2026-05-04.md](../reports/qa-2026-05-04.md) |
 
 ## Goal
 배포 직전 통합 QA 단계. 모든 자동 테스트가 Green이고 coverage threshold(T003에서 정의한 lines 80 / branches 75 / functions 80 / statements 80)를 통과하며, Lighthouse(Perf ≥ 90, A11y ≥ 95, Best Practices ≥ 95, SEO ≥ 100), Axe 위반 0건이 보장됨을 확인한다. 18개 PRD AC 전체를 매트릭스로 회귀.

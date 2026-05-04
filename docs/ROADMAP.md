@@ -532,9 +532,25 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
     - 발견된 결함은 `fix/issue-N-*` PR로 분리 처리
   - PR 1개 / 브랜치: `chore/qa-pass-mvp`
 
+- [ ] **Task 021.5: MdxRenderer Workers V8 eval 차단 회귀 fix (mdx-bundler 도입) — Critical**
+  - GitHub Issue: #75
+  - blockedBy: Task 021 (minor a11y fix 분리)
+  - Layer: Presentation + Infrastructure (content pipeline)
+  - 관련 Feature: F005, F007, F014 (detail 페이지 SSR)
+  - 관련 AC: AC-F005-1, AC-F007-1, AC-F014-1 (재검증)
+  - 검증:
+    - `bunx wrangler dev --remote` 환경에서 `/projects/:slug`, `/blog/:slug`, `/legal/:app/{terms,privacy}` 모두 200 OK + 정상 렌더
+    - 기존 단위 테스트 Green 유지 (특히 `MdxRenderer.test.tsx`)
+    - velite frontmatter / TOC / cover 메타 회귀 없음
+    - shiki 코드 하이라이트 + rehype-slug 헤딩 anchor 회귀 없음
+    - Workers 번들 사이즈 변화 측정 + 보고서 기록
+  - 회귀 원인: T007 (PR #14) 시점의 `new Function(code)` 패턴이 그 이후 Cloudflare Workers V8 isolate 정책 강화로 차단 (`Code generation from strings disallowed`).
+  - 채택 전략: esbuild 기반 mdx-bundler 가 build-time 에 React component module 산출 → runtime `new Function` 제거. velite 는 frontmatter/TOC/cover 메타만 담당.
+  - PR 1개 / 브랜치: `fix/issue-75-mdx-renderer-workers-eval`
+
 - [ ] **Task 022: Cloudflare Workers 배포 + 도메인 연결 + Email Routing + 검색엔진 인증 완료**
   - **Must** Read: [tasks/T022-deploy-production.md](tasks/T022-deploy-production.md)
-  - blockedBy: Task 021
+  - blockedBy: Task 021, **Task 021.5** (Critical fix 없이는 detail 페이지 SSR 차단)
   - Layer: 운영
   - 관련 Feature: F019 (인증 완료), 운영 (도메인/이메일)
   - 관련 AC: 없음 (운영 검증)
@@ -1142,14 +1158,14 @@ Phase 7.4 (Project Meta+Search Index):
 - [ ] Phase 3: Core Pages UI (Task 010~013, 014a, 014b, 015)
 - [ ] Phase 4: Forms / Email — Command Palette + Contact (Task 016, 017-pre, 017)
 - [ ] Phase 5: SEO / OG / Indexing (Task 018~020)
-- [ ] Phase 6: Polish & Deploy (Task 021~022)
+- [ ] Phase 6: Polish & Deploy (Task 021, **021.5**, 022)
 - [ ] Phase 7: CMS 인프라 — D1 + Drizzle + R2 + Cloudflare Access (Task 023~040)
   - Phase 7.1 Read Path First (Task 023~028, 6 tasks)
   - Phase 7.2 Auth + Admin Foundation (Task 029~032, 4 tasks)
   - Phase 7.3 Admin Editor + Media (Task 033~037, 5 tasks)
   - Phase 7.4 Project Meta + Search Index (Task 038~040, 3 tasks)
 
-**총 42개 task (T014 분리 + T017-pre + Phase 7 신규 18개) / 7개 phase / 100% PRD Feature(F001~F023, F015 제외) coverage / 100% Assumption(A001~A021) 해소 게이트 매핑.**
+**총 43개 task (T014 분리 + T017-pre + T021.5 회귀 fix + Phase 7 신규 18개) / 7개 phase / 100% PRD Feature(F001~F023, F015 제외) coverage / 100% Assumption(A001~A021) 해소 게이트 매핑.**
 
 > **검증 리포트(2026-04-28) 반영 이력**:
 > - Issue #1 (High): T010/T012/T015 자동 테스트(RTL + DOM assertion) 항목 보강

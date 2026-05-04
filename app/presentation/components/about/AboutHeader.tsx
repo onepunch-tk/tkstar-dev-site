@@ -19,7 +19,7 @@ export default function AboutHeader() {
 					{ABOUT_HEADER.positioning} ·{" "}
 					<a
 						href={`mailto:${ABOUT_HEADER.email}`}
-						className="text-accent underline-offset-4 transition-colors duration-[var(--duration-120)] ease-out hover:underline focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent motion-reduce:transition-none"
+						className="text-accent underline underline-offset-4 transition-colors duration-[var(--duration-120)] ease-out hover:no-underline focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent motion-reduce:transition-none"
 					>
 						{ABOUT_HEADER.email}
 					</a>

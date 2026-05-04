@@ -28,12 +28,12 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 			ogImage: data.ogImageUrl,
 		}),
 		{
-			"script:ld+json": 				buildBreadcrumbListLd({
-					items: [
-						{ name: "Home", url: `${data.origin}/` },
-						{ name: "Contact", url: data.canonicalUrl },
-					],
-				}),
+			"script:ld+json": buildBreadcrumbListLd({
+				items: [
+					{ name: "Home", url: `${data.origin}/` },
+					{ name: "Contact", url: data.canonicalUrl },
+				],
+			}),
 		},
 	];
 };
@@ -132,7 +132,7 @@ export default function Contact() {
 					평균 회신 24시간 이내. 또는{" "}
 					<a
 						href={`mailto:${contactEmail}`}
-						className="text-accent underline-offset-4 transition-colors duration-[var(--duration-120)] ease-out hover:underline focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent motion-reduce:transition-none"
+						className="text-accent underline underline-offset-4 transition-colors duration-[var(--duration-120)] ease-out hover:no-underline focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent motion-reduce:transition-none"
 					>
 						{contactEmail}
 					</a>
