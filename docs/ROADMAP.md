@@ -532,7 +532,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
     - 발견된 결함은 `fix/issue-N-*` PR로 분리 처리
   - PR 1개 / 브랜치: `chore/qa-pass-mvp`
 
-- [ ] **Task 021.5: MdxRenderer Workers V8 eval 차단 회귀 fix (mdx-bundler 도입) — Critical**
+- [x] **Task 021.5: MdxRenderer Workers V8 eval 차단 회귀 fix (@mdx-js/rollup + import.meta.glob) — Critical**
   - GitHub Issue: #75
   - blockedBy: Task 021 (minor a11y fix 분리)
   - Layer: Presentation + Infrastructure (content pipeline)
@@ -545,7 +545,9 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
     - shiki 코드 하이라이트 + rehype-slug 헤딩 anchor 회귀 없음
     - Workers 번들 사이즈 변화 측정 + 보고서 기록
   - 회귀 원인: T007 (PR #14) 시점의 `new Function(code)` 패턴이 그 이후 Cloudflare Workers V8 isolate 정책 강화로 차단 (`Code generation from strings disallowed`).
-  - 채택 전략: esbuild 기반 mdx-bundler 가 build-time 에 React component module 산출 → runtime `new Function` 제거. velite 는 frontmatter/TOC/cover 메타만 담당.
+  - 채택 전략 (변경): Issue 본문은 mdx-bundler 였으나 Phase 0 조사에서 mdx-bundler 의 `getMDXExport` 도 `new Function(...)` 호출이 확인되어 V8 차단 동일 재발 위험. **`@mdx-js/rollup` (vite plugin) + `remark-frontmatter` + `import.meta.glob({ eager: true })`** 로 변경 채택 — 빌드 타임 ESM 모듈 산출, runtime eval 0건. velite 는 frontmatter/TOC 추출만 담당.
+  - 영향 파일: `vite.config.ts`, `vitest.config.ts`, `velite.config.ts`, `scripts/patch-velite-types.mjs`, 3개 domain schema, 3개 infrastructure mapper, 4개 라우트, `mdx-modules.ts` 신규, `MdxRenderer.tsx` + 그 단독 test 삭제.
+  - 번들 사이즈: total +4.09 kB raw / +0.02 kB gzip (사실상 동일).
   - PR 1개 / 브랜치: `fix/issue-75-mdx-renderer-workers-eval`
 
 - [ ] **Task 022: Cloudflare Workers 배포 + 도메인 연결 + Email Routing + 검색엔진 인증 완료**
