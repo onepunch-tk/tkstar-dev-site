@@ -4,9 +4,16 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { AppLegalDoc } from "../../../domain/legal/app-legal-doc.entity";
 
-// MdxRenderer를 모킹해 body 함수 평가 불안정성 회피 (projects.$slug 패턴)
-vi.mock("../../components/content/MdxRenderer", () => ({
-	default: () => <div data-testid="mdx-content">[mdx body]</div>,
+// build-time MDX 모듈 맵을 mock — 실제 콘텐츠 파일과 무관하게 testid 매칭 컴포넌트 반환
+vi.mock("../../components/content/mdx-modules", () => ({
+	legalPrivacyModules: new Proxy(
+		{},
+		{
+			get: () => ({
+				default: () => <div data-testid="mdx-content">[mdx body]</div>,
+			}),
+		},
+	),
 }));
 
 import AppPrivacy, { loader } from "../legal.$app.privacy";
