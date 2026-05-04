@@ -19,7 +19,7 @@ export default function BlogDetail({ loaderData }: Route.ComponentProps) {
 	return (
 		<main className="mx-auto flex max-w-[var(--container-measure)] flex-col gap-[22px] px-[var(--spacing-gutter)] pt-[22px] pb-20 min-[720px]:gap-7 min-[720px]:px-7 min-[720px]:pt-9 min-[720px]:pb-[120px]">
 			<header className="flex flex-col gap-2">
-				<h1 className="flex items-center gap-2 m-0 font-mono text-[11px] tracking-[0.12em] uppercase text-muted">
+				<h1 className="flex items-center gap-2 m-0 font-sans text-[11px] tracking-[0.12em] uppercase text-muted">
 					<span aria-hidden="true" className="text-accent">
 						$
 					</span>
@@ -29,7 +29,7 @@ export default function BlogDetail({ loaderData }: Route.ComponentProps) {
 				<h2 className="m-0 text-[28px] font-semibold tracking-[-0.01em] text-fg min-[720px]:text-[34px]">
 					{post.title}
 				</h2>
-				<p className="font-mono text-[12px] text-faint">{post.lede}</p>
+				<p className="font-sans text-[12px] text-faint">{post.lede}</p>
 			</header>
 
 			<div className="flex flex-col gap-8 min-[880px]:grid min-[880px]:grid-cols-[minmax(0,1fr)_280px] min-[880px]:gap-10">

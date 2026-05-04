@@ -24,7 +24,7 @@ export default function FeaturedProjectCard({ project }: Props) {
 						className="h-full w-full object-cover"
 					/>
 				) : (
-					<div className="flex h-full w-full items-center justify-center bg-bg-elev bg-[image:repeating-linear-gradient(45deg,var(--color-hatch)_0_8px,transparent_8px_16px)] font-mono text-[11px] text-faint tracking-[0.06em]">
+					<div className="flex h-full w-full items-center justify-center bg-bg-elev bg-[image:repeating-linear-gradient(45deg,var(--color-hatch)_0_8px,transparent_8px_16px)] font-sans text-[11px] text-faint tracking-[0.06em]">
 						cover · 16:9
 					</div>
 				)}
@@ -34,14 +34,14 @@ export default function FeaturedProjectCard({ project }: Props) {
 				{project.stack.map((s) => (
 					<span
 						key={s}
-						className="inline-block rounded-full border border-line-strong px-2 py-0.5 font-mono text-[11px] text-muted tracking-[0.02em]"
+						className="inline-block rounded-full border border-line-strong px-2 py-0.5 font-sans text-[11px] text-muted tracking-[0.02em]"
 					>
 						{s}
 					</span>
 				))}
 			</div>
 
-			<h3 className="m-0 font-mono font-semibold text-[clamp(1.25rem,3.4vw,1.5rem)] leading-[1.2] tracking-[-0.01em]">
+			<h3 className="m-0 font-sans font-semibold text-[clamp(1.25rem,3.4vw,1.5rem)] leading-[1.2] tracking-[-0.01em]">
 				{project.title}
 			</h3>
 

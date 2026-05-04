@@ -17,7 +17,7 @@ export const loader = async ({ context }: Route.LoaderArgs) => {
 };
 
 const SECTION_HEADER_CLASS =
-	"flex items-center gap-2 m-0 font-mono text-[11px] tracking-[0.12em] uppercase text-muted";
+	"flex items-center gap-2 m-0 font-sans text-[11px] tracking-[0.12em] uppercase text-muted";
 
 export default function Index({ loaderData }: Route.ComponentProps) {
 	const { featured, posts } = loaderData;

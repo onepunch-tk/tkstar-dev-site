@@ -16,7 +16,7 @@
 	/* always-dark contrast for solid accent backgrounds — light/dark/print 공통 (정본 prototype.css .wf-btn.accent: color #0d0f12) */
 	--color-on-accent: #0d0f12;
 
-	--font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+	--font-sans: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
 
 	--radius-sm: 6px;
 
@@ -50,32 +50,32 @@
 }
 
 @font-face {
-	font-family: "JetBrains Mono";
+	font-family: "Pretendard";
 	font-weight: 400;
 	font-style: normal;
 	font-display: swap;
-	src: url("/fonts/JetBrainsMono-Regular.woff2") format("woff2");
+	src: url("/fonts/Pretendard-Regular.woff2") format("woff2");
 }
 @font-face {
-	font-family: "JetBrains Mono";
+	font-family: "Pretendard";
 	font-weight: 500;
 	font-style: normal;
 	font-display: swap;
-	src: url("/fonts/JetBrainsMono-Medium.woff2") format("woff2");
+	src: url("/fonts/Pretendard-Medium.woff2") format("woff2");
 }
 @font-face {
-	font-family: "JetBrains Mono";
+	font-family: "Pretendard";
 	font-weight: 700;
 	font-style: normal;
 	font-display: swap;
-	src: url("/fonts/JetBrainsMono-Bold.woff2") format("woff2");
+	src: url("/fonts/Pretendard-Bold.woff2") format("woff2");
 }
 
 html,
 body {
 	background: var(--color-bg);
 	color: var(--color-fg);
-	font-family: var(--font-mono);
+	font-family: var(--font-sans);
 }
 
 html {
@@ -120,7 +120,7 @@ html {
 /* Long-form MDX body — projects (T013) + posts (T014b) 동일 typography */
 .project-body,
 .post-body {
-	font-family: var(--font-mono);
+	font-family: var(--font-sans);
 	font-size: 14px;
 	line-height: 1.7;
 	color: var(--color-fg);

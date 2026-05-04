@@ -99,14 +99,14 @@ export default function Contact() {
 			<header className="flex flex-col gap-2">
 				<p
 					aria-hidden="true"
-					className="m-0 font-mono text-[12px] text-muted before:mr-1 before:text-accent before:content-['$']"
+					className="m-0 font-sans text-[12px] text-muted before:mr-1 before:text-accent before:content-['$']"
 				>
 					./contact --new
 				</p>
-				<h1 className="m-0 font-mono font-bold leading-[1.1] tracking-[-0.02em] text-[clamp(1.5rem,5vw,2rem)]">
+				<h1 className="m-0 font-sans font-bold leading-[1.1] tracking-[-0.02em] text-[clamp(1.5rem,5vw,2rem)]">
 					메시지를 보내주세요
 				</h1>
-				<p className="m-0 font-mono text-[13px] leading-[1.7] text-muted">
+				<p className="m-0 font-sans text-[13px] leading-[1.7] text-muted">
 					평균 회신 24시간 이내. 또는{" "}
 					<a
 						href={`mailto:${contactEmail}`}

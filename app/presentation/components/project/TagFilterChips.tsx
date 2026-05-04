@@ -37,8 +37,8 @@ export default function TagFilterChips({ tags, activeTag }: Props) {
 						onClick={() => onChip(t)}
 						className={
 							isActive
-								? "inline-block rounded-full border border-accent bg-accent px-2.5 py-0.5 font-mono text-[11px] text-bg tracking-[0.02em]"
-								: "inline-block rounded-full border border-line px-2.5 py-0.5 font-mono text-[11px] text-muted tracking-[0.02em] transition-colors duration-[var(--duration-120)] ease-out hover:border-accent hover:text-accent motion-reduce:transition-none"
+								? "inline-block rounded-full border border-accent bg-accent px-2.5 py-0.5 font-sans text-[11px] text-bg tracking-[0.02em]"
+								: "inline-block rounded-full border border-line px-2.5 py-0.5 font-sans text-[11px] text-muted tracking-[0.02em] transition-colors duration-[var(--duration-120)] ease-out hover:border-accent hover:text-accent motion-reduce:transition-none"
 						}
 					>
 						{t}
