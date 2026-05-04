@@ -40,15 +40,15 @@
 - Bing Webmaster Tools (가정 A011, MVP 후)
 
 ## Acceptance Criteria
-- [ ] `/sitemap.xml`이 well-formed XML 응답 + `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">` + `<url><loc>...</loc>...</url>` 항목들
-- [ ] sitemap에 포함되는 페이지: Home / About / Projects 목록 / Project Detail (모든 slug) / Blog 목록 / Blog Detail (모든 slug) / Contact / Legal Index
-- [ ] sitemap에 **포함되지 않는** 페이지: App Terms / App Privacy / 404 (splat) / OG resource route / RSS / Sitemap / Robots 자체
-- [ ] `/robots.txt` 응답: `User-agent: *\nAllow: /\nSitemap: https://tkstar.dev/sitemap.xml`
-- [ ] 모든 페이지에 `meta` export(title/description/canonical/og:title/og:description/og:image/og:url/og:type/twitter:card) 정의
-- [ ] OG `og:image`는 T018의 `/og/{projects|blog}/:slug.png` URL 또는 정적 fallback
-- [ ] JSON-LD: Home/About → `Person`, Blog Detail → `BlogPosting`, Project Detail → `CreativeWork`(또는 `SoftwareSourceCode`), 모든 페이지 → `BreadcrumbList`
-- [ ] App Terms/Privacy meta `noindex, follow` + canonical 유지, sitemap.xml 미포함
-- [ ] 404 splat meta `noindex, nofollow` + 404 응답 코드 + sitemap.xml 미포함
+- [x] `/sitemap.xml`이 well-formed XML 응답 + `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">` + `<url><loc>...</loc>...</url>` 항목들
+- [x] sitemap에 포함되는 페이지: Home / About / Projects 목록 / Project Detail (모든 slug) / Blog 목록 / Blog Detail (모든 slug) / Contact / Legal Index
+- [x] sitemap에 **포함되지 않는** 페이지: App Terms / App Privacy / 404 (splat) / OG resource route / RSS / Sitemap / Robots 자체
+- [x] `/robots.txt` 응답: `User-agent: *\nAllow: /\nSitemap: https://tkstar.dev/sitemap.xml`
+- [x] 모든 페이지에 `meta` export(title/description/canonical/og:title/og:description/og:image/og:url/og:type/twitter:card) 정의
+- [x] OG `og:image`는 T018의 `/og/{projects|blog}/:slug.png` URL 또는 정적 fallback
+- [x] JSON-LD: Home/About → `Person`, Blog Detail → `BlogPosting`, Project Detail → `CreativeWork`(또는 `SoftwareSourceCode`), 모든 페이지 → `BreadcrumbList`
+- [x] App Terms/Privacy meta `noindex, follow` + canonical 유지, sitemap.xml 미포함
+- [x] 404 splat meta `noindex, nofollow` + 404 응답 코드 + sitemap.xml 미포함
 
 ## Implementation Plan (TDD Cycle)
 

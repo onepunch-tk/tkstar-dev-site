@@ -36,12 +36,14 @@
 - DNS / 도메인 등록 — T022
 
 ## Acceptance Criteria
-- [ ] `wrangler dev`에서 `GOOGLE_SITE_VERIFICATION = "abc123"` 설정 시 root `<head>`에 `<meta name="google-site-verification" content="abc123">` 렌더
-- [ ] env 미설정 시 verification meta 미렌더
-- [ ] `NAVER_SITE_VERIFICATION = "xyz789"` 설정 시 `<meta name="naver-site-verification" content="xyz789">` 렌더
-- [ ] `CLOUDFLARE_ANALYTICS_TOKEN = "token123"` 설정 시 root `<body>` 끝에 Cloudflare Web Analytics `<script>` 스니펫 삽입
-- [ ] Web Analytics가 쿠키를 설정하지 않음 (DevTools Application → Cookies 검증)
-- [ ] 가정 A008 — wrangler vars로 토큰 주입 패턴 확정. A011/A012는 MVP 후로 잔존.
+- [x] `wrangler dev`에서 `GOOGLE_SITE_VERIFICATION = "abc123"` 설정 시 root `<head>`에 `<meta name="google-site-verification" content="abc123">` 렌더 (Layout 테스트 + helper 단위 테스트로 검증)
+- [x] env 미설정 시 verification meta 미렌더 (빈 문자열 default → truthy gate 미통과 — Layout 테스트로 검증)
+- [x] `NAVER_SITE_VERIFICATION = "xyz789"` 설정 시 `<meta name="naver-site-verification" content="xyz789">` 렌더
+- [x] `CLOUDFLARE_ANALYTICS_TOKEN = "token123"` 설정 시 root `<body>` 끝에 Cloudflare Web Analytics `<script>` 스니펫 삽입
+- [x] 가정 A008 — wrangler vars로 토큰 주입 패턴 확정. A011/A012는 MVP 후로 잔존.
+
+### Deferred to T022 (배포 후 검증)
+- Web Analytics가 쿠키를 설정하지 않음 (DevTools Application → Cookies 검증) — 실제 토큰 발급 후 운영 환경에서 검증
 
 ## Implementation Plan (TDD Cycle)
 
