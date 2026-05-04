@@ -469,7 +469,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
   - 가정 해소: A005 (env.ASSETS Fetcher 채택)
   - PR 1개 / 브랜치: `feature/issue-N-satori-og`
 
-- [ ] **Task 019: F018 SEO Meta + Sitemap + Robots + JSON-LD (차등 인덱싱)**
+- [x] **Task 019: F018 SEO Meta + Sitemap + Robots + JSON-LD (차등 인덱싱)**
   - **Must** Read: [tasks/T019-seo-sitemap-jsonld.md](tasks/T019-seo-sitemap-jsonld.md)
   - blockedBy: Task 008, Task 010~Task 013, Task 014a, Task 014b, Task 015 (페이지별 meta 추가), Task 018 (OG URL)
   - Layer: Application(`build-sitemap.service`) + Resource Route + Presentation(meta export)

@@ -11,7 +11,7 @@
 | **PRD Features** | **F018** (SEO 메타 + Sitemap) |
 | **PRD AC** | — (정합성 검증, schema.org 표준) |
 | **예상 작업 시간** | 1.5d |
-| **Status** | Not Started |
+| **Status** | Done |
 
 ## Goal
 페이지별 `meta` export (title/description/canonical/og/twitter) + JSON-LD + `/sitemap.xml` + `/robots.txt`을 가동하고, **차등 인덱싱** 정책(App Terms/Privacy `noindex,follow`, 404 `noindex,nofollow`)을 적용한다.
