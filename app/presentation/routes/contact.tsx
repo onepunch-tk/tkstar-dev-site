@@ -7,14 +7,36 @@ import {
 } from "~/application/contact/errors";
 import ContactForm from "~/presentation/components/contact/ContactForm";
 import { contactSubmissionSchema } from "~/domain/contact/contact-submission.schema";
+import { buildBreadcrumbListLd } from "~/presentation/lib/jsonld";
+import { buildMeta } from "~/presentation/lib/meta";
 
-export const meta: MetaFunction = () => [
-	{ title: "Contact — tkstar.dev" },
-	{
-		name: "description",
-		content: "tkstar.dev 컨택 — 채용 / 의뢰 / 그 외 문의 모두 환영합니다.",
-	},
-];
+interface LoaderData {
+	siteKey: string;
+	contactEmail: string;
+	origin: string;
+	canonicalUrl: string;
+	ogImageUrl: string;
+}
+
+export const meta: MetaFunction<typeof loader> = ({ data }) => {
+	if (!data) return [{ title: "Contact — tkstar.dev" }];
+	return [
+		...buildMeta({
+			title: "Contact — tkstar.dev",
+			description: "tkstar.dev 컨택 — 채용 / 의뢰 / 그 외 문의 모두 환영합니다.",
+			canonical: data.canonicalUrl,
+			ogImage: data.ogImageUrl,
+		}),
+		{
+			"script:ld+json": 				buildBreadcrumbListLd({
+					items: [
+						{ name: "Home", url: `${data.origin}/` },
+						{ name: "Contact", url: data.canonicalUrl },
+					],
+				}),
+		},
+	];
+};
 
 export type ContactActionData =
 	| { ok: true }
@@ -25,16 +47,16 @@ export type ContactActionData =
 			mailtoBody?: string;
 	  };
 
-interface LoaderData {
-	siteKey: string;
-	contactEmail: string;
-}
-
-export const loader = ({ context }: LoaderFunctionArgs): LoaderData => {
+export const loader = ({ context, request }: LoaderFunctionArgs): LoaderData => {
 	const env = context.cloudflare.env as Env;
+	const url = new URL(request.url);
+	const origin = url.origin;
 	return {
 		siteKey: env.TURNSTILE_SITE_KEY,
 		contactEmail: env.CONTACT_TO_EMAIL,
+		origin,
+		canonicalUrl: `${origin}${url.pathname}`,
+		ogImageUrl: `${origin}/og/fallback.png`,
 	};
 };
 

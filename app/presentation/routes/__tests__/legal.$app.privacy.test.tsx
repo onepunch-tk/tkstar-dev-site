@@ -66,7 +66,7 @@ describe("Group A — legal.$app.privacy loader", () => {
 
 		// Assert
 		expect(spies.findAppDoc).toHaveBeenCalledWith("moai", "privacy");
-		expect(result).toEqual({ doc: moaiPrivacy });
+		expect(result).toMatchObject({ doc: moaiPrivacy });
 	});
 
 	it("params.app 이 미정의이면 Response 404 를 throw 한다", async () => {

@@ -1,17 +1,48 @@
+import { buildBlogPostingLd, buildBreadcrumbListLd } from "~/presentation/lib/jsonld";
+import { buildMeta } from "~/presentation/lib/meta";
 import MdxRenderer from "../components/content/MdxRenderer";
 import PostFooterNav from "../components/post/PostFooterNav";
 import ShareTools from "../components/post/ShareTools";
 import OnThisPageToc from "../components/project/OnThisPageToc";
-
 import type { Route } from "./+types/blog.$slug";
-
-export const meta: Route.MetaFunction = () => [{ title: "Post — tkstar.dev" }];
 
 export const loader = async ({ context, params, request }: Route.LoaderArgs) => {
 	if (!params.slug) throw new Response("Not Found", { status: 404 });
 	const detail = await context.container.getPostDetail(params.slug);
 	const url = new URL(request.url);
-	return { ...detail, canonicalUrl: `${url.origin}${url.pathname}` };
+	const origin = url.origin;
+	return {
+		...detail,
+		origin,
+		canonicalUrl: `${origin}${url.pathname}`,
+		ogImageUrl: `${origin}/og/blog/${params.slug}.png`,
+	};
+};
+
+export const meta: Route.MetaFunction = ({ data }) => {
+	if (!data) return [{ title: "Post — tkstar.dev" }];
+	const { post, origin, canonicalUrl, ogImageUrl } = data;
+	return [
+		...buildMeta({
+			title: `${post.title} — tkstar.dev`,
+			description: post.lede,
+			canonical: canonicalUrl,
+			ogImage: ogImageUrl,
+			ogType: "article",
+		}),
+		{
+			"script:ld+json": buildBlogPostingLd({ post, origin, ogImage: ogImageUrl }),
+		},
+		{
+			"script:ld+json": 				buildBreadcrumbListLd({
+					items: [
+						{ name: "Home", url: `${origin}/` },
+						{ name: "Blog", url: `${origin}/blog` },
+						{ name: post.title, url: canonicalUrl },
+					],
+				}),
+		},
+	];
 };
 
 export default function BlogDetail({ loaderData }: Route.ComponentProps) {

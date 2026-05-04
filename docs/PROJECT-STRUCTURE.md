@@ -334,7 +334,9 @@ app/presentation/
 ├── lib/
 │   ├── format.ts                     # date YYYY-MM 등
 │   ├── print.ts                      # F003 — window.print()
-│   └── chrome-links.ts               # TOPBAR_LINKS / FOOTER_LINKS 상수 (T005)
+│   ├── chrome-links.ts               # TOPBAR_LINKS / FOOTER_LINKS 상수 (T005)
+│   ├── meta.ts                       # F018 — buildMeta(MetaDescriptor[]) (T019)
+│   └── jsonld.ts                     # F018 — Person/BlogPosting/CreativeWork/BreadcrumbList builders (T019)
 ├── providers/
 │   └── ThemeProvider.tsx             # localStorage `proto-theme` + system 추종 (T005)
 └── layouts/

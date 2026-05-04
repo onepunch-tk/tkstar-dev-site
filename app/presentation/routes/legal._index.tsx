@@ -1,12 +1,38 @@
+import { buildBreadcrumbListLd } from "~/presentation/lib/jsonld";
+import { buildMeta } from "~/presentation/lib/meta";
 import AppCard from "../components/legal/AppCard";
-
 import type { Route } from "./+types/legal._index";
 
-export const meta: Route.MetaFunction = () => [{ title: "Legal — tkstar.dev" }];
-
-export const loader = async ({ context }: Route.LoaderArgs) => {
+export const loader = async ({ context, request }: Route.LoaderArgs) => {
+	const url = new URL(request.url);
+	const origin = url.origin;
 	const apps = await context.container.listApps();
-	return { apps };
+	return {
+		apps,
+		origin,
+		canonicalUrl: `${origin}${url.pathname}`,
+		ogImageUrl: `${origin}/og/fallback.png`,
+	};
+};
+
+export const meta: Route.MetaFunction = ({ data }) => {
+	if (!data) return [{ title: "Legal — tkstar.dev" }];
+	return [
+		...buildMeta({
+			title: "Legal — tkstar.dev",
+			description: "tkstar.dev 가 운영하는 앱들의 약관과 개인정보 처리방침.",
+			canonical: data.canonicalUrl,
+			ogImage: data.ogImageUrl,
+		}),
+		{
+			"script:ld+json": 				buildBreadcrumbListLd({
+					items: [
+						{ name: "Home", url: `${data.origin}/` },
+						{ name: "Legal", url: data.canonicalUrl },
+					],
+				}),
+		},
+	];
 };
 
 export default function LegalIndex({ loaderData }: Route.ComponentProps) {

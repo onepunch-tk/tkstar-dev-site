@@ -45,7 +45,7 @@ describe("Group A — legal._index loader", () => {
 		} as never);
 
 		// Assert
-		expect(result).toEqual({ apps: ["moai", "jagi"] });
+		expect(result).toMatchObject({ apps: ["moai", "jagi"] });
 		expect(spies.listApps).toHaveBeenCalledOnce();
 	});
 
@@ -60,7 +60,7 @@ describe("Group A — legal._index loader", () => {
 		} as never);
 
 		// Assert
-		expect(result).toEqual({ apps: [] });
+		expect(result).toMatchObject({ apps: [] });
 	});
 });
 

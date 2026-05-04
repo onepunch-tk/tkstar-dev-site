@@ -1,19 +1,37 @@
+import { buildPersonLd } from "~/presentation/lib/jsonld";
+import { buildMeta } from "~/presentation/lib/meta";
 import FeaturedProjectCard from "../components/home/FeaturedProjectCard";
 import HeroWhoami from "../components/home/HeroWhoami";
 import RecentPostsList from "../components/home/RecentPostsList";
 import type { Route } from "./+types/_index";
 
-export const meta: Route.MetaFunction = () => [
-	{ title: "tkstar.dev" },
-	{ name: "description", content: "1인 개발자 김태곤의 풀스택 작업물 · 글 · 이력." },
-];
-
-export const loader = async ({ context }: Route.LoaderArgs) => {
+export const loader = async ({ context, request }: Route.LoaderArgs) => {
+	const url = new URL(request.url);
+	const origin = url.origin;
 	const [featured, posts] = await Promise.all([
 		context.container.getFeaturedProject(),
 		context.container.getRecentPosts(3),
 	]);
-	return { featured, posts };
+	return {
+		featured,
+		posts,
+		origin,
+		canonicalUrl: `${origin}${url.pathname}`,
+		ogImageUrl: `${origin}/og/fallback.png`,
+	};
+};
+
+export const meta: Route.MetaFunction = ({ data }) => {
+	if (!data) return [{ title: "tkstar.dev" }];
+	return [
+		...buildMeta({
+			title: "tkstar.dev",
+			description: "1인 개발자 김태곤의 풀스택 작업물 · 글 · 이력.",
+			canonical: data.canonicalUrl,
+			ogImage: data.ogImageUrl,
+		}),
+		{ "script:ld+json": buildPersonLd({ origin: data.origin }) },
+	];
 };
 
 const SECTION_HEADER_CLASS =
