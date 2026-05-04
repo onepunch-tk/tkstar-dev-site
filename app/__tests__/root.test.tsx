@@ -187,4 +187,27 @@ describe("Layout — verification meta / analytics script 조건부 렌더", () 
 			document.querySelector('script[src="https://static.cloudflareinsights.com/beacon.min.js"]'),
 		).toBeNull();
 	});
+
+	it("일부만 truthy (google 만 설정) → google meta 만 렌더, 나머지 미렌더 — 점진 롤아웃 회귀 가드", () => {
+		useRouteLoaderDataMock.mockReturnValue({
+			appCount: 0,
+			googleVerification: "google-only",
+			naverVerification: "",
+			analyticsToken: "",
+		});
+
+		render(
+			<Layout>
+				<div data-testid="children" />
+			</Layout>,
+		);
+
+		expect(
+			document.querySelector('meta[name="google-site-verification"]')?.getAttribute("content"),
+		).toBe("google-only");
+		expect(document.querySelector('meta[name="naver-site-verification"]')).toBeNull();
+		expect(
+			document.querySelector('script[src="https://static.cloudflareinsights.com/beacon.min.js"]'),
+		).toBeNull();
+	});
 });

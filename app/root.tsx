@@ -16,13 +16,6 @@ import ChromeLayout from "./presentation/layouts/ChromeLayout";
 import ThemeProvider from "./presentation/providers/ThemeProvider";
 import "./app.css";
 
-type RootLoaderData = {
-	appCount: number;
-	googleVerification: string;
-	naverVerification: string;
-	analyticsToken: string;
-};
-
 const CHROME_FREE_PATHNAME = /^\/legal\/[^/]+\/(terms|privacy)$/;
 
 export const links: Route.LinksFunction = () => [
@@ -30,11 +23,7 @@ export const links: Route.LinksFunction = () => [
 ];
 
 export const loader = async ({ context }: Route.LoaderArgs) => {
-	const env = context.cloudflare.env as {
-		GOOGLE_SITE_VERIFICATION?: string;
-		NAVER_SITE_VERIFICATION?: string;
-		CLOUDFLARE_ANALYTICS_TOKEN?: string;
-	};
+	const env = context.cloudflare.env as Env;
 	return {
 		appCount: (await context.container.listApps()).length,
 		googleVerification: env.GOOGLE_SITE_VERIFICATION ?? "",
@@ -47,7 +36,7 @@ export const loader = async ({ context }: Route.LoaderArgs) => {
 const themeScript = `(()=>{try{var s=localStorage.getItem('proto-theme');var t=(s==='dark'||s==='light')?s:(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');document.documentElement.dataset.theme=t;}catch(e){document.documentElement.dataset.theme='dark';}})();`;
 
 export function Layout({ children }: { children: React.ReactNode }) {
-	const data = useRouteLoaderData("root") as RootLoaderData | undefined;
+	const data = useRouteLoaderData("root") as Awaited<ReturnType<typeof loader>> | undefined;
 	const googleVerification = data?.googleVerification ?? "";
 	const naverVerification = data?.naverVerification ?? "";
 	const analyticsScript = getAnalyticsScriptProps(data?.analyticsToken);

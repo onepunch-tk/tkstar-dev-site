@@ -1,14 +1,8 @@
-export type AnalyticsScriptProps = {
-	defer: true;
-	src: "https://static.cloudflareinsights.com/beacon.min.js";
-	"data-cf-beacon": string;
-};
-
-export const getAnalyticsScriptProps = (token: string | undefined): AnalyticsScriptProps | null => {
+export const getAnalyticsScriptProps = (token: string | undefined) => {
 	if (!token) return null;
 	return {
-		defer: true,
-		src: "https://static.cloudflareinsights.com/beacon.min.js",
+		defer: true as const,
+		src: "https://static.cloudflareinsights.com/beacon.min.js" as const,
 		"data-cf-beacon": JSON.stringify({ token }),
 	};
 };
