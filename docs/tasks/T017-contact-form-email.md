@@ -5,13 +5,13 @@
 | **Task ID** | T017 |
 | **Phase** | Phase 4 — Forms / Email |
 | **Layer** | Application(`submit-contact-form.service`) + Infrastructure(Resend, Turnstile, React Email, Workers KV rate-limit) + Presentation(Form, Turnstile widget) |
-| **Branch** | `feature/issue-N-contact-form-email` |
+| **Branch** | `feature/issue-66-contact-form-email` |
 | **Depends on** | T002, T006, T008, T009, T017-pre |
 | **Blocks** | — |
 | **PRD Features** | **F008** (Contact Form), **F009** (Turnstile) |
 | **PRD AC** | **AC-F008-1**, **AC-F008-2**, **AC-F008-3**, **AC-F008-4**, **AC-F009-1**, **AC-F009-2**, **AC-F009-3** |
 | **예상 작업 시간** | 2.5d |
-| **Status** | Not Started |
+| **Status** | Completed (2026-05-04, PR pending) |
 
 ## Goal
 Contact 페이지의 폼 검증 + Cloudflare Turnstile 클라이언트 위젯 + 서버 검증 + Resend 발신 + React Email 자동응답을 모두 가동시킨다. F008/F009의 7개 AC를 모두 자동 테스트로 통과 (rate-limit 포함). 가정 A009 해소.
@@ -184,4 +184,4 @@ Contact 페이지의 폼 검증 + Cloudflare Turnstile 클라이언트 위젯 + 
 ## Change History
 | Date | Changes | Author |
 |------|---------|--------|
-| - | - | - |
+| 2026-05-04 | KV namespace 4개 (default/preview/staging/production) 생성 + wrangler.toml 환경별 분리. Application(submit-contact-form.service + 3 ports + 3 errors + AutoReplyEmail React Email 템플릿) + Infrastructure(Resend HTTP API / Turnstile siteverify / KV rate-limiter — `contact:{ip}:{yyyy-mm-dd-hh}` TTL 3600s) + Presentation(loader + action 분기 + ContactForm/TurnstileWidget/SuccessScreen/MailtoFallback). Phase 3 review 반영: H2 (CF-Connecting-IP only), M2 (auto-reply swallow), M3 (parallel render), C-1~C-4 (디자인 토큰 + a11y + 다크모드). 315/315 테스트 통과. Polish 5건 + H1(KV race) 별도 task. | TaekyungHa |

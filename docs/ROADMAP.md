@@ -391,7 +391,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
   - 가정 해소: A007 (단순 includes/score 검색 채택, 데이터 규모 100+ 도달 시 재검토)
   - PR 1개 / 브랜치: `feature/issue-N-command-palette`
 
-- [ ] **Task 017: Contact Form + Turnstile + Resend + 자동응답 메일 (F008 + F009)**
+- [x] **Task 017: Contact Form + Turnstile + Resend + 자동응답 메일 (F008 + F009)** ✅ 2026-05-04 (branch `feature/issue-66-contact-form-email`, PR pending)
   - **Must** Read: [tasks/T017-contact-form-email.md](tasks/T017-contact-form-email.md)
   - blockedBy: Task 002, Task 006 (ContactSubmission schema), Task 008/009 (DI), Task 017-pre (PROJECT-STRUCTURE 갱신 — docs PR)
   - Layer: Application(submit-contact-form.service) + Infrastructure(Resend, Turnstile, React Email, Workers KV rate-limit) + Presentation(Form, Turnstile widget)
