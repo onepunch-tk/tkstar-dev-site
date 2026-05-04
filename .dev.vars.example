@@ -1,0 +1,8 @@
+# Local-only secrets for `bunx wrangler dev`. Copy this file to `.dev.vars` and fill in real values.
+# DO NOT commit `.dev.vars` (already in .gitignore). This `.example` file is the only one tracked.
+#
+# - RESEND_API_KEY: https://resend.com/api-keys (use a development key for local)
+# - TURNSTILE_SECRET: Cloudflare Turnstile secret key. The placeholder below is the official always-pass test secret.
+
+RESEND_API_KEY=re_local_dev_placeholder
+TURNSTILE_SECRET=1x0000000000000000000000000000000AA

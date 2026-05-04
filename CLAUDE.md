@@ -92,10 +92,11 @@
 - **Indexing Policy** — App Terms/Privacy: `noindex, follow` / 404 splat: `noindex, nofollow`
 
 ### Forms & Email
-- **React Email** — Contact 자동응답 메일 템플릿
-- **Resend** — Contact form 발신 (`hello@tkstar.dev` → 본인 메일 + 제출자 자동응답). env: `RESEND_API_KEY`
-- **Cloudflare Turnstile** — 스팸 방지. env: `TURNSTILE_SECRET`
-- **Rate Limit** — Workers KV 기반 (`RATE_LIMIT_KV` binding)
+- **React Email 1.0.12** (`@react-email/components`) + **`@react-email/render` 2.0.8** — Contact 자동응답 메일 템플릿. service 에서 `render(createElement(AutoReplyEmail, {...}))` 로 html / plainText 두 출력 병렬 생성 (`app/application/contact/templates/AutoReplyEmail.tsx`)
+- **Resend** — Contact form 발신 (`hello@tkstar.dev` → 본인 메일 + 제출자 자동응답). HTTP API fetch 직접 사용 (SDK X). env: `RESEND_API_KEY` (wrangler secret per env)
+- **Cloudflare Turnstile** — 스팸 방지. siteverify FormData POST. env: public `TURNSTILE_SITE_KEY` (vars per env, default 는 always-pass test key `1x00000000000000000000AA`) + secret `TURNSTILE_SECRET` (wrangler secret per env, dev 는 `.dev.vars` always-pass test secret `1x0000000000000000000000000000000AA`)
+- **Rate Limit** — Workers KV 기반 (`RATE_LIMIT_KV` binding, 4개 namespace 환경 분리: default/preview/staging/production). key 패턴 `contact:{ip}:{yyyy-mm-dd-hh}`, max=5, TTL=3600s. 알려진 한계: TOCTOU race + fixed-window 경계 부스트 (후속 task 에서 Cloudflare Rate Limiting binding 으로 교체 예정)
+- **Local secrets**: `.dev.vars` (gitignored) — Workers `bunx wrangler dev` 가 자동 로드. 키 목록은 `.dev.vars.example` 참조
 
 ### Hosting / Edge
 - **Cloudflare Workers (SSR)** — `wrangler 4.85.0` + `@cloudflare/vite-plugin 1.33.2`
