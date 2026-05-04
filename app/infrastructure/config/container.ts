@@ -32,8 +32,6 @@ interface ContactRuntimeEnv {
 	RATE_LIMIT_KV: KVNamespace;
 }
 
-const OG_FALLBACK_ASSET_URL = "https://x.local/og/fallback.png";
-
 export type Container = {
 	listProjects: (opts?: { tag?: string }) => Promise<Project[]>;
 	getProjectDetail: (
@@ -88,7 +86,7 @@ export const buildContainer = (env: Env): Container => {
 		renderProjectOg: (slug) => renderProjectOg({ repo: projectRepo, renderer: ogRenderer, slug }),
 		renderBlogOg: (slug) => renderPostOg({ repo: postRepo, renderer: ogRenderer, slug }),
 		loadFallbackOg: async () => {
-			const res = await env.ASSETS.fetch(OG_FALLBACK_ASSET_URL);
+			const res = await env.ASSETS.fetch("https://x.local/og/fallback.png");
 			if (!res.ok) {
 				throw new Error(`[og] fallback fetch failed (${res.status})`);
 			}

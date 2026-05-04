@@ -1,9 +1,9 @@
 import { Resvg, initWasm as initResvgWasm } from "@resvg/resvg-wasm";
 import satori, { init as initSatori } from "satori/standalone";
 import type { OgImageRenderer, OgRenderInput } from "~/application/og/ports/og-image-renderer.port";
-import { postTemplate } from "./templates/post";
-import { projectTemplate } from "./templates/project";
+import { ogTemplate } from "./templates/og-template";
 
+// env.ASSETS.fetch requires absolute URL but ignores host — any unique sentinel works
 const ASSET_BASE = "https://x.local";
 
 type AssetEnv = { ASSETS: Fetcher };
@@ -38,7 +38,12 @@ export const createSatoriOgRenderer = (env: AssetEnv): OgImageRenderer => {
 	return {
 		async render(input: OgRenderInput): Promise<Uint8Array> {
 			const { regular, bold } = await ensureInit();
-			const tree = input.kind === "project" ? projectTemplate(input) : postTemplate(input);
+			const tree = ogTemplate({
+				label: input.kind === "project" ? "PROJECT" : "POST",
+				title: input.title,
+				date: input.date,
+				tags: input.tags,
+			});
 
 			const svg = await satori(tree, {
 				width: 1200,

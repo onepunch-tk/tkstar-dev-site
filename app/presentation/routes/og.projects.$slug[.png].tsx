@@ -1,12 +1,5 @@
+import { PNG_HEADERS, toPngBody } from "~/presentation/lib/png-response";
 import type { Route } from "./+types/og.projects.$slug[.png]";
-
-const PNG_HEADERS = {
-	"Content-Type": "image/png",
-	"Cache-Control": "public, max-age=31536000, immutable",
-} as const;
-
-const toBody = (png: Uint8Array): ArrayBuffer =>
-	png.buffer.slice(png.byteOffset, png.byteOffset + png.byteLength) as ArrayBuffer;
 
 export const loader = async ({ context, params }: Route.LoaderArgs) => {
 	const { container } = context;
@@ -16,7 +9,7 @@ export const loader = async ({ context, params }: Route.LoaderArgs) => {
 		try {
 			const png = await container.renderProjectOg(slug);
 			if (png) {
-				return new Response(toBody(png), { headers: PNG_HEADERS });
+				return new Response(toPngBody(png), { headers: PNG_HEADERS });
 			}
 		} catch (err) {
 			console.error("[og:projects] render failed", err);
@@ -24,5 +17,5 @@ export const loader = async ({ context, params }: Route.LoaderArgs) => {
 	}
 
 	const fallback = await container.loadFallbackOg();
-	return new Response(toBody(fallback), { headers: PNG_HEADERS });
+	return new Response(toPngBody(fallback), { headers: PNG_HEADERS });
 };

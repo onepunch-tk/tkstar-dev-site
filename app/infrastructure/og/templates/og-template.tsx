@@ -8,9 +8,8 @@ const COLOR = {
 	accent: "#36d399",
 } as const;
 
-const formatDate = (iso: string): string => iso.slice(0, 10);
-
-export const projectTemplate = (input: {
+export const ogTemplate = (input: {
+	label: "PROJECT" | "POST";
 	title: string;
 	date: string;
 	tags: string[];
@@ -44,7 +43,7 @@ export const projectTemplate = (input: {
 						color: COLOR.accent,
 					},
 				},
-				"PROJECT",
+				input.label,
 			),
 			createElement(
 				"div",
@@ -73,7 +72,7 @@ export const projectTemplate = (input: {
 			createElement(
 				"div",
 				{ style: { display: "flex", gap: "20px", color: COLOR.muted, fontSize: "24px" } },
-				createElement("span", null, formatDate(input.date)),
+				createElement("span", null, input.date.slice(0, 10)),
 				input.tags.length > 0
 					? createElement("span", null, input.tags.map((t) => `#${t}`).join("  "))
 					: null,
