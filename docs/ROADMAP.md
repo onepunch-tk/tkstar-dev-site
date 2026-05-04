@@ -492,7 +492,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
     - `app/presentation/lib/jsonld.ts` — schema.org 빌더 헬퍼 (Person/BlogPosting/CreativeWork/BreadcrumbList)
   - PR 1개 / 브랜치: `feature/issue-N-seo-sitemap-jsonld`
 
-- [ ] **Task 020: F019 검색엔진 등록 (Google + Naver) + Cloudflare Web Analytics (F013)**
+- [x] **Task 020: F019 검색엔진 등록 (Google + Naver) + Cloudflare Web Analytics (F013)**
   - **Must** Read: [tasks/T020-search-engine-verification.md](tasks/T020-search-engine-verification.md)
   - blockedBy: Task 019
   - Layer: Presentation(root layout) + Infrastructure(analytics 스니펫)

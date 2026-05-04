@@ -11,7 +11,7 @@
 | **PRD Features** | **F019** (검색엔진 등록), **F013** (Cloudflare Web Analytics) |
 | **PRD AC** | — (배포 후 `site:tkstar.dev` 인덱싱 확인) |
 | **예상 작업 시간** | 0.5d |
-| **Status** | Not Started |
+| **Status** | Completed |
 
 ## Goal
 환경변수(`GOOGLE_SITE_VERIFICATION`, `NAVER_SITE_VERIFICATION`)가 설정되어 있으면 root layout `<head>`에 verification meta 태그를 조건부 렌더하고, Cloudflare Web Analytics 스니펫을 삽입한다 (쿠키 없음).
