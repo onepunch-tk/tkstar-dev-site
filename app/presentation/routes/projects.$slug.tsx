@@ -1,15 +1,54 @@
+import {
+	buildBreadcrumbListLd,
+	buildCreativeWorkLd,
+	renderJsonLd,
+} from "~/presentation/lib/jsonld";
+import { buildMeta } from "~/presentation/lib/meta";
 import MdxRenderer from "../components/content/MdxRenderer";
 import OnThisPageToc from "../components/project/OnThisPageToc";
 import ProjectFooterNav from "../components/project/ProjectFooterNav";
 import ProjectMetaSidebar from "../components/project/ProjectMetaSidebar";
-
 import type { Route } from "./+types/projects.$slug";
 
-export const meta: Route.MetaFunction = () => [{ title: "Project — tkstar.dev" }];
-
-export const loader = async ({ context, params }: Route.LoaderArgs) => {
+export const loader = async ({ context, params, request }: Route.LoaderArgs) => {
 	if (!params.slug) throw new Response("Not Found", { status: 404 });
-	return context.container.getProjectDetail(params.slug);
+	const detail = await context.container.getProjectDetail(params.slug);
+	const url = new URL(request.url);
+	const origin = url.origin;
+	return {
+		...detail,
+		origin,
+		canonicalUrl: `${origin}${url.pathname}`,
+		ogImageUrl: `${origin}/og/projects/${params.slug}.png`,
+	};
+};
+
+export const meta: Route.MetaFunction = ({ data }) => {
+	if (!data) return [{ title: "Project — tkstar.dev" }];
+	const { project, origin, canonicalUrl, ogImageUrl } = data;
+	return [
+		...buildMeta({
+			title: `${project.title} — tkstar.dev`,
+			description: project.summary,
+			canonical: canonicalUrl,
+			ogImage: ogImageUrl,
+			ogType: "article",
+		}),
+		{
+			"script:ld+json": renderJsonLd(buildCreativeWorkLd({ project, origin, ogImage: ogImageUrl })),
+		},
+		{
+			"script:ld+json": renderJsonLd(
+				buildBreadcrumbListLd({
+					items: [
+						{ name: "Home", url: `${origin}/` },
+						{ name: "Projects", url: `${origin}/projects` },
+						{ name: project.title, url: canonicalUrl },
+					],
+				}),
+			),
+		},
+	];
 };
 
 export default function ProjectDetail({ loaderData }: Route.ComponentProps) {

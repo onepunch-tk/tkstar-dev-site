@@ -88,7 +88,7 @@ describe("Group A — projects.$slug loader", () => {
 
 		// Assert
 		expect(spies.getProjectDetail.mock.calls[0][0]).toBe("alpha");
-		expect(result).toEqual(mockReturn);
+		expect(result).toMatchObject(mockReturn);
 	});
 
 	it("params.slug 가 undefined 이면 throw 한다", async () => {
