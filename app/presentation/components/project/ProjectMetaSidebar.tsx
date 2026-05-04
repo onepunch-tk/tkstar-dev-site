@@ -7,7 +7,7 @@ type Props = {
 export default function ProjectMetaSidebar({ date, role, stack }: Props) {
 	const year = new Date(date).getUTCFullYear();
 	return (
-		<aside data-testid="project-meta-sidebar" className="flex flex-col gap-3 font-mono">
+		<aside data-testid="project-meta-sidebar" className="flex flex-col gap-3 font-sans">
 			<div className="flex flex-col gap-1">
 				<span className="text-[11px] tracking-[0.12em] text-muted uppercase">year</span>
 				<span className="text-[18px] text-fg" data-testid="project-meta-year">
@@ -30,7 +30,7 @@ export default function ProjectMetaSidebar({ date, role, stack }: Props) {
 					{stack.map((item) => (
 						<li
 							key={item}
-							className="inline-block rounded-full border border-line-strong px-2 py-0.5 font-mono text-[11px] text-muted tracking-[0.02em]"
+							className="inline-block rounded-full border border-line-strong px-2 py-0.5 font-sans text-[11px] text-muted tracking-[0.02em]"
 						>
 							{item}
 						</li>

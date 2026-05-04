@@ -7,7 +7,7 @@ export const meta: MetaFunction = () => [{ title: "Not Found — tkstar.dev" }];
 export default function NotFound() {
 	const { pathname } = useLocation();
 	return (
-		<main className="container mx-auto p-4 font-mono">
+		<main className="container mx-auto p-4 font-sans">
 			<pre>cd: no such route: {pathname}</pre>
 		</main>
 	);

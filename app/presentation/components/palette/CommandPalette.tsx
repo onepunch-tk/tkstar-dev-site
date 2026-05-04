@@ -83,7 +83,7 @@ export default function CommandPalette() {
 		>
 			<div
 				data-palette-panel
-				className="w-full max-w-xl overflow-hidden rounded-md border border-line-strong bg-bg-elev font-mono shadow-2xl shadow-black/40 [animation:palette-panel-in_var(--duration-120)_ease-out]"
+				className="w-full max-w-xl overflow-hidden rounded-md border border-line-strong bg-bg-elev font-sans shadow-2xl shadow-black/40 [animation:palette-panel-in_var(--duration-120)_ease-out]"
 			>
 				<div className="flex items-center gap-2 border-line border-b px-4">
 					<span aria-hidden="true" className="text-accent text-sm">
@@ -99,19 +99,19 @@ export default function CommandPalette() {
 							if (e.key === "/" && api.query === "") e.preventDefault();
 						}}
 						placeholder="go to ─ /about, project slug, post..."
-						className="flex-1 bg-transparent py-3 font-mono text-fg text-sm outline-none placeholder:text-faint"
+						className="flex-1 bg-transparent py-3 font-sans text-fg text-sm outline-none placeholder:text-faint"
 					/>
 				</div>
 
 				{isEmpty ? (
-					<div className="px-4 py-8 text-center font-mono text-muted text-xs">
+					<div className="px-4 py-8 text-center font-sans text-muted text-xs">
 						{api.query ? "검색 결과 없음" : "검색어를 입력하세요"}
 					</div>
 				) : (
 					<ul ref={setListEl} className="max-h-[60vh] overflow-y-auto py-2">
 						{visible.map(({ key, items }) => (
 							<li key={key} data-testid={`palette-group-${key}`}>
-								<div className="px-4 pt-2 pb-1 font-mono text-[10px] text-faint uppercase tracking-[0.12em]">
+								<div className="px-4 pt-2 pb-1 font-sans text-[10px] text-faint uppercase tracking-[0.12em]">
 									{GROUP_LABELS[key]}
 								</div>
 								<ul>
@@ -133,16 +133,16 @@ export default function CommandPalette() {
 												<div className="flex items-baseline gap-2">
 													<span
 														aria-hidden="true"
-														className="w-3 shrink-0 font-mono text-accent text-xs opacity-0 data-[active=true]:opacity-100"
+														className="w-3 shrink-0 font-sans text-accent text-xs opacity-0 data-[active=true]:opacity-100"
 														data-active={isActive ? "true" : "false"}
 													>
 														▸
 													</span>
-													<span className="shrink-0 font-mono text-fg text-sm">{item.title}</span>
-													<span className="min-w-0 flex-1 truncate font-mono text-faint text-xs">
+													<span className="shrink-0 font-sans text-fg text-sm">{item.title}</span>
+													<span className="min-w-0 flex-1 truncate font-sans text-faint text-xs">
 														{itemMeta(item)}
 													</span>
-													<span className="shrink-0 rounded-sm border border-line px-1.5 py-0.5 font-mono text-[10px] text-muted">
+													<span className="shrink-0 rounded-sm border border-line px-1.5 py-0.5 font-sans text-[10px] text-muted">
 														{TYPE_BADGE[item.group]}
 													</span>
 												</div>
@@ -155,7 +155,7 @@ export default function CommandPalette() {
 					</ul>
 				)}
 
-				<div className="flex items-center justify-end gap-3 border-line border-t bg-bg/40 px-4 py-2 font-mono text-[10px] text-faint">
+				<div className="flex items-center justify-end gap-3 border-line border-t bg-bg/40 px-4 py-2 font-sans text-[10px] text-faint">
 					<span className="flex items-center gap-1">
 						<kbd className="rounded-sm border border-line px-1 py-0.5 text-muted">↑↓</kbd>
 						이동

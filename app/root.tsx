@@ -31,7 +31,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
 				<link
 					rel="preload"
-					href="/fonts/JetBrainsMono-Regular.woff2"
+					href="/fonts/Pretendard-Regular.woff2"
 					as="font"
 					type="font/woff2"
 					crossOrigin="anonymous"

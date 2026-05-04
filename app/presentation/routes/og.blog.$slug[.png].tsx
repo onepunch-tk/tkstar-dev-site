@@ -1,13 +1,22 @@
-const EMPTY_PNG_B64 =
-	"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
+import { PNG_HEADERS, toPngBody } from "~/presentation/lib/png-response";
+import type { Route } from "./+types/og.blog.$slug[.png]";
 
-export const loader = () => {
-	const bytes = Uint8Array.from(atob(EMPTY_PNG_B64), (c) => c.charCodeAt(0));
-	return new Response(bytes, {
-		headers: {
-			"Content-Type": "image/png",
-			// TODO(T018): flip to `public, max-age=..., immutable` once Satori-generated
-			"Cache-Control": "no-store",
-		},
-	});
+export const loader = async ({ context, request, params }: Route.LoaderArgs) => {
+	const { container } = context;
+	const origin = new URL(request.url).origin;
+	const slug = params.slug;
+
+	if (slug) {
+		try {
+			const png = await container.renderBlogOg(slug, origin);
+			if (png) {
+				return new Response(toPngBody(png), { headers: PNG_HEADERS });
+			}
+		} catch (err) {
+			console.error("[og:blog] render failed", err);
+		}
+	}
+
+	const fallback = await container.loadFallbackOg(origin);
+	return new Response(toPngBody(fallback), { headers: PNG_HEADERS });
 };

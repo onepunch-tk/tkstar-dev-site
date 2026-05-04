@@ -28,15 +28,15 @@ const validateMessage = (message: string): string | undefined => {
 };
 
 const INPUT_BASE =
-	"rounded-md border border-line bg-bg-elev px-3 py-2.5 font-mono text-[13px] text-fg placeholder:text-faint outline-none transition-colors duration-[var(--duration-120)] ease-out focus-visible:border-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent aria-[invalid=true]:border-warn motion-reduce:transition-none";
+	"rounded-md border border-line bg-bg-elev px-3 py-2.5 font-sans text-[13px] text-fg placeholder:text-faint outline-none transition-colors duration-[var(--duration-120)] ease-out focus-visible:border-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent aria-[invalid=true]:border-warn motion-reduce:transition-none";
 
-const LABEL_BASE = "font-mono text-[12px] text-muted";
+const LABEL_BASE = "font-sans text-[12px] text-muted";
 
 const PILL_BASE =
-	"inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-line-strong px-3 py-1 font-mono text-[12px] text-muted transition-colors duration-[var(--duration-120)] ease-out hover:border-accent has-[:checked]:border-accent has-[:checked]:bg-bg-elev has-[:checked]:text-accent has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-accent motion-reduce:transition-none";
+	"inline-flex cursor-pointer items-center gap-1.5 rounded-full border border-line-strong px-3 py-1 font-sans text-[12px] text-muted transition-colors duration-[var(--duration-120)] ease-out hover:border-accent has-[:checked]:border-accent has-[:checked]:bg-bg-elev has-[:checked]:text-accent has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-accent motion-reduce:transition-none";
 
 const ALERT_BASE =
-	"m-0 rounded-md border border-warn bg-bg-elev px-3 py-2 font-mono text-[12px] text-warn";
+	"m-0 rounded-md border border-warn bg-bg-elev px-3 py-2 font-sans text-[12px] text-warn";
 
 export default function ContactForm({ siteKey, contactEmail }: ContactFormProps) {
 	const fetcher = useFetcher<ContactActionData>();
@@ -130,7 +130,7 @@ export default function ContactForm({ siteKey, contactEmail }: ContactFormProps)
 					className={INPUT_BASE}
 				/>
 				{clientErrors.email && (
-					<span id={fid("email-err")} role="alert" className="font-mono text-[11px] text-warn">
+					<span id={fid("email-err")} role="alert" className="font-sans text-[11px] text-warn">
 						{clientErrors.email}
 					</span>
 				)}
@@ -185,7 +185,7 @@ export default function ContactForm({ siteKey, contactEmail }: ContactFormProps)
 					className={`${INPUT_BASE} resize-y leading-[1.6]`}
 				/>
 				{clientErrors.message && (
-					<span id={fid("message-err")} role="alert" className="font-mono text-[11px] text-warn">
+					<span id={fid("message-err")} role="alert" className="font-sans text-[11px] text-warn">
 						{clientErrors.message}
 					</span>
 				)}
@@ -214,12 +214,12 @@ export default function ContactForm({ siteKey, contactEmail }: ContactFormProps)
 				<button
 					type="submit"
 					disabled={submitDisabled}
-					className="inline-flex items-center gap-2 rounded-md border border-accent bg-accent px-4 py-2.5 font-mono text-[13px] font-medium text-on-accent transition-[color,background-color,border-color,filter,opacity] duration-[var(--duration-120)] ease-out hover:brightness-[1.08] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none"
+					className="inline-flex items-center gap-2 rounded-md border border-accent bg-accent px-4 py-2.5 font-sans text-[13px] font-medium text-on-accent transition-[color,background-color,border-color,filter,opacity] duration-[var(--duration-120)] ease-out hover:brightness-[1.08] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none"
 				>
 					<span aria-hidden="true">↵</span>
 					{isSubmitting ? "전송 중…" : "보내기"}
 				</button>
-				<span className="font-mono text-[11px] text-faint">Resend → {contactEmail}</span>
+				<span className="font-sans text-[11px] text-faint">Resend → {contactEmail}</span>
 			</div>
 		</fetcher.Form>
 	);

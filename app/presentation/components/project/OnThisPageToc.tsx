@@ -6,7 +6,7 @@ export default function OnThisPageToc({ toc }: Props) {
 		<nav
 			data-testid="on-this-page-toc"
 			aria-label="On this page"
-			className="flex flex-col gap-2 border-line border-t border-dashed pt-3 font-mono"
+			className="flex flex-col gap-2 border-line border-t border-dashed pt-3 font-sans"
 		>
 			<span className="text-[11px] tracking-[0.12em] text-muted uppercase">on this page</span>
 			<ul className="flex flex-col gap-1.5 m-0 p-0 list-none">

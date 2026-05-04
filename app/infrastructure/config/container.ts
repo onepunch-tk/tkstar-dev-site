@@ -12,10 +12,13 @@ import {
 	type SubmitContactFormParams,
 } from "~/application/contact/services/submit-contact-form.service";
 import { buildRssFeed } from "~/application/feed/services/build-rss-feed.service";
+import { renderPostOg } from "~/application/og/services/render-post-og.service";
+import { renderProjectOg } from "~/application/og/services/render-project-og.service";
 import type { AppLegalDoc } from "~/domain/legal/app-legal-doc.entity";
 import type { Post } from "~/domain/post/post.entity";
 import type { Project } from "~/domain/project/project.entity";
 import { createTurnstileVerifier } from "~/infrastructure/captcha/turnstile-verifier";
+import { createSatoriOgRenderer } from "~/infrastructure/og/satori-og-renderer";
 import { veliteLegalRepository } from "~/infrastructure/content/velite-legal.repository";
 import { velitePostRepository } from "~/infrastructure/content/velite-post.repository";
 import { veliteProjectRepository } from "~/infrastructure/content/velite-project.repository";
@@ -42,6 +45,9 @@ export type Container = {
 	listApps: () => Promise<string[]>;
 	findAppDoc: (appSlug: string, docType: "terms" | "privacy") => Promise<AppLegalDoc | null>;
 	submitContactForm: (params: Pick<SubmitContactFormParams, "submission" | "ip">) => Promise<void>;
+	renderProjectOg: (slug: string, origin: string) => Promise<Uint8Array | null>;
+	renderBlogOg: (slug: string, origin: string) => Promise<Uint8Array | null>;
+	loadFallbackOg: (origin: string) => Promise<Uint8Array>;
 };
 
 export const buildContainer = (env: Env): Container => {
@@ -55,6 +61,8 @@ export const buildContainer = (env: Env): Container => {
 	const emailSender = createResendEmailSender(resendApiKey, contactEnv.CONTACT_TO_EMAIL);
 	const captchaVerifier = createTurnstileVerifier(turnstileSecret);
 	const rateLimiter = createKvRateLimiter(contactEnv.RATE_LIMIT_KV);
+
+	const ogRenderer = createSatoriOgRenderer({ ASSETS: env.ASSETS });
 
 	return {
 		listProjects: (opts) => listProjects(projectRepo, opts),
@@ -75,5 +83,16 @@ export const buildContainer = (env: Env): Container => {
 				captchaVerifier,
 				rateLimiter,
 			}),
+		renderProjectOg: (slug, origin) =>
+			renderProjectOg({ repo: projectRepo, renderer: ogRenderer, slug, origin }),
+		renderBlogOg: (slug, origin) =>
+			renderPostOg({ repo: postRepo, renderer: ogRenderer, slug, origin }),
+		loadFallbackOg: async (origin) => {
+			const res = await env.ASSETS.fetch(`${origin}/og/fallback.png`);
+			if (!res.ok) {
+				throw new Error(`[og] fallback fetch failed (${res.status})`);
+			}
+			return new Uint8Array(await res.arrayBuffer());
+		},
 	};
 };

@@ -34,7 +34,7 @@ export default function Topbar() {
 					>
 						<span aria-hidden="true">›</span>
 						<span className="flex-1 truncate text-left">go to ─ /about, post...</span>
-						<kbd className="hidden rounded-sm border border-line px-1.5 py-0.5 font-mono text-[10px] text-muted sm:inline-block">
+						<kbd className="hidden rounded-sm border border-line px-1.5 py-0.5 font-sans text-[10px] text-muted sm:inline-block">
 							{kbd}
 						</kbd>
 					</button>
