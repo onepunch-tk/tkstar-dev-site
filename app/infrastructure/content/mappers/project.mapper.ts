@@ -11,7 +11,6 @@ type VeliteProjectInput = {
 	featured?: boolean;
 	cover?: string;
 	role?: string;
-	body?: string;
 	toc?: { slug: string; text: string }[];
 };
 
@@ -26,6 +25,5 @@ export const toProject = (raw: VeliteProjectInput): Project => ({
 	featured: raw.featured,
 	cover: raw.cover,
 	role: raw.role,
-	body: raw.body,
 	toc: raw.toc,
 });

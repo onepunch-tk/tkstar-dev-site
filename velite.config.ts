@@ -1,7 +1,5 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
-import rehypeShiki from "@shikijs/rehype";
-import rehypeSlug from "rehype-slug";
 import { defineCollection, defineConfig, s } from "velite";
 import { buildSearchIndex } from "./app/application/search/services/build-search-index.service";
 import { extractToc } from "./velite/transforms/extract-toc";
@@ -21,7 +19,6 @@ const projects = defineCollection({
 			featured: s.boolean().optional(),
 			cover: s.string().optional(),
 			role: s.string().optional(),
-			body: s.mdx(),
 		})
 		.transform((data, { meta }) => ({
 			...data,
@@ -40,7 +37,6 @@ const posts = defineCollection({
 			date: s.isodate(),
 			tags: s.array(s.string()),
 			read: s.number(),
-			body: s.mdx(),
 		})
 		.transform((data, { meta }) => ({
 			...data,
@@ -56,7 +52,6 @@ const legal = defineCollection({
 		doc_type: s.enum(["terms", "privacy"]),
 		version: s.string(),
 		effective_date: s.isodate(),
-		body: s.mdx(),
 	}),
 });
 
@@ -66,13 +61,6 @@ export default defineConfig({
 	root: "content",
 	output: { data: ".velite", clean: true },
 	collections: { projects, posts, legal },
-	mdx: {
-		rehypePlugins: [
-			rehypeSlug,
-			// biome-ignore lint/suspicious/noExplicitAny: shiki rehype 플러그인 타입 incompat
-			[rehypeShiki as any, { theme: "github-dark" }],
-		],
-	},
 	complete: async (data) => {
 		const index = buildSearchIndex({
 			projects: data.projects ?? [],

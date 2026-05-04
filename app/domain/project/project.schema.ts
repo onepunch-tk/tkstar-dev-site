@@ -12,6 +12,5 @@ export const projectSchema = z.object({
 	featured: z.boolean().optional(),
 	cover: z.string().optional(),
 	role: z.string().optional(),
-	body: z.string().optional(),
 	toc: z.array(z.object({ slug: z.string(), text: z.string() })).optional(),
 });

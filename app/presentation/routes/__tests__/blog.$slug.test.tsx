@@ -32,7 +32,6 @@ type PostWithBody = {
 	date: string;
 	tags: string[];
 	read: number;
-	body?: string;
 	toc?: { slug: string; text: string }[];
 };
 
@@ -43,7 +42,6 @@ const POST_WITH_TOC: PostWithBody = {
 	date: "2026-05-02",
 	tags: ["rr7", "cloudflare"],
 	read: 5,
-	body: "[stub-mdx-body]",
 	toc: [
 		{ slug: "intro", text: "Introduction" },
 		{ slug: "conclusion", text: "Conclusion" },

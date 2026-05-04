@@ -27,7 +27,6 @@ const moaiTerms: AppLegalDoc = {
 	doc_type: "terms",
 	version: "1.0.0",
 	effective_date: "2026-04-28T00:00:00.000Z",
-	body: "## moai terms",
 };
 
 // ---------------------------------------------------------------------------

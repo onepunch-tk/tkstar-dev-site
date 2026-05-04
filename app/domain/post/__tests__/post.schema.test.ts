@@ -36,14 +36,13 @@ describe("postSchema", () => {
 	});
 
 	// ---------------------------------------------------------------------------
-	// T014b RED — body / toc optional 필드 검증 (아직 schema에 없으므로 실패)
+	// toc optional 필드 검증
 	// ---------------------------------------------------------------------------
 
-	it("body + toc 포함 시 parse 통과하고 결과에 body 필드가 있다", () => {
+	it("toc 포함 시 parse 통과하고 결과에 toc 필드가 있다", () => {
 		// Arrange
 		const input = {
 			...validFrontmatter,
-			body: "mdx-fn-body",
 			toc: [{ slug: "intro", text: "Intro" }],
 		};
 
@@ -52,8 +51,9 @@ describe("postSchema", () => {
 
 		// Assert
 		expect(result.success).toBe(true);
-		// body 필드가 parsed 결과에 존재해야 한다 (strip 모드라 추가 없이는 undefined)
-		expect((result.data as Record<string, unknown>).body).toBe("mdx-fn-body");
+		expect((result.data as Record<string, unknown>).toc).toEqual([
+			{ slug: "intro", text: "Intro" },
+		]);
 	});
 
 	it("toc 미제공 시 parse 통과하고 결과의 toc 는 undefined 이다", () => {

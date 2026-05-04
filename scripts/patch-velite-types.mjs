@@ -21,7 +21,6 @@ export type Project = {
 \tfeatured?: boolean;
 \tcover?: string;
 \trole?: string;
-\tbody: string;
 \ttoc: TocEntry[];
 };
 export declare const projects: Project[];
@@ -33,7 +32,6 @@ export type Post = {
 \tdate: string;
 \ttags: string[];
 \tread: number;
-\tbody: string;
 \ttoc: TocEntry[];
 };
 export declare const posts: Post[];
@@ -43,7 +41,6 @@ export type AppLegalDoc = {
 \tdoc_type: "terms" | "privacy";
 \tversion: string;
 \teffective_date: string;
-\tbody: string;
 };
 export declare const legal: AppLegalDoc[];
 `;
