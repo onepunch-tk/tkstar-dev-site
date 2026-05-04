@@ -40,5 +40,3 @@ export const buildMeta = ({
 	if (robots) tags.push({ name: "robots", content: robots });
 	return tags;
 };
-
-export const getCanonicalUrl = (origin: string, pathname: string): string => `${origin}${pathname}`;

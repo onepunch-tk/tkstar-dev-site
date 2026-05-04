@@ -7,7 +7,7 @@ import {
 } from "~/application/contact/errors";
 import ContactForm from "~/presentation/components/contact/ContactForm";
 import { contactSubmissionSchema } from "~/domain/contact/contact-submission.schema";
-import { buildBreadcrumbListLd, renderJsonLd } from "~/presentation/lib/jsonld";
+import { buildBreadcrumbListLd } from "~/presentation/lib/jsonld";
 import { buildMeta } from "~/presentation/lib/meta";
 
 interface LoaderData {
@@ -28,14 +28,12 @@ export const meta: MetaFunction<typeof loader> = ({ data }) => {
 			ogImage: data.ogImageUrl,
 		}),
 		{
-			"script:ld+json": renderJsonLd(
-				buildBreadcrumbListLd({
+			"script:ld+json": 				buildBreadcrumbListLd({
 					items: [
 						{ name: "Home", url: `${data.origin}/` },
 						{ name: "Contact", url: data.canonicalUrl },
 					],
 				}),
-			),
 		},
 	];
 };

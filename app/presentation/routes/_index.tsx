@@ -1,4 +1,4 @@
-import { buildPersonLd, renderJsonLd } from "~/presentation/lib/jsonld";
+import { buildPersonLd } from "~/presentation/lib/jsonld";
 import { buildMeta } from "~/presentation/lib/meta";
 import FeaturedProjectCard from "../components/home/FeaturedProjectCard";
 import HeroWhoami from "../components/home/HeroWhoami";
@@ -30,7 +30,7 @@ export const meta: Route.MetaFunction = ({ data }) => {
 			canonical: data.canonicalUrl,
 			ogImage: data.ogImageUrl,
 		}),
-		{ "script:ld+json": renderJsonLd(buildPersonLd({ origin: data.origin })) },
+		{ "script:ld+json": buildPersonLd({ origin: data.origin }) },
 	];
 };
 

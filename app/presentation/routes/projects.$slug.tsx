@@ -1,8 +1,4 @@
-import {
-	buildBreadcrumbListLd,
-	buildCreativeWorkLd,
-	renderJsonLd,
-} from "~/presentation/lib/jsonld";
+import { buildBreadcrumbListLd, buildCreativeWorkLd } from "~/presentation/lib/jsonld";
 import { buildMeta } from "~/presentation/lib/meta";
 import MdxRenderer from "../components/content/MdxRenderer";
 import OnThisPageToc from "../components/project/OnThisPageToc";
@@ -35,18 +31,16 @@ export const meta: Route.MetaFunction = ({ data }) => {
 			ogType: "article",
 		}),
 		{
-			"script:ld+json": renderJsonLd(buildCreativeWorkLd({ project, origin, ogImage: ogImageUrl })),
+			"script:ld+json": buildCreativeWorkLd({ project, origin, ogImage: ogImageUrl }),
 		},
 		{
-			"script:ld+json": renderJsonLd(
-				buildBreadcrumbListLd({
-					items: [
-						{ name: "Home", url: `${origin}/` },
-						{ name: "Projects", url: `${origin}/projects` },
-						{ name: project.title, url: canonicalUrl },
-					],
-				}),
-			),
+			"script:ld+json": buildBreadcrumbListLd({
+				items: [
+					{ name: "Home", url: `${origin}/` },
+					{ name: "Projects", url: `${origin}/projects` },
+					{ name: project.title, url: canonicalUrl },
+				],
+			}),
 		},
 	];
 };

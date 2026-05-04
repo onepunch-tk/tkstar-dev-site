@@ -1,4 +1,4 @@
-import { buildBlogPostingLd, buildBreadcrumbListLd, renderJsonLd } from "~/presentation/lib/jsonld";
+import { buildBlogPostingLd, buildBreadcrumbListLd } from "~/presentation/lib/jsonld";
 import { buildMeta } from "~/presentation/lib/meta";
 import MdxRenderer from "../components/content/MdxRenderer";
 import PostFooterNav from "../components/post/PostFooterNav";
@@ -31,18 +31,16 @@ export const meta: Route.MetaFunction = ({ data }) => {
 			ogType: "article",
 		}),
 		{
-			"script:ld+json": renderJsonLd(buildBlogPostingLd({ post, origin, ogImage: ogImageUrl })),
+			"script:ld+json": buildBlogPostingLd({ post, origin, ogImage: ogImageUrl }),
 		},
 		{
-			"script:ld+json": renderJsonLd(
-				buildBreadcrumbListLd({
+			"script:ld+json": 				buildBreadcrumbListLd({
 					items: [
 						{ name: "Home", url: `${origin}/` },
 						{ name: "Blog", url: `${origin}/blog` },
 						{ name: post.title, url: canonicalUrl },
 					],
 				}),
-			),
 		},
 	];
 };

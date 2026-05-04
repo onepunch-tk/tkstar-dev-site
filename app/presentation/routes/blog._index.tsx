@@ -1,4 +1,4 @@
-import { buildBreadcrumbListLd, renderJsonLd } from "~/presentation/lib/jsonld";
+import { buildBreadcrumbListLd } from "~/presentation/lib/jsonld";
 import { buildMeta } from "~/presentation/lib/meta";
 import PostRow from "../components/post/PostRow";
 import TagFilterChips from "../components/project/TagFilterChips";
@@ -33,14 +33,12 @@ export const meta: Route.MetaFunction = ({ data }) => {
 			ogImage: data.ogImageUrl,
 		}),
 		{
-			"script:ld+json": renderJsonLd(
-				buildBreadcrumbListLd({
+			"script:ld+json": 				buildBreadcrumbListLd({
 					items: [
 						{ name: "Home", url: `${data.origin}/` },
 						{ name: "Blog", url: data.canonicalUrl },
 					],
 				}),
-			),
 		},
 	];
 };

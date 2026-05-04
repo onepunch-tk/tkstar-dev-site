@@ -75,5 +75,3 @@ export const buildBreadcrumbListLd = ({
 		item: item.url,
 	})),
 });
-
-export const renderJsonLd = (obj: Record<string, unknown>): string => JSON.stringify(obj);

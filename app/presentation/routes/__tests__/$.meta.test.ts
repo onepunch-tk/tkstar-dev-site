@@ -2,7 +2,7 @@ import type { MetaDescriptor } from "react-router";
 import { describe, expect, it } from "vitest";
 import { meta } from "../$";
 
-type LdScript = { "script:ld+json": string };
+type LdScript = { "script:ld+json": Record<string, unknown> };
 const isLd = (m: MetaDescriptor): m is LdScript => "script:ld+json" in m;
 
 // 시나리오 A: data 없음 (loader 없거나 throw 한 경우)

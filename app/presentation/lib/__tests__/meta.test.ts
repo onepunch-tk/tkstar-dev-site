@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { MetaDescriptor } from "react-router";
-import { buildMeta, getCanonicalUrl } from "../meta";
+import { buildMeta } from "../meta";
 
 describe("buildMeta", () => {
 	describe("기본 최소 입력 (title, description, canonical, ogImage 만 전달)", () => {
@@ -289,43 +289,5 @@ describe("buildMeta", () => {
 				]),
 			);
 		});
-	});
-});
-
-describe("getCanonicalUrl", () => {
-	it("origin과 pathname을 합쳐 절대 URL을 반환한다", () => {
-		// Arrange
-		const origin = "https://tkstar.dev";
-		const pathname = "/about";
-
-		// Act
-		const result = getCanonicalUrl(origin, pathname);
-
-		// Assert
-		expect(result).toBe("https://tkstar.dev/about");
-	});
-
-	it("루트 pathname('/')에 대해 trailing slash가 포함된 URL을 반환한다", () => {
-		// Arrange
-		const origin = "https://preview.example.com";
-		const pathname = "/";
-
-		// Act
-		const result = getCanonicalUrl(origin, pathname);
-
-		// Assert
-		expect(result).toBe("https://preview.example.com/");
-	});
-
-	it("중첩 경로에 대해 올바른 절대 URL을 반환한다", () => {
-		// Arrange
-		const origin = "https://tkstar.dev";
-		const pathname = "/projects/my-awesome-project";
-
-		// Act
-		const result = getCanonicalUrl(origin, pathname);
-
-		// Assert
-		expect(result).toBe("https://tkstar.dev/projects/my-awesome-project");
 	});
 });

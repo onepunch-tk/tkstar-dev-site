@@ -1,4 +1,4 @@
-import { buildBreadcrumbListLd, buildPersonLd, renderJsonLd } from "~/presentation/lib/jsonld";
+import { buildBreadcrumbListLd, buildPersonLd } from "~/presentation/lib/jsonld";
 import { buildMeta } from "~/presentation/lib/meta";
 import AboutHeader from "../components/about/AboutHeader";
 import AwardsCard from "../components/about/AwardsCard";
@@ -26,16 +26,14 @@ export const meta: Route.MetaFunction = ({ data }) => {
 			canonical: data.canonicalUrl,
 			ogImage: data.ogImageUrl,
 		}),
-		{ "script:ld+json": renderJsonLd(buildPersonLd({ origin: data.origin })) },
+		{ "script:ld+json": buildPersonLd({ origin: data.origin }) },
 		{
-			"script:ld+json": renderJsonLd(
-				buildBreadcrumbListLd({
+			"script:ld+json": 				buildBreadcrumbListLd({
 					items: [
 						{ name: "Home", url: `${data.origin}/` },
 						{ name: "About", url: data.canonicalUrl },
 					],
 				}),
-			),
 		},
 	];
 };

@@ -4,7 +4,6 @@ import {
 	buildBreadcrumbListLd,
 	buildCreativeWorkLd,
 	buildPersonLd,
-	renderJsonLd,
 } from "~/presentation/lib/jsonld";
 
 describe("buildPersonLd", () => {
@@ -429,43 +428,5 @@ describe("buildBreadcrumbListLd", () => {
 
 		// Assert
 		expect(result.itemListElement).toEqual([]);
-	});
-});
-
-describe("renderJsonLd", () => {
-	it("입력 객체와 deep equal한 JSON 문자열을 반환한다", () => {
-		// Arrange
-		const obj = {
-			"@context": "https://schema.org",
-			"@type": "Person",
-			name: "김태곤",
-			nested: { key: "value" },
-		};
-
-		// Act
-		const result = renderJsonLd(obj);
-
-		// Assert
-		expect(JSON.parse(result)).toEqual(obj);
-	});
-
-	it("HTML 이스케이프 없이 순수한 JSON.stringify 결과를 반환한다", () => {
-		// Arrange
-		const obj = {
-			url: "https://tkstar.dev/blog/my-post?a=1&b=2",
-			description: "태그: <script>",
-		};
-
-		// Act
-		const result = renderJsonLd(obj);
-
-		// Assert
-		// HTML 엔티티(&amp;, &lt; 등)가 포함되지 않아야 한다
-		expect(result).not.toContain("&amp;");
-		expect(result).not.toContain("&lt;");
-		expect(result).not.toContain("&gt;");
-		// 원본 문자가 그대로 포함된다
-		expect(result).toContain("&b=2");
-		expect(result).toContain("<script>");
 	});
 });

@@ -1,4 +1,4 @@
-import { buildBreadcrumbListLd, renderJsonLd } from "~/presentation/lib/jsonld";
+import { buildBreadcrumbListLd } from "~/presentation/lib/jsonld";
 import { buildMeta } from "~/presentation/lib/meta";
 import MdxRenderer from "../components/content/MdxRenderer";
 import LegalDocLayout from "../components/legal/LegalDocLayout";
@@ -31,15 +31,13 @@ export const meta: Route.MetaFunction = ({ data }) => {
 			robots: "noindex, follow",
 		}),
 		{
-			"script:ld+json": renderJsonLd(
-				buildBreadcrumbListLd({
+			"script:ld+json": 				buildBreadcrumbListLd({
 					items: [
 						{ name: "Home", url: `${origin}/` },
 						{ name: "Legal", url: `${origin}/legal` },
 						{ name: docTitle, url: canonicalUrl },
 					],
 				}),
-			),
 		},
 	];
 };

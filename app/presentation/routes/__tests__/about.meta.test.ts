@@ -2,7 +2,7 @@ import type { MetaDescriptor } from "react-router";
 import { describe, expect, it } from "vitest";
 import { meta } from "../about";
 
-type LdScript = { "script:ld+json": string };
+type LdScript = { "script:ld+json": Record<string, unknown> };
 const isLd = (m: MetaDescriptor): m is LdScript => "script:ld+json" in m;
 
 const data = {
@@ -55,14 +55,14 @@ describe("About meta export", () => {
 	it("JSON-LD 스크립트에 Person 타입을 포함한다", () => {
 		const result = callMeta();
 		const ldScripts = (result as MetaDescriptor[]).filter(isLd);
-		const types = ldScripts.map((s) => JSON.parse(s["script:ld+json"])["@type"]);
+		const types = ldScripts.map((s) => s["script:ld+json"]["@type"]);
 		expect(types).toContain("Person");
 	});
 
 	it("JSON-LD 스크립트에 BreadcrumbList 타입을 포함한다", () => {
 		const result = callMeta();
 		const ldScripts = (result as MetaDescriptor[]).filter(isLd);
-		const types = ldScripts.map((s) => JSON.parse(s["script:ld+json"])["@type"]);
+		const types = ldScripts.map((s) => s["script:ld+json"]["@type"]);
 		expect(types).toContain("BreadcrumbList");
 	});
 });
