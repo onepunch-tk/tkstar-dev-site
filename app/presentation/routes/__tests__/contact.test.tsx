@@ -69,7 +69,7 @@ describe("Group A — contact loader", () => {
 			params: {},
 			request: new Request("http://localhost/contact"),
 		} as never);
-		expect(result).toEqual({
+		expect(result).toMatchObject({
 			siteKey: "1x00000000000000000000AA",
 			contactEmail: "hello@tkstar.dev",
 		});

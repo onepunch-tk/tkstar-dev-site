@@ -1,19 +1,48 @@
+import { buildBreadcrumbListLd, renderJsonLd } from "~/presentation/lib/jsonld";
+import { buildMeta } from "~/presentation/lib/meta";
 import PostRow from "../components/post/PostRow";
 import TagFilterChips from "../components/project/TagFilterChips";
-
 import type { Route } from "./+types/blog._index";
-
-export const meta: Route.MetaFunction = () => [{ title: "Blog — tkstar.dev" }];
 
 export const loader = async ({ context, request }: Route.LoaderArgs) => {
 	const url = new URL(request.url);
+	const origin = url.origin;
 	const tag = url.searchParams.get("tag") ?? undefined;
 	const [posts, all] = await Promise.all([
 		context.container.listPosts({ tag }),
 		context.container.listPosts(),
 	]);
 	const allTags = Array.from(new Set(all.flatMap((p) => p.tags))).sort();
-	return { posts, allTags, activeTag: tag ?? null };
+	return {
+		posts,
+		allTags,
+		activeTag: tag ?? null,
+		origin,
+		canonicalUrl: `${origin}${url.pathname}`,
+		ogImageUrl: `${origin}/og/fallback.png`,
+	};
+};
+
+export const meta: Route.MetaFunction = ({ data }) => {
+	if (!data) return [{ title: "Blog — tkstar.dev" }];
+	return [
+		...buildMeta({
+			title: "Blog — tkstar.dev",
+			description: "1인 개발자 김태곤의 기술 블로그 · 월 1편 운영.",
+			canonical: data.canonicalUrl,
+			ogImage: data.ogImageUrl,
+		}),
+		{
+			"script:ld+json": renderJsonLd(
+				buildBreadcrumbListLd({
+					items: [
+						{ name: "Home", url: `${data.origin}/` },
+						{ name: "Blog", url: data.canonicalUrl },
+					],
+				}),
+			),
+		},
+	];
 };
 
 export default function BlogIndex({ loaderData }: Route.ComponentProps) {

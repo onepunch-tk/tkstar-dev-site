@@ -1,19 +1,48 @@
+import { buildBreadcrumbListLd, renderJsonLd } from "~/presentation/lib/jsonld";
+import { buildMeta } from "~/presentation/lib/meta";
 import ProjectRow from "../components/project/ProjectRow";
 import TagFilterChips from "../components/project/TagFilterChips";
-
 import type { Route } from "./+types/projects._index";
-
-export const meta: Route.MetaFunction = () => [{ title: "Projects — tkstar.dev" }];
 
 export const loader = async ({ context, request }: Route.LoaderArgs) => {
 	const url = new URL(request.url);
+	const origin = url.origin;
 	const tag = url.searchParams.get("tag") ?? undefined;
 	const [projects, all] = await Promise.all([
 		context.container.listProjects({ tag }),
 		context.container.listProjects(),
 	]);
 	const allTags = Array.from(new Set(all.flatMap((p) => p.tags))).sort();
-	return { projects, allTags, activeTag: tag ?? null };
+	return {
+		projects,
+		allTags,
+		activeTag: tag ?? null,
+		origin,
+		canonicalUrl: `${origin}${url.pathname}`,
+		ogImageUrl: `${origin}/og/fallback.png`,
+	};
+};
+
+export const meta: Route.MetaFunction = ({ data }) => {
+	if (!data) return [{ title: "Projects — tkstar.dev" }];
+	return [
+		...buildMeta({
+			title: "Projects — tkstar.dev",
+			description: "1인 개발자 김태곤의 프로젝트 모음 · case study.",
+			canonical: data.canonicalUrl,
+			ogImage: data.ogImageUrl,
+		}),
+		{
+			"script:ld+json": renderJsonLd(
+				buildBreadcrumbListLd({
+					items: [
+						{ name: "Home", url: `${data.origin}/` },
+						{ name: "Projects", url: data.canonicalUrl },
+					],
+				}),
+			),
+		},
+	];
 };
 
 export default function ProjectsIndex({ loaderData }: Route.ComponentProps) {
