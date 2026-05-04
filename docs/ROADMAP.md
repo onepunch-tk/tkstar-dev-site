@@ -426,7 +426,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
   - 가정 해소: A009 완료 (React Email/Resend/Turnstile 도입 + env 추가)
   - PR 1개 / 브랜치: `feature/issue-N-contact-form-email`
 
-- [ ] **Task 017-pre: PROJECT-STRUCTURE.md 갱신 — `app/infrastructure/ratelimit/` 모듈 등록 (docs)**
+- [x] **Task 017-pre: PROJECT-STRUCTURE.md 갱신 — `app/infrastructure/ratelimit/` 모듈 등록 (docs)** ✅ 2026-05-04 (branch `docs/update-project-structure-ratelimit`)
   - **Must** Read: [tasks/T017-pre-update-project-structure-ratelimit.md](tasks/T017-pre-update-project-structure-ratelimit.md)
   - blockedBy: none (Task 017보다 선행)
   - blocks: Task 017
