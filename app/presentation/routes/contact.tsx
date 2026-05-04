@@ -66,8 +66,10 @@ export const action = async ({
 		return { ok: false, code: "VALIDATION_FAILED", message: parsed.error.message };
 	}
 
-	const ip =
-		request.headers.get("CF-Connecting-IP") ?? request.headers.get("x-forwarded-for") ?? "unknown";
+	const ip = request.headers.get("CF-Connecting-IP");
+	if (!ip) {
+		return { ok: false, code: "VALIDATION_FAILED", message: "CF-Connecting-IP header missing" };
+	}
 
 	try {
 		await context.container.submitContactForm({ submission: parsed.data, ip });
@@ -93,8 +95,27 @@ export const action = async ({
 export default function Contact() {
 	const { siteKey, contactEmail } = useLoaderData<typeof loader>();
 	return (
-		<main className="container mx-auto p-4">
-			<h1 className="text-2xl font-semibold">Contact</h1>
+		<main className="mx-auto flex max-w-[var(--container-measure)] flex-col gap-6 px-[var(--spacing-gutter)] pt-[22px] pb-20 min-[720px]:gap-8 min-[720px]:px-7 min-[720px]:pt-9 min-[720px]:pb-[120px]">
+			<header className="flex flex-col gap-2">
+				<p
+					aria-hidden="true"
+					className="m-0 font-mono text-[12px] text-muted before:mr-1 before:text-accent before:content-['$']"
+				>
+					./contact --new
+				</p>
+				<h1 className="m-0 font-mono font-bold leading-[1.1] tracking-[-0.02em] text-[clamp(1.5rem,5vw,2rem)]">
+					메시지를 보내주세요
+				</h1>
+				<p className="m-0 font-mono text-[13px] leading-[1.7] text-muted">
+					평균 회신 24시간 이내. 또는{" "}
+					<a
+						href={`mailto:${contactEmail}`}
+						className="text-accent underline-offset-4 transition-colors duration-[var(--duration-120)] ease-out hover:underline focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent motion-reduce:transition-none"
+					>
+						{contactEmail}
+					</a>
+				</p>
+			</header>
 			<ContactForm siteKey={siteKey} contactEmail={contactEmail} />
 		</main>
 	);

@@ -39,8 +39,8 @@ const buildAutoReplyEmail = async (
 	s: ContactSubmission,
 ): Promise<{ subject: string; html: string; text: string }> => {
 	const subject = "[tkstar.dev] 문의 접수 확인";
-	const html = await render(createElement(AutoReplyEmail, { name: s.name }));
-	const text = await render(createElement(AutoReplyEmail, { name: s.name }), { plainText: true });
+	const element = createElement(AutoReplyEmail, { name: s.name });
+	const [html, text] = await Promise.all([render(element), render(element, { plainText: true })]);
 	return { subject, html, text };
 };
 
@@ -66,8 +66,13 @@ export const submitContactForm = async (params: SubmitContactFormParams): Promis
 
 	try {
 		await emailSender.send(toEmail, main.subject, main.html, main.text);
-		await emailSender.send(submission.email, reply.subject, reply.html, reply.text);
 	} catch (cause) {
 		throw new EmailDeliveryError(cause);
+	}
+
+	try {
+		await emailSender.send(submission.email, reply.subject, reply.html, reply.text);
+	} catch (cause) {
+		console.warn("Contact auto-reply failed (non-blocking):", cause);
 	}
 };
