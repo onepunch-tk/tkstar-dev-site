@@ -94,3 +94,16 @@ describe("legal.$app.terms meta export", () => {
 		expect(ld?.itemListElement).toHaveLength(3);
 	});
 });
+
+describe("data 가 undefined 이면 fallback meta 만 반환한다", () => {
+	it("title 만 포함하고 canonical/og:image/JSON-LD 는 제외", () => {
+		const result = meta({
+			data: undefined,
+			params: {},
+			location: { pathname: "/", search: "", hash: "", state: null, key: "" },
+			matches: [],
+		} as unknown as Parameters<typeof meta>[0]);
+		expect((result as { title?: string }[]).some((m) => "title" in m)).toBe(true);
+		expect((result as { tagName?: string }[]).some((m) => m.tagName === "link")).toBe(false);
+	});
+});

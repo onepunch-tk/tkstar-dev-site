@@ -85,3 +85,20 @@ describe("$.tsx (404 splat) meta export", () => {
 		});
 	});
 });
+
+describe("$ data 미지정 fallback 분기 — 추가 커버리지", () => {
+	it("data 가 undefined 이어도 title + robots noindex,nofollow 만 포함", () => {
+		const result = meta({
+			data: undefined,
+			params: {},
+			location: { pathname: "/x", search: "", hash: "", state: null, key: "" },
+			matches: [],
+		} as unknown as Parameters<typeof meta>[0]);
+		expect(
+			(result as { name?: string; content?: string }[]).some(
+				(m) => m.name === "robots" && m.content === "noindex, nofollow",
+			),
+		).toBe(true);
+		expect((result as { tagName?: string }[]).some((m) => m.tagName === "link")).toBe(false);
+	});
+});
