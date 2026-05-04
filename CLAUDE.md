@@ -71,8 +71,8 @@
 - **Self-host**: `/public/fonts/Pretendard-{Regular,Medium,Bold}.woff2` + `@font-face` (Workers SSR FOIT 방지). OG 빌드용 ttf (`Pretendard-{Regular,Bold}.ttf`) 도 동일 폴더에 commit — Satori 는 ttf/otf 만 받음.
 
 ### Content Pipeline
-- **velite 0.3.1** — MDX 컬렉션 빌더 (Project / Post / AppLegalDoc). collection schema는 velite 자체 `s` 헬퍼(Zod 3 internal) 사용 — Domain Zod 4.3.6과 버전 충돌 회피를 위해 schema shape을 velite 측에 미러링 (T007 D1)
-- **MDX** — 콘텐츠 작성 포맷. velite `s.mdx()` function-body 출력은 SSR/CSR에서 `evaluateMdxBody` (`new Function(code)({Fragment, jsx, jsxs})`)로 평가 — `app/presentation/components/content/MdxRenderer.tsx`
+- **velite 0.3.1** — MDX **frontmatter + TOC** 추출용 컬렉션 빌더 (Project / Post / AppLegalDoc). 본문(body) 컴파일은 담당하지 않음 (T021.5 부터 `@mdx-js/rollup` 으로 분리). collection schema는 velite 자체 `s` 헬퍼(Zod 3 internal) 사용 — Domain Zod 4.3.6과 버전 충돌 회피를 위해 schema shape을 velite 측에 미러링 (T007 D1)
+- **MDX** — 콘텐츠 작성 포맷. 본문은 `@mdx-js/rollup` (vite plugin) + `remark-frontmatter` 가 빌드 타임에 ESM 모듈로 컴파일. 라우트는 `import.meta.glob({ eager: true })` 로 lookup — `app/presentation/components/content/mdx-modules.ts`. Workers V8 isolate 의 runtime `new Function` 차단 (`Code generation from strings disallowed`) 회피 (T021.5)
 - **shiki 4.0.2 + @shikijs/rehype 4.0.2** — 빌드 타임 코드블록 syntax highlight (theme: `github-dark` 단일, MVP). 클라이언트 번들 영향 0 (devDependency)
 - **rehype-slug 6.0.0** — 헤딩 anchor 자동 부여 (한국어 anchor 지원)
 - **github-slugger 2.0.0** (devDependency) — `velite/transforms/extract-toc.ts` 가 사용. `rehype-slug` 와 동일 라이브러리이므로 빌드-time TOC 추출 시 anchor id 와 1:1 매칭 보장 (T013)
