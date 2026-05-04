@@ -22,6 +22,10 @@ enabled = true
 APP_ENV = "development"
 CONTACT_TO_EMAIL = "hello@tkstar.dev"
 TURNSTILE_SITE_KEY = "1x00000000000000000000AA"
+# T020: 빈 문자열 default — 실제 토큰은 T022 deploy 단계에서 주입 (선택적)
+GOOGLE_SITE_VERIFICATION = ""
+NAVER_SITE_VERIFICATION = ""
+CLOUDFLARE_ANALYTICS_TOKEN = ""
 
 [[kv_namespaces]]
 binding = "RATE_LIMIT_KV"
@@ -35,6 +39,9 @@ name = "tkstar-dev-staging"
 APP_ENV = "staging"
 CONTACT_TO_EMAIL = "hello@tkstar.dev"
 TURNSTILE_SITE_KEY = "1x00000000000000000000AA"
+GOOGLE_SITE_VERIFICATION = ""
+NAVER_SITE_VERIFICATION = ""
+CLOUDFLARE_ANALYTICS_TOKEN = ""
 
 [[env.staging.kv_namespaces]]
 binding = "RATE_LIMIT_KV"
@@ -48,6 +55,10 @@ APP_ENV = "production"
 CONTACT_TO_EMAIL = "hello@tkstar.dev"
 # TURNSTILE_SITE_KEY: T022 deploy 단계에서 prod widget site key 로 교체 (공개 가능 값)
 TURNSTILE_SITE_KEY = "1x00000000000000000000AA"
+# T020: 검색엔진 인증 토큰 + Web Analytics token — T022 deploy 단계에서 실제 값 주입
+GOOGLE_SITE_VERIFICATION = ""
+NAVER_SITE_VERIFICATION = ""
+CLOUDFLARE_ANALYTICS_TOKEN = ""
 
 [[env.production.kv_namespaces]]
 binding = "RATE_LIMIT_KV"
