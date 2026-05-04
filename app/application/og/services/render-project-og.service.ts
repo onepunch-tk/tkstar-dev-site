@@ -5,6 +5,7 @@ export const renderProjectOg = async (params: {
 	repo: ProjectRepository;
 	renderer: OgImageRenderer;
 	slug: string;
+	origin: string;
 }): Promise<Uint8Array | null> => {
 	const project = await params.repo.findBySlug(params.slug);
 	if (!project) return null;
@@ -14,5 +15,6 @@ export const renderProjectOg = async (params: {
 		title: project.title,
 		date: project.date,
 		tags: project.tags,
+		origin: params.origin,
 	});
 };

@@ -13,8 +13,6 @@
 # Velite-derived search index (generated at build time)
 /public/search-index.json
 
-# OG renderer wasm assets (auto-copied from node_modules by scripts/copy-og-wasm.mjs)
-/public/wasm/*.wasm
 
 # Cloudflare Workers
 /.wrangler/

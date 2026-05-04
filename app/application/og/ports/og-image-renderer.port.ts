@@ -3,6 +3,7 @@ export type OgRenderInput = {
 	title: string;
 	date: string;
 	tags: string[];
+	origin: string;
 };
 
 export interface OgImageRenderer {

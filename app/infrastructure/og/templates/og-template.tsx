@@ -26,7 +26,7 @@ export const ogTemplate = (input: {
 				padding: "72px",
 				backgroundColor: COLOR.bg,
 				color: COLOR.fg,
-				fontFamily: "JetBrains Mono",
+				fontFamily: "Pretendard",
 				borderTop: `8px solid ${COLOR.accent}`,
 			},
 		},

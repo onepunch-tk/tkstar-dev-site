@@ -1,5 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
 
+vi.mock("~/infrastructure/og/satori-og-renderer", () => ({
+	createSatoriOgRenderer: vi.fn(() => ({ render: vi.fn() })),
+}));
+
 vi.mock("#content", () => ({
 	projects: [
 		{

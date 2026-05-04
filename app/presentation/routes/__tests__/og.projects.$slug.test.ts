@@ -36,9 +36,13 @@ describe("og.projects.$slug loader", () => {
 	it("정상 slug면 renderProjectOg 결과 PNG와 image/png + immutable cache 헤더로 응답한다 (AC-F011-1)", async () => {
 		const { context, spies } = makeContext();
 
-		const res = await loader({ context, params: { slug: "alpha" } } as never);
+		const res = await loader({
+			context,
+			request: new Request("https://example.com/og/projects/alpha.png"),
+			params: { slug: "alpha" },
+		} as never);
 
-		expect(spies.renderProjectOg).toHaveBeenCalledWith("alpha");
+		expect(spies.renderProjectOg).toHaveBeenCalledWith("alpha", "https://example.com");
 		expect(res.status).toBe(200);
 		expect(res.headers.get("Content-Type")).toMatch(/^image\/png/);
 		expect(res.headers.get("Cache-Control")).toBe("public, max-age=31536000, immutable");
@@ -51,9 +55,13 @@ describe("og.projects.$slug loader", () => {
 			renderProjectOg: vi.fn().mockResolvedValue(null),
 		});
 
-		const res = await loader({ context, params: { slug: "missing" } } as never);
+		const res = await loader({
+			context,
+			request: new Request("https://example.com/og/projects/missing.png"),
+			params: { slug: "missing" },
+		} as never);
 
-		expect(spies.renderProjectOg).toHaveBeenCalledWith("missing");
+		expect(spies.renderProjectOg).toHaveBeenCalledWith("missing", "https://example.com");
 		expect(spies.loadFallbackOg).toHaveBeenCalledTimes(1);
 		expect(res.status).toBe(200);
 		expect(res.headers.get("Content-Type")).toMatch(/^image\/png/);
@@ -66,7 +74,11 @@ describe("og.projects.$slug loader", () => {
 			renderProjectOg: vi.fn().mockRejectedValue(new Error("satori boom")),
 		});
 
-		const res = await loader({ context, params: { slug: "alpha" } } as never);
+		const res = await loader({
+			context,
+			request: new Request("https://example.com/og/projects/alpha.png"),
+			params: { slug: "alpha" },
+		} as never);
 
 		expect(spies.loadFallbackOg).toHaveBeenCalledTimes(1);
 		expect(res.status).toBe(200);
@@ -76,7 +88,11 @@ describe("og.projects.$slug loader", () => {
 	it("params.slug가 없으면 fallback PNG로 응답한다 (방어적 처리)", async () => {
 		const { context, spies } = makeContext();
 
-		const res = await loader({ context, params: {} } as never);
+		const res = await loader({
+			context,
+			request: new Request("https://example.com/og/projects/.png"),
+			params: {},
+		} as never);
 
 		expect(spies.renderProjectOg).not.toHaveBeenCalled();
 		expect(spies.loadFallbackOg).toHaveBeenCalledTimes(1);

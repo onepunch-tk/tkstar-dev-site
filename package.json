@@ -17,11 +17,10 @@
 		"test:watch": "vitest",
 		"test:coverage": "vitest run --coverage",
 		"velite:build": "velite build && node scripts/patch-velite-types.mjs",
-		"copy-og-wasm": "node scripts/copy-og-wasm.mjs",
-		"predev": "bun run velite:build && bun run copy-og-wasm",
-		"prebuild": "bun run velite:build && bun run copy-og-wasm",
-		"prestart": "bun run velite:build && bun run copy-og-wasm",
-		"pretest": "bun run velite:build && bun run copy-og-wasm",
+		"predev": "bun run velite:build",
+		"prebuild": "bun run velite:build",
+		"prestart": "bun run velite:build",
+		"pretest": "bun run velite:build",
 		"postinstall": "wrangler types"
 	},
 	"dependencies": {

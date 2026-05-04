@@ -45,9 +45,9 @@ export type Container = {
 	listApps: () => Promise<string[]>;
 	findAppDoc: (appSlug: string, docType: "terms" | "privacy") => Promise<AppLegalDoc | null>;
 	submitContactForm: (params: Pick<SubmitContactFormParams, "submission" | "ip">) => Promise<void>;
-	renderProjectOg: (slug: string) => Promise<Uint8Array | null>;
-	renderBlogOg: (slug: string) => Promise<Uint8Array | null>;
-	loadFallbackOg: () => Promise<Uint8Array>;
+	renderProjectOg: (slug: string, origin: string) => Promise<Uint8Array | null>;
+	renderBlogOg: (slug: string, origin: string) => Promise<Uint8Array | null>;
+	loadFallbackOg: (origin: string) => Promise<Uint8Array>;
 };
 
 export const buildContainer = (env: Env): Container => {
@@ -83,10 +83,12 @@ export const buildContainer = (env: Env): Container => {
 				captchaVerifier,
 				rateLimiter,
 			}),
-		renderProjectOg: (slug) => renderProjectOg({ repo: projectRepo, renderer: ogRenderer, slug }),
-		renderBlogOg: (slug) => renderPostOg({ repo: postRepo, renderer: ogRenderer, slug }),
-		loadFallbackOg: async () => {
-			const res = await env.ASSETS.fetch("https://x.local/og/fallback.png");
+		renderProjectOg: (slug, origin) =>
+			renderProjectOg({ repo: projectRepo, renderer: ogRenderer, slug, origin }),
+		renderBlogOg: (slug, origin) =>
+			renderPostOg({ repo: postRepo, renderer: ogRenderer, slug, origin }),
+		loadFallbackOg: async (origin) => {
+			const res = await env.ASSETS.fetch(`${origin}/og/fallback.png`);
 			if (!res.ok) {
 				throw new Error(`[og] fallback fetch failed (${res.status})`);
 			}

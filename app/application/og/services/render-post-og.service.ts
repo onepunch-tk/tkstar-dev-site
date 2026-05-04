@@ -5,6 +5,7 @@ export const renderPostOg = async (params: {
 	repo: PostRepository;
 	renderer: OgImageRenderer;
 	slug: string;
+	origin: string;
 }): Promise<Uint8Array | null> => {
 	const post = await params.repo.findBySlug(params.slug);
 	if (!post) return null;
@@ -14,5 +15,6 @@ export const renderPostOg = async (params: {
 		title: post.title,
 		date: post.date,
 		tags: post.tags,
+		origin: params.origin,
 	});
 };

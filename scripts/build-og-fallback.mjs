@@ -33,7 +33,7 @@ const fallbackTree = ce(
 			padding: "72px",
 			backgroundColor: COLOR.bg,
 			color: COLOR.fg,
-			fontFamily: "JetBrains Mono",
+			fontFamily: "Pretendard",
 			borderTop: `8px solid ${COLOR.accent}`,
 		},
 	},
@@ -83,16 +83,16 @@ const fallbackTree = ce(
 				fontSize: "24px",
 			},
 		},
-		ce("span", null, "1인 기업 · PM · 풀스택"),
+		ce("span", null, "Solo Engineer · PM · Full-stack"),
 		ce("span", { style: { color: COLOR.fg, fontWeight: 700 } }, "tkstar.dev →"),
 	),
 );
 
 const [regular, bold, yogaWasm, resvgWasm] = await Promise.all([
-	readFile(resolve(root, "public/fonts/JetBrainsMono-Regular.ttf")),
-	readFile(resolve(root, "public/fonts/JetBrainsMono-Bold.ttf")),
-	readFile(resolve(root, "public/wasm/yoga.wasm")),
-	readFile(resolve(root, "public/wasm/resvg.wasm")),
+	readFile(resolve(root, "public/fonts/Pretendard-Regular.ttf")),
+	readFile(resolve(root, "public/fonts/Pretendard-Bold.ttf")),
+	readFile(resolve(root, "node_modules/satori/yoga.wasm")),
+	readFile(resolve(root, "node_modules/@resvg/resvg-wasm/index_bg.wasm")),
 ]);
 
 await initSatori(yogaWasm);
@@ -102,8 +102,8 @@ const svg = await satori(fallbackTree, {
 	width: 1200,
 	height: 630,
 	fonts: [
-		{ name: "JetBrains Mono", data: regular, weight: 400, style: "normal" },
-		{ name: "JetBrains Mono", data: bold, weight: 700, style: "normal" },
+		{ name: "Pretendard", data: regular, weight: 400, style: "normal" },
+		{ name: "Pretendard", data: bold, weight: 700, style: "normal" },
 	],
 });
 
