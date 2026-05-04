@@ -16,6 +16,8 @@
 # Cloudflare Workers
 /.wrangler/
 /worker-configuration.d.ts
+.dev.vars
+.dev.vars.local
 
 # TypeScript incremental build cache
 *.tsbuildinfo

@@ -17,14 +17,38 @@ directory = "./public"
 [observability]
 enabled = true
 
+# default (development / local)
+[vars]
+APP_ENV = "development"
+CONTACT_TO_EMAIL = "hello@tkstar.dev"
+TURNSTILE_SITE_KEY = "1x00000000000000000000AA"
+
+[[kv_namespaces]]
+binding = "RATE_LIMIT_KV"
+id = "933b671d6b8846deaad41febd80de8dd"
+preview_id = "c68513cba84e4eeca7b947d1d0ff07f5"
+
 [env.staging]
 name = "tkstar-dev-staging"
 
 [env.staging.vars]
 APP_ENV = "staging"
+CONTACT_TO_EMAIL = "hello@tkstar.dev"
+TURNSTILE_SITE_KEY = "1x00000000000000000000AA"
+
+[[env.staging.kv_namespaces]]
+binding = "RATE_LIMIT_KV"
+id = "95b7366f0bf64aab9677eb43174e4b32"
 
 [env.production]
 name = "tkstar-dev-production"
 
 [env.production.vars]
 APP_ENV = "production"
+CONTACT_TO_EMAIL = "hello@tkstar.dev"
+# TURNSTILE_SITE_KEY: T022 deploy 단계에서 prod widget site key 로 교체 (공개 가능 값)
+TURNSTILE_SITE_KEY = "1x00000000000000000000AA"
+
+[[env.production.kv_namespaces]]
+binding = "RATE_LIMIT_KV"
+id = "2ec496563f6c43699b493cf2c96304f1"
