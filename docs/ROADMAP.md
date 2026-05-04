@@ -447,7 +447,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
 > **진입 조건**: Phase 4 완료 (모든 페이지가 콘텐츠로 가동)
 > **완료 조건 (DoD)**: AC-F011-1/2/3 통과. `/sitemap.xml`, `/robots.txt`가 well-formed. 페이지별 meta export(title/description/canonical/OG/Twitter) + JSON-LD 정합. Google Search Console / Naver Search Advisor 도메인 인증 완료 (배포 단계).
 
-- [ ] **Task 018: F011 Satori 동적 OG 이미지 (Project + Blog) — Workers Asset Binding**
+- [x] **Task 018: F011 Satori 동적 OG 이미지 (Project + Blog) — Workers Asset Binding**
   - **Must** Read: [tasks/T018-satori-og.md](tasks/T018-satori-og.md)
   - blockedBy: Task 013, Task 014a, Task 014b
   - Layer: Application(`render-*-og.service`, port) + Infrastructure(Satori standalone + Asset Binding) + Resource Route

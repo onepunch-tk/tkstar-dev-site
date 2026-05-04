@@ -11,7 +11,7 @@
 | **PRD Features** | **F011** (SSR + 동적 OG 이미지) |
 | **PRD AC** | **AC-F011-1**, **AC-F011-2**, **AC-F011-3** |
 | **예상 작업 시간** | 1.5d |
-| **Status** | Not Started |
+| **Status** | Done (2026-05-04) |
 
 ## Goal
 Satori standalone + Workers Asset Binding으로 `/og/projects/:slug.png` / `/og/blog/:slug.png` 리소스 라우트를 가동하여 슬러그별 1200×630 PNG OG 이미지를 SSR 시점 또는 첫 요청 시 생성한다. 미존재 slug는 fallback PNG, 폰트/yoga.wasm 누락 시 graceful degradation. 가정 A005 해소.
