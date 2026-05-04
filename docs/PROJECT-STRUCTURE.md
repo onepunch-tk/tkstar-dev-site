@@ -238,6 +238,7 @@ app/application/
 - **email/** — Resend + React Email 통합
 - **captcha/** — Cloudflare Turnstile 서버 검증
 - **og/** — Satori standalone + Workers Asset Binding으로 폰트/yoga.wasm 로드
+- **ratelimit/** — Workers KV 기반 IP rate-limiter (F009 보강) — Application의 `rate-limiter.port` 구현
 - **analytics/** — Cloudflare Web Analytics 스니펫 주입 헬퍼
 - **search/** — 빌드 타임 검색 인덱스 빌더 산출 위치 (F016 산출물은 Application 서비스가 생성, `public/search-index.json` 출력)
 
@@ -264,6 +265,9 @@ app/infrastructure/
 │   └── __tests__/
 ├── og/
 │   ├── satori-og-renderer.ts         # implements og-image-renderer.port — env.ASSETS.fetch()로 ttf/yoga.wasm 로드
+│   └── __tests__/
+├── ratelimit/
+│   ├── kv-rate-limiter.ts            # implements rate-limiter.port (env.RATE_LIMIT_KV) — F009 보강
 │   └── __tests__/
 ├── search/
 │   └── __tests__/                    # build-search-index.service.ts (Application)에서 호출되는 빌드 산출물 검증
@@ -585,6 +589,7 @@ app/
 │   ├── email/.gitkeep
 │   ├── captcha/.gitkeep
 │   ├── og/.gitkeep
+│   ├── ratelimit/.gitkeep
 │   ├── search/.gitkeep
 │   └── analytics/.gitkeep
 └── presentation/
@@ -678,6 +683,7 @@ Infrastructure (infrastructure/)  ← workers/app.ts (Composition Root) wires ev
 | F018 SEO sitemap/robots/JSON-LD | Application + Resource Route + Presentation meta | `application/seo/services/build-sitemap.service.ts` + `presentation/routes/{sitemap,robots}[.*].tsx` + 페이지별 `meta` export |
 | F019 검색엔진 인증 | Presentation 환경변수 조건부 렌더 | `root.tsx`의 `<head>` (`GOOGLE_SITE_VERIFICATION` / `NAVER_SITE_VERIFICATION` env) |
 | Contact (F008/F009) | Application 유스케이스 + Infrastructure 어댑터 2종 | `application/contact/services/submit-contact-form.service.ts` + `infrastructure/email/resend-email-sender.ts` + `infrastructure/captcha/turnstile-verifier.ts` |
+| Contact rate-limit (F009 보강) | Application Port + Infrastructure 구현 | `application/contact/ports/rate-limiter.port.ts` + `infrastructure/ratelimit/kv-rate-limiter.ts` (env.RATE_LIMIT_KV) |
 
 ---
 
@@ -710,3 +716,15 @@ Infrastructure (infrastructure/)  ← workers/app.ts (Composition Root) wires ev
 - Worker 내부에서 `env.ASSETS.fetch("https://x.local/fonts/JetBrainsMono-Regular.ttf").then(r => r.arrayBuffer())`로 폰트 ArrayBuffer 획득
 - `satori/standalone` + `env.ASSETS.fetch(".../wasm/yoga.wasm")`로 yoga.wasm 수동 로드 — Workers WASM 동적 로딩 제약 우회
 - **근거**: [Cloudflare Static Assets Binding](https://developers.cloudflare.com/workers/static-assets/binding/), [Satori Standalone Build](https://github.com/vercel/satori), [6 Pitfalls of Dynamic OG on Workers](https://dev.to/devoresyah/6-pitfalls-of-dynamic-og-image-generation-on-cloudflare-workers-satori-resvg-wasm-1kle)
+
+### D6. Contact rate-limit: Workers KV 기반 IP 카운터
+- `app/infrastructure/ratelimit/kv-rate-limiter.ts`가 `application/contact/ports/rate-limiter.port`를 구현. 키 패턴 `contact:{ip}:{yyyy-mm-dd-hh}`, TTL 1시간, 동일 IP 1시간 5회 초과 시 429 (AC-F009-3)
+- **선택 근거**:
+  - Workers binding 1급 시민 — 별도 SDK / 외부 호출 0 (`env.RATE_LIMIT_KV.get/put` 만 사용)
+  - free tier (10만 read / 1천 write per day) 가 Contact 트래픽 규모를 충분히 커버
+  - eventually consistent — 분산 노드 간 약간의 카운터 지연은 스팸 방지 목적상 허용 가능
+- **대안 검토 및 기각**:
+  - **Durable Objects**: strong consistency 가능하나 단일 객체 직렬화로 콜드 스타트 + 비용 ↑. Contact 폼 1건의 정합성 강도 요구 미달
+  - **Cloudflare Rate Limiting Rules (대시보드)**: 코드 외부 설정이라 CA 가시성·테스트성 ↓. Application Port 추상화 불가
+  - **외부 Redis (Upstash 등)**: 추가 의존 + 네트워크 hop. Workers 친화 옵션을 두고 외부화 ROI 낮음
+- **근거**: [Cloudflare Workers KV — Rate Limiting Pattern](https://developers.cloudflare.com/kv/), [KV vs Durable Objects](https://developers.cloudflare.com/durable-objects/platform/limits/)
