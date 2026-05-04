@@ -315,7 +315,7 @@ app/presentation/
 │   │   ├── PostRow.tsx
 │   │   └── ShareTools.tsx            # copy link / X 공유
 │   ├── content/
-│   │   ├── MdxRenderer.tsx           # velite body → React (shiki 코드블록)
+│   │   ├── mdx-modules.ts            # @mdx-js/rollup glob 모듈 맵 (4 컬렉션, T021.5)
 │   │   └── CodeBlock.tsx
 │   ├── contact/
 │   │   ├── ContactForm.tsx           # F008

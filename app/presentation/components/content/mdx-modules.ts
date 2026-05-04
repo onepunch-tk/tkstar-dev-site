@@ -1,5 +1,7 @@
 import type { ComponentType } from "react";
 
+// NOTE: glob keys are the literal string Vite uses at the lookup site.
+// If this file moves, both the glob arg AND the route lookups (4 files) must update.
 type MDXModule = { default: ComponentType };
 
 export const projectModules = import.meta.glob<MDXModule>("../../../../content/projects/*.mdx", {

@@ -109,7 +109,7 @@ describe("Group A — legal.$app.privacy loader", () => {
 // ---------------------------------------------------------------------------
 
 describe("Group B — legal.$app.privacy 컴포넌트", () => {
-	it("LegalDocLayout 안에 MdxRenderer 가 렌더된다 (title/version/effectiveDate 노출)", async () => {
+	it("LegalDocLayout 안에 MDX content 가 렌더된다 (title/version/effectiveDate 노출)", async () => {
 		// Arrange
 		const Stub = createRoutesStub([
 			{
