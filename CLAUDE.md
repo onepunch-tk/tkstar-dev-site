@@ -67,8 +67,8 @@
 - **Animation**: CSS-only (`@keyframes` + `transition: 120ms ease`). Motion 라이브러리 MVP 보류
 
 ### Typography
-- **JetBrains Mono** — primary mono 폰트 (전 페이지 본문/UI/코드)
-- **Self-host**: `/public/fonts/JetBrainsMono-*.woff2` + `@font-face` (Workers SSR FOIT 방지)
+- **Pretendard** (`v1.3.9` alternative variant) — primary 한/영 통합 sans-serif 폰트 (전 페이지 본문/UI). 한글 글리프 포함이라 OG 이미지 / SNS preview 의 한글 title 도 동일 폰트로 일관 렌더. T018 에서 JetBrains Mono → Pretendard 로 swap (JetBrains Mono 는 한글 미지원이라 OG 의 blog title 한글이 `.notdef` 박스로 깨졌던 문제 해결).
+- **Self-host**: `/public/fonts/Pretendard-{Regular,Medium,Bold}.woff2` + `@font-face` (Workers SSR FOIT 방지). OG 빌드용 ttf (`Pretendard-{Regular,Bold}.ttf`) 도 동일 폴더에 commit — Satori 는 ttf/otf 만 받음.
 
 ### Content Pipeline
 - **velite 0.3.1** — MDX 컬렉션 빌더 (Project / Post / AppLegalDoc). collection schema는 velite 자체 `s` 헬퍼(Zod 3 internal) 사용 — Domain Zod 4.3.6과 버전 충돌 회피를 위해 schema shape을 velite 측에 미러링 (T007 D1)
@@ -76,7 +76,7 @@
 - **shiki 4.0.2 + @shikijs/rehype 4.0.2** — 빌드 타임 코드블록 syntax highlight (theme: `github-dark` 단일, MVP). 클라이언트 번들 영향 0 (devDependency)
 - **rehype-slug 6.0.0** — 헤딩 anchor 자동 부여 (한국어 anchor 지원)
 - **github-slugger 2.0.0** (devDependency) — `velite/transforms/extract-toc.ts` 가 사용. `rehype-slug` 와 동일 라이브러리이므로 빌드-time TOC 추출 시 anchor id 와 1:1 매칭 보장 (T013)
-- **Satori** — 빌드/SSR 동적 OG 이미지 생성 (1200×630, T018)
+- **Satori 0.26 standalone + @resvg/resvg-wasm 2.6 + yoga.wasm (satori 묶음본)** — `/og/projects/:slug.png` / `/og/blog/:slug.png` resource route 가 SSR 시점에 1200×630 PNG 동적 생성 (T018). yoga.wasm + resvg.wasm 은 ES module `import` 로 받아 `compiled-wasm` 모듈로 worker bundle 에 묶임 — Workers 의 dynamic wasm compile 차단 정책 (`WebAssembly.instantiate(): Wasm code generation disallowed by embedder`) 우회. `node_modules/satori/yoga.wasm` 이 satori standalone init 이 받는 wrapper-호환본 (yoga-wasm-web 의 yoga.wasm 과 wrapper 가 다름). 폰트 ttf 2 개는 `env.ASSETS.fetch(${origin}/fonts/...)` 로 첫 요청 시 1 회만 fetch + factory closure 캐시. fallback PNG 는 `scripts/build-og-fallback.mjs` 가 빌드 타임에 1 회 사전 생성해 `public/og/fallback.png` 로 commit.
 - **velite lifecycle hooks** — `predev` / `prebuild` / `prestart` / `pretest`가 모두 `bun run velite:build`로 라우팅. `velite:build`는 `velite build && node scripts/patch-velite-types.mjs`로 chained — fresh clone / CI에서 stale `.velite/` 캐시 회귀 차단 + typegen 교체
 - **Velite typegen patch** — velite 0.3.1 native typegen이 `import type __vc from '../velite.config.ts'`로 Zod 3 internal private 타입(`ZodInvalidStringIssue`, `ZodOptionalDef` 등)을 노출시켜 `tsc -b`에서 TS4082 폭발. `scripts/patch-velite-types.mjs`가 매 build 후 `.velite/index.d.ts`를 명시적 minimal 타입으로 교체. velite upstream fix 시 제거 (T008 D1)
 - **Path alias `#content` → `./.velite`** — `tsconfig.cloudflare.json`에 등록
