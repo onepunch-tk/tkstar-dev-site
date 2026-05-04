@@ -1,15 +1,47 @@
+import { buildBreadcrumbListLd, renderJsonLd } from "~/presentation/lib/jsonld";
+import { buildMeta } from "~/presentation/lib/meta";
 import MdxRenderer from "../components/content/MdxRenderer";
 import LegalDocLayout from "../components/legal/LegalDocLayout";
-
 import type { Route } from "./+types/legal.$app.terms";
 
-export const meta: Route.MetaFunction = () => [{ title: "Terms — tkstar.dev" }];
-
-export const loader = async ({ context, params }: Route.LoaderArgs) => {
+export const loader = async ({ context, params, request }: Route.LoaderArgs) => {
 	if (!params.app) throw new Response(null, { status: 404 });
 	const doc = await context.container.findAppDoc(params.app, "terms");
 	if (!doc) throw new Response(null, { status: 404 });
-	return { doc };
+	const url = new URL(request.url);
+	const origin = url.origin;
+	return {
+		doc,
+		origin,
+		canonicalUrl: `${origin}${url.pathname}`,
+		ogImageUrl: `${origin}/og/fallback.png`,
+	};
+};
+
+export const meta: Route.MetaFunction = ({ data }) => {
+	if (!data) return [{ title: "Terms — tkstar.dev" }];
+	const { doc, origin, canonicalUrl, ogImageUrl } = data;
+	const docTitle = `${doc.app_slug} 서비스 이용약관`;
+	return [
+		...buildMeta({
+			title: `${docTitle} — tkstar.dev`,
+			description: `${doc.app_slug} 앱의 서비스 이용약관 (v${doc.version}, 시행일 ${doc.effective_date}).`,
+			canonical: canonicalUrl,
+			ogImage: ogImageUrl,
+			robots: "noindex, follow",
+		}),
+		{
+			"script:ld+json": renderJsonLd(
+				buildBreadcrumbListLd({
+					items: [
+						{ name: "Home", url: `${origin}/` },
+						{ name: "Legal", url: `${origin}/legal` },
+						{ name: docTitle, url: canonicalUrl },
+					],
+				}),
+			),
+		},
+	];
 };
 
 export default function AppTerms({ loaderData }: Route.ComponentProps) {

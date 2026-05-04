@@ -66,7 +66,7 @@ describe("Group A — legal.$app.terms loader", () => {
 
 		// Assert
 		expect(spies.findAppDoc).toHaveBeenCalledWith("moai", "terms");
-		expect(result).toEqual({ doc: moaiTerms });
+		expect(result).toMatchObject({ doc: moaiTerms });
 	});
 
 	it("params.app 이 미정의이면 Response 404 를 throw 한다", async () => {
