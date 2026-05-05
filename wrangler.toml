@@ -60,10 +60,10 @@ APP_ENV = "production"
 CONTACT_TO_EMAIL = "hello@tkstar.dev"
 # T022 Stage 1: production Turnstile widget site key (공개 가능 값 — HTML 에 노출됨)
 TURNSTILE_SITE_KEY = "0x4AAAAAADJerjK_6MJH0kCx"
-# T020: 검색엔진 인증 토큰 + Web Analytics token — T022 deploy 단계에서 실제 값 주입
-GOOGLE_SITE_VERIFICATION = ""
-NAVER_SITE_VERIFICATION = ""
-CLOUDFLARE_ANALYTICS_TOKEN = ""
+# T022 Stage 2: 검색엔진 verification + CF Web Analytics 토큰 (모두 클라이언트 노출용 공개 값)
+GOOGLE_SITE_VERIFICATION = "9dqFGGSK_NYqbgfrEb0ZwfEcYTTAtsgpW6XX-FqiXCM"
+NAVER_SITE_VERIFICATION = "0d3e009372cee5a32511420ca566d2b54629b10c"
+CLOUDFLARE_ANALYTICS_TOKEN = "ff5c6565162c478580790bdb4e32bf5c"
 
 [[env.production.kv_namespaces]]
 binding = "RATE_LIMIT_KV"
