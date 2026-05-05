@@ -5,20 +5,23 @@
 # warns (but does NOT remove) when runtime files are already tracked — any
 # destructive git operations are left to the user.
 #
-# Required entries come from .claude/config.json (.runtimeGitignoreEntries).
-# A built-in default list covers projects without a custom config.
+# Single source of truth: .claude/config.json `.runtimeGitignoreEntries`.
+# If the key is missing/empty, the hook is a no-op — no built-in fallback
+# list is maintained here, so the canonical entries live in exactly one
+# place.
 
 set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib/config.sh
+source "$SCRIPT_DIR/lib/config.sh"
+# shellcheck source=lib/harness-debug.sh
+source "$SCRIPT_DIR/lib/harness-debug.sh"
 
 PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$PWD}"
 GITIGNORE="$PROJECT_DIR/.gitignore"
 SECTION_MARKER="# Claude Code runtime state (auto-managed — do not edit)"
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# shellcheck source=lib/config.sh
-source "$SCRIPT_DIR/lib/config.sh"
-
-# Load required entries from config, falling back to built-in defaults.
 REQUIRED_ENTRIES=()
 while IFS= read -r entry; do
   [[ -z "$entry" ]] && continue
@@ -26,13 +29,8 @@ while IFS= read -r entry; do
 done < <(config_get_array '.runtimeGitignoreEntries')
 
 if [[ ${#REQUIRED_ENTRIES[@]} -eq 0 ]]; then
-  REQUIRED_ENTRIES=(
-    ".claude/hook-state.json"
-    ".claude/pipeline-state.json"
-    ".claude/ownership.json"
-    ".claude/agent-memory/"
-    "coverage/"
-  )
+  harness_debug ensure-runtime-gitignore "config.runtimeGitignoreEntries empty/missing"
+  exit 0
 fi
 
 # Not a git repo — nothing to do.

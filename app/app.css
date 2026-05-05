@@ -7,14 +7,16 @@
 	--color-bg-card: #1a1e24;
 	--color-fg: #e8ebef;
 	--color-muted: #8a93a0;
-	--color-faint: #4a525e;
+	--color-faint: #838b9a;
 	--color-line: #2a3038;
 	--color-line-strong: #3a424d;
 	--color-accent: oklch(72% 0.14 155);
 	--color-accent-warm: oklch(72% 0.14 65);
 	--color-warn: oklch(72% 0.14 30);
+	/* always-dark contrast for solid accent backgrounds — light/dark/print 공통 (정본 prototype.css .wf-btn.accent: color #0d0f12) */
+	--color-on-accent: #0d0f12;
 
-	--font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+	--font-sans: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
 
 	--radius-sm: 6px;
 
@@ -22,6 +24,12 @@
 	--spacing-gutter: 18px;
 	--container-measure: 720px;
 	--height-topbar: 52px;
+
+	/* motion — 정본의 transition: all 120ms ease (prototype.css 전반) */
+	--duration-120: 120ms;
+
+	/* hatch — 정본 styles.css의 --hatch (dark/light 분기) */
+	--color-hatch: oklch(95% 0 0 / 0.04);
 }
 
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
@@ -32,39 +40,207 @@
 	--color-bg-card: #f9f7f1;
 	--color-fg: #1a1c20;
 	--color-muted: #5a6068;
-	--color-faint: #a8aab0;
+	--color-faint: #5d616b;
 	--color-line: #c8c2b3;
 	--color-line-strong: #8a8678;
 	--color-accent: oklch(48% 0.14 155);
 	--color-accent-warm: oklch(55% 0.14 65);
 	--color-warn: oklch(55% 0.14 30);
+	--color-hatch: oklch(20% 0 0 / 0.05);
 }
 
 @font-face {
-	font-family: "JetBrains Mono";
+	font-family: "Pretendard";
 	font-weight: 400;
 	font-style: normal;
 	font-display: swap;
-	src: url("/fonts/JetBrainsMono-Regular.woff2") format("woff2");
+	src: url("/fonts/Pretendard-Regular.woff2") format("woff2");
 }
 @font-face {
-	font-family: "JetBrains Mono";
+	font-family: "Pretendard";
 	font-weight: 500;
 	font-style: normal;
 	font-display: swap;
-	src: url("/fonts/JetBrainsMono-Medium.woff2") format("woff2");
+	src: url("/fonts/Pretendard-Medium.woff2") format("woff2");
 }
 @font-face {
-	font-family: "JetBrains Mono";
+	font-family: "Pretendard";
 	font-weight: 700;
 	font-style: normal;
 	font-display: swap;
-	src: url("/fonts/JetBrainsMono-Bold.woff2") format("woff2");
+	src: url("/fonts/Pretendard-Bold.woff2") format("woff2");
 }
 
 html,
 body {
 	background: var(--color-bg);
 	color: var(--color-fg);
-	font-family: var(--font-mono);
+	font-family: var(--font-sans);
+}
+
+html {
+	scroll-padding-top: calc(var(--height-topbar) + 12px);
+	scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	html {
+		scroll-behavior: auto;
+	}
+}
+
+/* CommandPalette (T016 F016) — 120ms fade-in for backdrop + panel.
+   prototype.css 정본의 "transition: 120ms ease" 와 동일 duration. */
+@keyframes palette-backdrop-in {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+@keyframes palette-panel-in {
+	from {
+		opacity: 0;
+		transform: translateY(-4px) scale(0.985);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
+}
+@media (prefers-reduced-motion: reduce) {
+	[data-palette-backdrop],
+	[data-palette-panel] {
+		/* biome-ignore lint/complexity/noImportantStyles: Tailwind arbitrary [animation:...] 유틸리티가 동일 specificity로 출력되므로, prefers-reduced-motion 환경에서 animation 을 확실히 끄려면 !important 가 필요. */
+		animation: none !important;
+	}
+}
+
+/* Long-form MDX body — projects (T013) + posts (T014b) 동일 typography */
+.project-body,
+.post-body {
+	font-family: var(--font-sans);
+	font-size: 14px;
+	line-height: 1.7;
+	color: var(--color-fg);
+}
+.project-body > * + *,
+.post-body > * + * {
+	margin-top: 1.1em;
+}
+.project-body h2,
+.post-body h2 {
+	margin-top: 2em;
+	font-size: 18px;
+	font-weight: 600;
+	letter-spacing: -0.005em;
+	color: var(--color-fg);
+	scroll-margin-top: calc(var(--height-topbar) + 12px);
+}
+.project-body h3,
+.post-body h3 {
+	margin-top: 1.6em;
+	font-size: 15px;
+	font-weight: 600;
+	color: var(--color-fg);
+}
+.project-body p,
+.post-body p {
+	color: var(--color-fg);
+}
+.project-body a,
+.post-body a {
+	color: var(--color-accent);
+	text-underline-offset: 3px;
+}
+.project-body a:hover,
+.post-body a:hover {
+	text-decoration: underline;
+}
+.project-body ul,
+.project-body ol,
+.post-body ul,
+.post-body ol {
+	padding-left: 1.4em;
+	color: var(--color-fg);
+}
+.project-body li + li,
+.post-body li + li {
+	margin-top: 0.4em;
+}
+.project-body code,
+.post-body code {
+	background: var(--color-bg-elev);
+	border: 1px solid var(--color-line);
+	padding: 0 0.35em;
+	border-radius: 3px;
+	font-size: 0.92em;
+}
+.project-body pre,
+.post-body pre {
+	background: var(--color-bg-elev);
+	border: 1px solid var(--color-line);
+	border-radius: 6px;
+	padding: 14px 16px;
+	overflow-x: auto;
+	font-size: 12.5px;
+	line-height: 1.6;
+}
+.project-body pre code,
+.post-body pre code {
+	background: none;
+	border: none;
+	padding: 0;
+	font-size: inherit;
+}
+.project-body blockquote,
+.post-body blockquote {
+	border-left: 2px solid var(--color-line-strong);
+	padding-left: 1em;
+	color: var(--color-muted);
+}
+
+@media print {
+	@page {
+		size: A4;
+		margin: 0;
+	}
+
+	:root,
+	[data-theme="dark"] {
+		color-scheme: light;
+		--color-bg: #f4f1ea;
+		--color-bg-elev: #ebe7dd;
+		--color-bg-card: #f9f7f1;
+		--color-fg: #1a1c20;
+		--color-muted: #5a6068;
+		--color-faint: #5d616b;
+		--color-line: #c8c2b3;
+		--color-line-strong: #8a8678;
+		--color-accent: oklch(48% 0.14 155);
+		--color-accent-warm: oklch(55% 0.14 65);
+		--color-warn: oklch(55% 0.14 30);
+		--color-hatch: oklch(20% 0 0 / 0.05);
+	}
+
+	body {
+		print-color-adjust: exact;
+		-webkit-print-color-adjust: exact;
+	}
+
+	[data-chrome="topbar"],
+	[data-chrome="footer"],
+	[data-chrome="search-trigger"],
+	[data-chrome="theme-toggle"],
+	[data-chrome="print-trigger"] {
+		/* biome-ignore lint/complexity/noImportantStyles: @media print에서 chrome 컴포넌트를 무조건 hide. 더 specific한 셀렉터가 chrome을 우연히 노출시키는 회귀 차단용. */
+		display: none !important;
+	}
+
+	/* biome-ignore lint/style/noDescendingSpecificity: @media print global h2 — .project-body / .post-body h2 와 다른 스코프(print-only) 이므로 specificity ordering 무관 */
+	h2 {
+		break-after: avoid-page;
+		page-break-after: avoid;
+	}
 }

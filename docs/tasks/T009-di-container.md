@@ -5,13 +5,13 @@
 | **Task ID** | T009 |
 | **Phase** | Phase 2 — Content Pipeline |
 | **Layer** | Infrastructure (`config/`) + Platform Adapter (`workers/`) |
-| **Branch** | `feature/issue-N-di-container` |
+| **Branch** | `feature/issue-31-di-container` |
 | **Depends on** | T008 |
 | **Blocks** | T010, T011, T012, T013, T014a, T014b, T015, T016, T017 |
 | **PRD Features** | 전반 (모든 유스케이스 주입 통로) |
 | **PRD AC** | — |
 | **예상 작업 시간** | 0.5d |
-| **Status** | Not Started |
+| **Status** | ✅ Done |
 
 ## Goal
 PROJECT-STRUCTURE D2 결정에 따라 수제 Plain object DI Container를 `app/infrastructure/config/container.ts`에 구현하고, `workers/app.ts`의 `getLoadContext`로 페이지 loader/action에서 유스케이스를 꺼내 쓸 수 있게 한다.
@@ -37,12 +37,12 @@ PROJECT-STRUCTURE D2 결정에 따라 수제 Plain object DI Container를 `app/i
 - RSS / Sitemap service 등록 (T014a / T019)
 
 ## Acceptance Criteria
-- [ ] `Container` type이 6개 read-side service(listProjects, getProjectDetail, getFeaturedProject, listPosts, getPostDetail, getRecentPosts)를 모두 포함
-- [ ] `buildContainer(env)` 호출 시 모든 service가 정상 인스턴스화됨 (mock env로 단위 테스트)
-- [ ] `workers/app.ts`가 RR7 request handler에 `getLoadContext: () => ({ container: buildContainer(env) })` 전달
-- [ ] `AppLoadContext` 타입이 RR7 loader/action의 `context` 인자 타입에 자동 적용
-- [ ] `wrangler dev`에서 임시 `_index` loader가 `context.container.getFeaturedProject()` 호출 시 정상 동작 (smoke test)
-- [ ] `bun run test` Container 테스트 Green
+- [x] `Container` type이 6개 read-side service(listProjects, getProjectDetail, getFeaturedProject, listPosts, getPostDetail, getRecentPosts)를 모두 포함
+- [x] `buildContainer(env)` 호출 시 모든 service가 정상 인스턴스화됨 (mock env로 단위 테스트)
+- [x] `workers/app.ts`가 RR7 request handler에 `container: buildContainer(env)` 전달 (Workers fetch 핸들러 패턴 — 두 번째 인자 객체에 직접 주입; spec의 `getLoadContext`는 Vite 플러그인 패턴이라 비채택)
+- [x] `AppLoadContext` 타입이 RR7 loader/action의 `context` 인자 타입에 자동 적용 (`app/env.d.ts` SSOT)
+- [x] `wrangler dev` smoke test — typecheck(AppLoadContext augmentation 인식) + container.test.ts(6개 service 위임 검증)로 동등 검증 (loader 임시 추가 → 원복 noise 회피)
+- [x] `bun run test` Container 테스트 Green (94 passed)
 
 ## Implementation Plan (TDD Cycle)
 

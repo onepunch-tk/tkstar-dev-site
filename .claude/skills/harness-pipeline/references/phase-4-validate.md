@@ -2,13 +2,13 @@
 
 > **Pipeline State → `validate`**: Update before Phase 4 starts:
 > ```bash
-> cat > .claude/pipeline-state.json << EOF
+> cat > .claude/runtime/pipeline-state.json << EOF
 > {
 >   "current_phase": "validate",
->   "mode": "$(jq -r .mode .claude/pipeline-state.json)",
+>   "mode": "$(jq -r .mode .claude/runtime/pipeline-state.json)",
 >   "branch": "$(git branch --show-current)",
->   "github_mode": $(jq -r .github_mode .claude/pipeline-state.json),
->   "issue_number": $(jq -r .issue_number .claude/pipeline-state.json),
+>   "github_mode": $(jq -r .github_mode .claude/runtime/pipeline-state.json),
+>   "issue_number": $(jq -r .issue_number .claude/runtime/pipeline-state.json),
 >   "updated_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 > }
 > EOF
@@ -38,7 +38,7 @@
 | Substep | Target | Trigger | Action |
 |---------|--------|---------|--------|
 | **14a** | `docs/ROADMAP.md` | Always | Run `development-planner` — mark completed tasks, add `**Must** Read:` link to the current task. |
-| **14b** | `tasks/XXX-*.md` | Task file touched on branch | Check all step boxes, append Change History row (date + what changed). |
+| **14b** | `tasks/XXX-*.md` | Always (when ROADMAP `[x]` checked in 14a) | (1) Update `**Status**` field to `✅ Done` (required), (2) Replace the `feature/issue-N-…` placeholder in the Branch field with the actual Issue number, (3) Mark every `- [ ]` checkbox in the body (Acceptance Criteria / Implementation Plan / Verification Steps) as `- [x]` and append a Change History row — Status alone is not sufficient evidence of completion, the body checklist is the AC contract. If any AC item is genuinely not met, remove it from this task's scope or split it to a follow-up task before merging. **Enforcement**: `docs-sync-gate.sh` Condition 4 detects ROADMAP `[x]` ↔ task `Status` drift; Condition 5 detects ROADMAP `[x]` ↔ body `- [ ]` checkbox drift. Both block PR creation on mismatch. Override (last resort, justified deferral): `DOCS_SYNC_SKIP=1` prefix. |
 | **14c** | `docs/PROJECT-STRUCTURE.md` | Always | 1. Run `bash .claude/tools/doc-structure-linter.sh --human`. 2. Review the NEW / GHOST / OK categories and their severity tags. 3. Route each item: (a) task-completion drift → `project-structure-analyzer` to reflect; (b) intentional future work → add to Target structure; (c) orphan → delete on disk or document as "reference-only". 4. Include the updates in the docs commit. |
 | **14d** | `CLAUDE.md` | `package.json` / `tsconfig*` / `biome.json(c)` changes on branch | Review for config / dependency drift (commands table, tech-stack entries, tooling sections). |
 
@@ -57,7 +57,7 @@ The PR workflow is deliberately split into **create**, **user confirmation**, an
 Step 15a — create only:
 
 ```bash
-ISSUE_NUMBER=$(jq -r '.issue_number // empty' .claude/pipeline-state.json)
+ISSUE_NUMBER=$(jq -r '.issue_number // empty' .claude/runtime/pipeline-state.json)
 
 # Agent composes PR title/body, then invokes the CREATE script. The script
 # pushes the branch and opens the PR, then prints the PR URL and exits.
@@ -140,7 +140,7 @@ git push origin development
 git branch -d "$FEATURE_BRANCH"
 
 # Reset pipeline state (Local Mode must do this manually — GitHub Mode is handled by git-pr-merge.sh)
-cat > .claude/pipeline-state.json << EOF
+cat > .claude/runtime/pipeline-state.json << EOF
 {
   "current_phase": "none",
   "mode": "none",
@@ -151,7 +151,7 @@ cat > .claude/pipeline-state.json << EOF
   "updated_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 }
 EOF
-echo '{"last_reminded_phase":"","doc_reminders_sent":{},"workflow_warnings_sent":{},"cooldown_until":""}' > .claude/hook-state.json
+echo '{"last_reminded_phase":"","doc_reminders_sent":{},"workflow_warnings_sent":{},"cooldown_until":""}' > .claude/runtime/hook-state.json
 ```
 
 ## Team Mode

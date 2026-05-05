@@ -218,6 +218,70 @@ const styles = StyleSheet.create((theme, rt) => ({
 - **Cross-component sharing** — extract a `variants`-driven reusable component. Do NOT import a shared `StyleSheet` across components; Unistyles optimizes per-instance and shared imports lose that path.
 - **Token access** — theme closure (`(theme, rt) => ...`) or the bridge `tokens` import. Never string-key lookups.
 
+#### SafeAreaView background color (MUST)
+
+`react-native-safe-area-context`'s `SafeAreaView` is a regular View that receives insets from a native shadow view and applies them as Yoga padding/margin. On the first batch layout, insets are undefined; only after `didMoveToWindow` does the second layout pass apply the inseted padding (official docs: *"insets are not updated synchronously"*). Putting a static color like `backgroundColor` directly on SafeAreaView makes the painted box itself depend on inset values, so the colored region expands on the second frame and produces visible flicker.
+
+❌ **Anti-pattern** — SafeAreaView doubles as the painted box:
+
+```tsx
+<SafeAreaView style={styles.screen}>{children}</SafeAreaView>
+
+const styles = StyleSheet.create((theme) => ({
+  screen: { flex: 1, backgroundColor: theme.colors.background },
+}))
+```
+
+✅ **Fix A (preferred)** — parent View paints the color, SafeAreaView only handles insets:
+
+```tsx
+<View style={styles.bg}>
+  <SafeAreaView style={styles.safe}>{children}</SafeAreaView>
+</View>
+
+const styles = StyleSheet.create((theme) => ({
+  bg: { flex: 1, backgroundColor: theme.colors.background },
+  safe: { flex: 1 },
+}))
+```
+
+✅ **Fix B** — inner View paints the color:
+
+```tsx
+<SafeAreaView style={styles.safe}>
+  <View style={styles.bg}>{children}</View>
+</SafeAreaView>
+
+const styles = StyleSheet.create((theme) => ({
+  safe: { flex: 1 },
+  bg: { flex: 1, backgroundColor: theme.colors.background },
+}))
+```
+
+Evidence:
+- Mechanism (strong): official docs `appandflow.github.io/react-native-safe-area-context/api/safe-area-view`, native source `ios/RNCSafeAreaShadowView.m` L98–134 (`updateInsets` sets `super.paddingTop` to inset value).
+- Async behavior (strong): official docs + Issue #226 contributor comment (*"first batch layout ... children get the same size ... second layout the children will get the inseted (proper) size"*).
+- Color causation (medium): Issue #150 — LinearGradient + SafeAreaView backgroundColor combination shows white flash on first frame under 30x slow-motion.
+
+#### App-wide SafeAreaView avoidance (SHOULD)
+
+React Navigation official recommendation: do NOT wrap the entire screen root in `<SafeAreaView>`; apply `useSafeAreaInsets` padding only on children that need specific edges.
+
+> Note: the stated rationale for this recommendation is **layout stability** (`reactnavigation.org/docs/handling-safe-area`: *"containing safe area is animating, it causes jumpy behavior"*), NOT color flicker. This is a separate guideline from Rule 1 (SafeAreaView background color above).
+
+✅ **Recommended**:
+
+```tsx
+const insets = useSafeAreaInsets()
+return (
+  <View style={[styles.bg, { paddingTop: insets.top }]}>
+    {/* only children that need an edge receive insets */}
+  </View>
+)
+```
+
+⚠️ **Do NOT mix** — using the `<SafeAreaView>` component and the `useSafeAreaInsets` hook in the same tree causes flicker because the two sources update at different times (RN Nav official warning). Use only one approach within a single screen.
+
 ### 3.2 Vanilla React Native (no Unistyles)
 
 Same rule — `StyleSheet.create` at module top-level, token imports only, no inline objects except for runtime-computed values.
@@ -247,6 +311,8 @@ When running REVIEW mode's **Visual Consistency** and **Component Composition** 
 **Stack-specific:**
 - [ ] (Expo+RN + Unistyles) Theme value pulled via a string key instead of the typed theme closure argument.
 - [ ] (Expo+RN + Unistyles) Conditional style solved by object merging instead of `variants(...)` call syntax.
+- [ ] (Expo+RN) `backgroundColor` or any dynamic color style applied directly on `<SafeAreaView>` — padding is applied on the second layout pass, so the colored region expands late and causes flicker. Move color to a parent or child View (see §3.1 SafeAreaView background color).
+- [ ] (Expo+RN) Entire screen root wrapped in `<SafeAreaView>` — prefer per-edge application via `useSafeAreaInsets` (see §3.1 App-wide SafeAreaView avoidance). Do NOT mix the `SafeAreaView` component and the `useSafeAreaInsets` hook in the same screen.
 - [ ] (NativeWind) `style={{}}` used where className could express the value (tokens bypassed).
 - [ ] (Web + Tailwind) Utility classes built via string concatenation in render instead of a `cva` / `clsx` recipe at module scope.
 - [ ] (CSS Modules) Shared style imported across components instead of `composes` or a variant-driven component.

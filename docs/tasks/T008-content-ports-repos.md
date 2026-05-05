@@ -5,13 +5,13 @@
 | **Task ID** | T008 |
 | **Phase** | Phase 2 — Content Pipeline |
 | **Layer** | Application (`ports/services/`) + Infrastructure (`content/`) |
-| **Branch** | `feature/issue-N-content-ports-repos` |
+| **Branch** | `feature/issue-29-content-ports-repos` |
 | **Depends on** | T002, T006, T007 |
 | **Blocks** | T009, T010, T011, T012, T013, T014a, T014b, T015, T016, T017 |
 | **PRD Features** | F004, F005, F006, F007, F014, F017 |
 | **PRD AC** | — (read-side 정확성은 unit test로 충분) |
 | **예상 작업 시간** | 2d |
-| **Status** | Not Started |
+| **Status** | ✅ Done |
 
 ## Goal
 Application Layer에 3개 Repository Port + 6개 Service(유스케이스)를 정의하고, Infrastructure Layer에 velite read-side adapter 3개 + mapper를 구현한다. 이 task가 Done이면 페이지 task가 호출할 모든 read-side 유스케이스가 가동된다.
@@ -40,13 +40,13 @@ Application Layer에 3개 Repository Port + 6개 Service(유스케이스)를 정
 - Sitemap service (T019)
 
 ## Acceptance Criteria
-- [ ] `ProjectRepository.findAll()` / `findBySlug(slug)` / `findFeatured()` / `findRelated(slug) → {prev, next}` / `findByTag(tag)` 인터페이스가 정의됨
-- [ ] `PostRepository.findAll()` / `findBySlug(slug)` / `findRecent(n)` / `findByTag(tag)` / `findRelated(slug) → {prev, next}` 정의
-- [ ] `LegalRepository.findAppDoc(app_slug, doc_type)` / `listApps()` 정의
-- [ ] 6개 Service 구현이 mock Repository로 단위 테스트 통과
-- [ ] velite Repository 구현이 fixture `.velite/*.json`을 매핑하여 Domain Entity 배열 반환
-- [ ] `findRelated(slug)`는 발행일/date 기준 정렬 기준으로 인접 항목을 반환 (첫 항목의 prev = null, 마지막 항목의 next = null)
-- [ ] `bun run test` 모든 `__tests__/` Green
+- [x] `ProjectRepository.findAll()` / `findBySlug(slug)` / `findFeatured()` / `findRelated(slug) → {prev, next}` / `findByTag(tag)` 인터페이스가 정의됨
+- [x] `PostRepository.findAll()` / `findBySlug(slug)` / `findRecent(n)` / `findByTag(tag)` / `findRelated(slug) → {prev, next}` 정의
+- [x] `LegalRepository.findAppDoc(app_slug, doc_type)` / `listApps()` 정의
+- [x] 6개 Service 구현이 mock Repository로 단위 테스트 통과
+- [x] velite Repository 구현이 fixture `.velite/*.json`을 매핑하여 Domain Entity 배열 반환
+- [x] `findRelated(slug)`는 발행일/date 기준 정렬 기준으로 인접 항목을 반환 (첫 항목의 prev = null, 마지막 항목의 next = null)
+- [x] `bun run test` 모든 `__tests__/` Green (PR #29 머지 시점 / T009에서도 94 passed 유지)
 
 ## Implementation Plan (TDD Cycle)
 

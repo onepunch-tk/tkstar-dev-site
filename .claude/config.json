@@ -61,11 +61,8 @@
   ],
 
   "runtimeGitignoreEntries": [
-    ".claude/hook-state.json",
-    ".claude/pipeline-state.json",
-    ".claude/ownership.json",
-    ".claude/agent-memory/",
     ".claude/runtime/",
+    ".claude/agent-memory/",
     "coverage/"
   ],
 

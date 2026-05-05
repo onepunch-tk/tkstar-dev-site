@@ -84,7 +84,10 @@ echo ""
 
 # ─── Step 2: Create Release PR ───
 echo "[2/5] Creating release PR..."
-PR_CMD=(gh pr create --base "$PRODUCTION_BRANCH" --head "$INTEGRATION_BRANCH" --title "🚀 Release $VERSION")
+# HARNESS_PR_BASE_MAIN_OK=1 prefix is the sanctioned escape hatch read by
+# pre-pr-base-guard.sh — it allows the only legitimate `gh pr create
+# --base $PRODUCTION_BRANCH` invocation: integration → production release.
+PR_CMD=(env HARNESS_PR_BASE_MAIN_OK=1 gh pr create --base "$PRODUCTION_BRANCH" --head "$INTEGRATION_BRANCH" --title "🚀 Release $VERSION")
 if [[ -n "$BODY" ]]; then
     PR_CMD+=(--body "$BODY")
 else

@@ -6,6 +6,7 @@ export default function ThemeToggle() {
 	return (
 		<button
 			type="button"
+			data-chrome="theme-toggle"
 			aria-label={
 				isDark ? "Toggle theme — switch to light mode" : "Toggle theme — switch to dark mode"
 			}

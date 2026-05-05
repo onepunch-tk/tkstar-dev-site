@@ -7,7 +7,7 @@
 
 set -euo pipefail
 
-STATE_FILE="${CLAUDE_PROJECT_DIR:-$PWD}/.claude/pipeline-state.json"
+STATE_FILE="${CLAUDE_PROJECT_DIR:-$PWD}/.claude/runtime/pipeline-state.json"
 [[ ! -f "$STATE_FILE" ]] && exit 0
 
 PHASE=$(jq -r '.current_phase // "none"' "$STATE_FILE" 2>/dev/null || echo "none")

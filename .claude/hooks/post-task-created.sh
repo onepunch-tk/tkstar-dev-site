@@ -37,7 +37,7 @@ if jq -e '.tool_response.error // empty' >/dev/null 2>&1 <<< "$INPUT"; then
 fi
 
 PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$PWD}"
-STATE_FILE="$PROJECT_DIR/.claude/pipeline-state.json"
+STATE_FILE="$PROJECT_DIR/.claude/runtime/pipeline-state.json"
 if [[ ! -f "$STATE_FILE" ]]; then
   harness_debug post-task-created "pipeline-state.json missing"
   exit 0

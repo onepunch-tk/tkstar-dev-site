@@ -34,4 +34,51 @@ describe("postSchema", () => {
 		const result = postSchema.safeParse(rest);
 		expect(result.success).toBe(false);
 	});
+
+	// ---------------------------------------------------------------------------
+	// toc optional 필드 검증
+	// ---------------------------------------------------------------------------
+
+	it("toc 포함 시 parse 통과하고 결과에 toc 필드가 있다", () => {
+		// Arrange
+		const input = {
+			...validFrontmatter,
+			toc: [{ slug: "intro", text: "Intro" }],
+		};
+
+		// Act
+		const result = postSchema.safeParse(input);
+
+		// Assert
+		expect(result.success).toBe(true);
+		expect((result.data as Record<string, unknown>).toc).toEqual([
+			{ slug: "intro", text: "Intro" },
+		]);
+	});
+
+	it("toc 미제공 시 parse 통과하고 결과의 toc 는 undefined 이다", () => {
+		// Arrange
+		const input = { ...validFrontmatter };
+
+		// Act
+		const result = postSchema.safeParse(input);
+
+		// Assert
+		expect(result.success).toBe(true);
+		expect((result.data as Record<string, unknown>).toc).toBeUndefined();
+	});
+
+	it("toc 항목이 {slug,text} shape 위반이면 reject 한다", () => {
+		// Arrange — text 없이 slug만 있는 toc 항목
+		const input = {
+			...validFrontmatter,
+			toc: [{ slug: "intro" }], // text 누락 → shape 위반
+		};
+
+		// Act
+		const result = postSchema.safeParse(input);
+
+		// Assert
+		expect(result.success).toBe(false);
+	});
 });

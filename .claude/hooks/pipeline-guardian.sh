@@ -21,7 +21,7 @@ STOP_HOOK_ACTIVE=$(echo "$INPUT" | jq -r '.stop_hook_active // false')
 [[ "$STOP_HOOK_ACTIVE" == "true" ]] && exit 0
 
 # ─── Pipeline state check ───
-STATE_FILE="$PROJECT_DIR/.claude/pipeline-state.json"
+STATE_FILE="$PROJECT_DIR/.claude/runtime/pipeline-state.json"
 [[ ! -f "$STATE_FILE" ]] && exit 0
 
 PHASE=$(jq -r '.current_phase // "none"' "$STATE_FILE")
@@ -31,7 +31,7 @@ MODE=$(jq -r '.mode // "none"' "$STATE_FILE")
 BRANCH=$(jq -r '.branch // ""' "$STATE_FILE")
 
 # ─── Hook state (dedup + cooldown tracking) ───
-HOOK_STATE="$PROJECT_DIR/.claude/hook-state.json"
+HOOK_STATE="$PROJECT_DIR/.claude/runtime/hook-state.json"
 if [[ ! -f "$HOOK_STATE" ]]; then
     echo '{"last_reminded_phase":"","workflow_warnings_sent":{},"cooldown_until":"","failure_recovery":{}}' > "$HOOK_STATE"
 fi

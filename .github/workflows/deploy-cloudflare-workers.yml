@@ -60,8 +60,8 @@ jobs:
       - name: Typecheck
         run: bun run typecheck
 
-      - name: Run tests
-        run: bun run test
+      - name: Run tests with coverage threshold
+        run: bun run test:coverage
 
       - name: Build project
         run: bun run build

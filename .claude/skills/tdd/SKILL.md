@@ -36,6 +36,16 @@ TDD rules and patterns for Node/TypeScript/React projects.
 | `loader`, `action` | Presentation | Route loaders/actions |
 | `use*.ts` | Presentation | Custom hooks |
 
+> **Deep module exemption**: When a file matches a Must Test pattern but
+> is an *internal part* of a deep module (one that already has tests at
+> its external interface — typically the `*.usecase.ts` or top-level
+> façade), individual file-pattern tests for the internals are **not
+> required**. The interface is the test surface — duplicate tests on
+> internals tend to break on refactor and add no extra coverage. See
+> `improve-codebase-architecture` skill §"Testing strategy: replace,
+> don't layer" for the full rule. Default remains: when a file stands
+> on its own (one file = one module), the table above applies.
+
 ### Exclude from Testing (Evaluated First)
 
 | Pattern | Reason |

@@ -1,4 +1,7 @@
 #:schema node_modules/wrangler/config-schema.json
+# MDX is compiled to ESM at build time via @mdx-js/rollup (see vite.config.ts).
+# No runtime eval — V8 isolate's "Code generation from strings disallowed" is not triggered.
+# Future CSP work can ship without `script-src 'unsafe-eval'`.
 name = "tkstar-dev"
 compatibility_date = "2026-04-27"
 compatibility_flags = ["nodejs_compat"]
@@ -11,14 +14,57 @@ directory = "./public"
 [observability]
 enabled = true
 
+# default (development / local)
+[vars]
+APP_ENV = "development"
+CONTACT_TO_EMAIL = "hello@tkstar.dev"
+TURNSTILE_SITE_KEY = "1x00000000000000000000AA"
+# T020: 빈 문자열 default — 실제 토큰은 T022 deploy 단계에서 주입 (선택적)
+GOOGLE_SITE_VERIFICATION = ""
+NAVER_SITE_VERIFICATION = ""
+CLOUDFLARE_ANALYTICS_TOKEN = ""
+
+[[kv_namespaces]]
+binding = "RATE_LIMIT_KV"
+id = "933b671d6b8846deaad41febd80de8dd"
+preview_id = "c68513cba84e4eeca7b947d1d0ff07f5"
+
 [env.staging]
 name = "tkstar-dev-staging"
 
 [env.staging.vars]
 APP_ENV = "staging"
+CONTACT_TO_EMAIL = "hello@tkstar.dev"
+TURNSTILE_SITE_KEY = "1x00000000000000000000AA"
+GOOGLE_SITE_VERIFICATION = ""
+NAVER_SITE_VERIFICATION = ""
+CLOUDFLARE_ANALYTICS_TOKEN = ""
+
+[[env.staging.kv_namespaces]]
+binding = "RATE_LIMIT_KV"
+id = "95b7366f0bf64aab9677eb43174e4b32"
 
 [env.production]
 name = "tkstar-dev-production"
 
+[[env.production.routes]]
+pattern = "tkstar.dev"
+custom_domain = true
+
+[[env.production.routes]]
+pattern = "www.tkstar.dev"
+custom_domain = true
+
 [env.production.vars]
 APP_ENV = "production"
+CONTACT_TO_EMAIL = "hello@tkstar.dev"
+# T022 Stage 1: production Turnstile widget site key (공개 가능 값 — HTML 에 노출됨)
+TURNSTILE_SITE_KEY = "0x4AAAAAADJerjK_6MJH0kCx"
+# T020: 검색엔진 인증 토큰 + Web Analytics token — T022 deploy 단계에서 실제 값 주입
+GOOGLE_SITE_VERIFICATION = ""
+NAVER_SITE_VERIFICATION = ""
+CLOUDFLARE_ANALYTICS_TOKEN = ""
+
+[[env.production.kv_namespaces]]
+binding = "RATE_LIMIT_KV"
+id = "2ec496563f6c43699b493cf2c96304f1"

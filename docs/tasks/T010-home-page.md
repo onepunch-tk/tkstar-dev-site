@@ -11,7 +11,7 @@
 | **PRD Features** | **F001** (Hero), **F017** (Featured + Recent Posts) |
 | **PRD AC** | — (Page-by-Page Key Features 검증) |
 | **예상 작업 시간** | 1d |
-| **Status** | Not Started |
+| **Status** | Completed |
 
 ## Goal
 Home(`/`) 페이지에 PRD `F001 Hero (whoami + 검색 + 빠른 링크)` + `F017 Featured Project + Recent Posts 3개`를 렌더한다. 검색 트리거 버튼은 Task 016의 Cmd+K Command Palette를 트리거할 placeholder hook을 미리 연결한다.
@@ -38,13 +38,13 @@ Home(`/`) 페이지에 PRD `F001 Hero (whoami + 검색 + 빠른 링크)` + `F017
 - 페이지별 meta export(F018) — T019
 
 ## Acceptance Criteria
-- [ ] `/` 진입 시 Hero / Featured / Recent 3 섹션이 순서대로 렌더
-- [ ] Hero의 [/about] 클릭 시 `/about`으로 네비게이션
-- [ ] Hero의 [/projects] 클릭 시 `/projects`로 네비게이션
-- [ ] [검색해서 이동] 클릭 시 `useCommandPalette().open()` 호출 (T016 마운트 후 palette 오픈)
-- [ ] Featured Project가 존재할 때 `<FeaturedProjectCard />` 렌더, 없을 때 미렌더 (전체 섹션 conditional)
-- [ ] `<RecentPostsList />`가 정확히 3개 `<PostRow>`를 렌더 + "모두 보기 →" 링크
-- [ ] DOM 구조 snapshot/selector assertion으로 위 3 섹션 순서 보장
+- [x] `/` 진입 시 Hero / Featured / Recent 3 섹션이 순서대로 렌더
+- [x] Hero의 [/about] 클릭 시 `/about`으로 네비게이션
+- [x] Hero의 [/projects] 클릭 시 `/projects`로 네비게이션
+- [x] [검색해서 이동] 클릭 시 `useCommandPalette().open()` 호출 (T016 마운트 후 palette 오픈)
+- [x] Featured Project가 존재할 때 `<FeaturedProjectCard />` 렌더, 없을 때 미렌더 (전체 섹션 conditional)
+- [x] `<RecentPostsList />`가 정확히 3개 `<PostRow>`를 렌더 + "모두 보기 →" 링크
+- [x] DOM 구조 snapshot/selector assertion으로 위 3 섹션 순서 보장
 
 ## Implementation Plan (TDD Cycle)
 
@@ -126,4 +126,5 @@ Home(`/`) 페이지에 PRD `F001 Hero (whoami + 검색 + 빠른 링크)` + `F017
 ## Change History
 | Date | Changes | Author |
 |------|---------|--------|
-| - | - | - |
+| 2026-04-29 | Phase 2 Green: HeroWhoami / FeaturedProjectCard / RecentPostsList / `_index.tsx` loader 구현. 24/24 test files, 118/118 tests green. (commit `6645a30`) | TaekyungHa |
+| 2026-04-29 | Phase 3 Review fix: design-review 6 Critical(C1-C6) + R1/R3/R4 + code-review R2 일괄 반영. `--color-hatch` / `--duration-120` 토큰 등록, `text-faint`→`text-muted` (WCAG AA), main padding/gap 정본 lockup, 720px breakpoint, btn primary brightness 1.08 + filter transition, row meta `min` 단위 복원. (commit `769bd0c`) | TaekyungHa |

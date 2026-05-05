@@ -7,6 +7,9 @@ vi.mock("../../components/chrome/Topbar", () => ({
 vi.mock("../../components/chrome/Footer", () => ({
 	default: () => <footer data-testid="footer-mock" />,
 }));
+vi.mock("../../components/palette/CommandPalette", () => ({
+	default: () => null,
+}));
 
 import ChromeLayout from "../ChromeLayout";
 

@@ -79,7 +79,7 @@ if [[ -n "$CURRENT_BRANCH" ]] && ! config_is_protected_branch "$CURRENT_BRANCH";
 fi
 
 # Reset harness state files so the next task starts cleanly.
-STATE_FILE="$PROJECT_DIR/.claude/pipeline-state.json"
+STATE_FILE="$PROJECT_DIR/.claude/runtime/pipeline-state.json"
 if [[ -f "$STATE_FILE" ]]; then
   PREV_GITHUB_MODE=$(jq -r '.github_mode // false' "$STATE_FILE")
   jq -n --argjson gm "$PREV_GITHUB_MODE" --arg branch "$BASE_BRANCH" --arg now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" '{
@@ -98,13 +98,13 @@ if [[ -f "$STATE_FILE" ]]; then
   echo "pipeline-state.json reset."
 fi
 
-HOOK_STATE="$PROJECT_DIR/.claude/hook-state.json"
+HOOK_STATE="$PROJECT_DIR/.claude/runtime/hook-state.json"
 if [[ -f "$HOOK_STATE" ]]; then
   echo '{"last_reminded_phase":"","workflow_warnings_sent":{},"cooldown_until":"","failure_recovery":{}}' > "$HOOK_STATE"
   echo "hook-state.json reset."
 fi
 
-OWNERSHIP="$PROJECT_DIR/.claude/ownership.json"
+OWNERSHIP="$PROJECT_DIR/.claude/runtime/ownership.json"
 if [[ -f "$OWNERSHIP" ]]; then
   jq -n '{
     mode: "none",

@@ -6,7 +6,8 @@
 - **Target Users**:
   - **B2B**: 기업 채용/HR 담당자, B2B 프리랜서 PM (이력·기술 깊이·신뢰성 검토)
   - **B2C**: 크몽 등 프리랜서 플랫폼 유입 클라이언트 (결과물·후기·문제 해결 능력 검토)
-- **Scope Note**: 콘텐츠 100% static (DB 없음). 한국어 only (i18n 없음). 결제/가격 페이지 없음 (메일 문의로 대체). 모든 콘텐츠는 velite + MDX로 빌드 타임 정적 생성.
+- **Scope Note**: 한국어 only (i18n 없음). 결제/가격 페이지 없음 (메일 문의로 대체).
+  - **콘텐츠 파이프라인 (이중 모델)**: Project 와 AppLegalDoc 은 `velite + MDX` 로 빌드 타임 정적 생성을 유지한다. Post 는 향후 D1 (SQLite) 에 원본 markdown 으로 저장되며 SSR runtime 에 컴파일·KV 캐시된다 — admin (본인 1명) 이 모바일/외부에서 글을 작성하기 위함. **본 시점에는 미구현**, 도입 task 분해는 ROADMAP `Phase: CMS 인프라` 참조.
 - **My Role**: PM
 
 ## Core Principles
@@ -18,6 +19,39 @@
 > **Simplicity First**: Minimum code that solves the problem. No speculative abstractions, configurability, or error handling for impossible scenarios. Ask: "Would a senior engineer call this over-complicated?" Domain applications: code-style.md (type aliases/memoization), code-reviewer.md (quality checklist).
 > **Surgical Changes**: Do not improve, reformat, or refactor adjacent code outside the requested scope. Match existing style. Only clean orphans (imports/vars/fns) created by your own changes. Pre-existing dead code: mention, do not delete. Domain applications: starter-cleaner.md, ca-rules.
 > **Goal-Driven Execution**: Transform tasks into verifiable success criteria. Reject weak criteria like "make it work" — request clarification. Multi-step tasks: state a brief plan with per-step verification. Domain applications: tdd/SKILL.md (Red/Green/Refactor), harness-pipeline phase gates.
+> **Module Depth (Ousterhout)**: Prefer **deep modules** — simple interface, lots of functionality behind it — over shallow modules that surface complexity through their interface. AI defaults to shallow (small modules + complex interfaces); resist that default. Apply the *deletion test*: if removing a module concentrates complexity, it was earning its keep; if it just moves complexity around, it was a pass-through. For deepening opportunities and refactor workflows, invoke the `improve-codebase-architecture` skill.
+
+## Harness Vocabulary
+
+> Shared vocabulary for harness/pipeline machinery. When asking a question, writing a plan, naming a task, or describing a fix, **use exactly these terms**. Do not invent synonyms ("the discovery step" → say **Phase 0**; "the planning agent" → say **development-planner sub-agent**).
+>
+> **Domain Ubiquitous Language** (per-project business vocabulary — entities, technical verbs) lives in [`docs/glossary.md`](docs/glossary.md), auto-imported via the `@docs/glossary.md` line at the bottom of this file.
+
+### Harness meta (12)
+
+| Term | Meaning |
+|------|---------|
+| **Phase** | One of `discovery / plan / tdd / review / validate / complete` in `pipeline-state.json.current_phase`. Phase order is enforced by hooks. |
+| **Pipeline** | The harness-pipeline skill end-to-end (Phase 0 → 4). Loaded by `/harness-pipeline`. |
+| **Plan File** | The markdown file at `~/.claude/plans/<slug>.md` written during Plan Mode. The contract Phase 1 hands off to Phase 2. |
+| **Mode (Sequential / Team)** | Execution shape decided in Phase 1 Step 4. Sequential = main agent runs all phases; Team = lead spawns teammates via `TeamCreate`. |
+| **Task** | A `TaskCreate`-registered unit of pipeline work. Tasks describe concrete actions, not pipeline labels. |
+| **Roadmap** | `docs/ROADMAP.md` — the source of truth for phase order, owned by `development-planner`. |
+| **Issue** | A GitHub Issue created by `git-issue.sh` in GitHub Mode. Branches reference it as `feature/issue-{N}-{slug}`. |
+| **Branch** | A git branch following `commit-prefix-rules.md`: `feature/* / fix/* / docs/* / chore/*`. PRs always target `development`. |
+| **Skill** | A `.claude/skills/<name>/SKILL.md` module loaded into agent context (auto via `skills:` frontmatter or on-demand via Skill tool). |
+| **Sub-Agent** | A specialized agent under `.claude/agents/**/*.md`, spawned by the Agent tool with `subagent_type:`. Foreground-only when listed in harness-pipeline SKILL.md. |
+| **Hook** | A shell script under `.claude/hooks/` wired in `settings.json`, run by the harness runtime (not by the agent) on lifecycle events. |
+| **ABAC** | Attribute-Based Access Control. The `abac-phase-policy.sh` hook hard-blocks `Edit/Write` on source files unless `pipeline-state.plan_approved == true`. |
+
+### Pipeline State (4)
+
+| Term | Meaning |
+|------|---------|
+| **Pipeline State** | `.claude/runtime/pipeline-state.json` — the single source of truth for current phase, mode, branch, plan/task gates. Hook-owned fields are off-limits to agents. |
+| **Ownership (ReBAC)** | `.claude/runtime/ownership.json` (Team Mode only) — per-teammate file allowlist. Violations are detected post-hoc by the TeammateIdle hook. |
+| **Doc Sync Gate** | The `docs-sync-gate.sh` hook that blocks PRs when ROADMAP/task checkbox state drifts from task body Status fields. |
+| **Coverage Gate** | The `coverageThreshold` enforced by `jest.config.js` and verified by Phase 4 validation. |
 
 ## Tech Stack
 
@@ -33,16 +67,19 @@
 - **Animation**: CSS-only (`@keyframes` + `transition: 120ms ease`). Motion 라이브러리 MVP 보류
 
 ### Typography
-- **JetBrains Mono** — primary mono 폰트 (전 페이지 본문/UI/코드)
-- **Self-host**: `/public/fonts/JetBrainsMono-*.woff2` + `@font-face` (Workers SSR FOIT 방지)
+- **Pretendard** (`v1.3.9` alternative variant) — primary 한/영 통합 sans-serif 폰트 (전 페이지 본문/UI). 한글 글리프 포함이라 OG 이미지 / SNS preview 의 한글 title 도 동일 폰트로 일관 렌더. T018 에서 JetBrains Mono → Pretendard 로 swap (JetBrains Mono 는 한글 미지원이라 OG 의 blog title 한글이 `.notdef` 박스로 깨졌던 문제 해결).
+- **Self-host**: `/public/fonts/Pretendard-{Regular,Medium,Bold}.woff2` + `@font-face` (Workers SSR FOIT 방지). OG 빌드용 ttf (`Pretendard-{Regular,Bold}.ttf`) 도 동일 폴더에 commit — Satori 는 ttf/otf 만 받음.
 
 ### Content Pipeline
-- **velite** — MDX 컬렉션 빌더 (Project / Post / AppLegalDoc)
-- **MDX** — 콘텐츠 작성 포맷
-- **shiki** — 코드블록 syntax highlight
-- **Satori** — 빌드/SSR 동적 OG 이미지 생성 (1200×630)
-- **Zod 4.3.6** — Domain schema 검증 (Project / Post / AppLegalDoc / ContactSubmission) + velite frontmatter 검증 (단일 정본을 양쪽이 공유)
-- **rehype-slug** — on-this-page TOC 헤딩 anchor
+- **velite 0.3.1** — MDX **frontmatter + TOC** 추출용 컬렉션 빌더 (Project / Post / AppLegalDoc). 본문(body) 컴파일은 담당하지 않음 (T021.5 부터 `@mdx-js/rollup` 으로 분리). collection schema는 velite 자체 `s` 헬퍼(Zod 3 internal) 사용 — Domain Zod 4.3.6과 버전 충돌 회피를 위해 schema shape을 velite 측에 미러링 (T007 D1)
+- **MDX** — 콘텐츠 작성 포맷. 본문은 `@mdx-js/rollup` (vite plugin) + `remark-frontmatter` 가 빌드 타임에 ESM 모듈로 컴파일. 라우트는 `import.meta.glob({ eager: true })` 로 lookup — `app/presentation/components/content/mdx-modules.ts`. Workers V8 isolate 의 runtime `new Function` 차단 (`Code generation from strings disallowed`) 회피 (T021.5)
+- **shiki 4.0.2 + @shikijs/rehype 4.0.2** — 빌드 타임 코드블록 syntax highlight (theme: `github-dark` 단일, MVP). 클라이언트 번들 영향 0 (devDependency)
+- **rehype-slug 6.0.0** — 헤딩 anchor 자동 부여 (한국어 anchor 지원)
+- **github-slugger 2.0.0** (devDependency) — `velite/transforms/extract-toc.ts` 가 사용. `rehype-slug` 와 동일 라이브러리이므로 빌드-time TOC 추출 시 anchor id 와 1:1 매칭 보장 (T013)
+- **Satori 0.26 standalone + @resvg/resvg-wasm 2.6 + yoga.wasm (satori 묶음본)** — `/og/projects/:slug.png` / `/og/blog/:slug.png` resource route 가 SSR 시점에 1200×630 PNG 동적 생성 (T018). yoga.wasm + resvg.wasm 은 ES module `import` 로 받아 `compiled-wasm` 모듈로 worker bundle 에 묶임 — Workers 의 dynamic wasm compile 차단 정책 (`WebAssembly.instantiate(): Wasm code generation disallowed by embedder`) 우회. `node_modules/satori/yoga.wasm` 이 satori standalone init 이 받는 wrapper-호환본 (yoga-wasm-web 의 yoga.wasm 과 wrapper 가 다름). 폰트 ttf 2 개는 `env.ASSETS.fetch(${origin}/fonts/...)` 로 첫 요청 시 1 회만 fetch + factory closure 캐시. fallback PNG 는 `scripts/build-og-fallback.mjs` 가 빌드 타임에 1 회 사전 생성해 `public/og/fallback.png` 로 commit.
+- **velite lifecycle hooks** — `predev` / `prebuild` / `prestart` / `pretest`가 모두 `bun run velite:build`로 라우팅. `velite:build`는 `velite build && node scripts/patch-velite-types.mjs`로 chained — fresh clone / CI에서 stale `.velite/` 캐시 회귀 차단 + typegen 교체
+- **Velite typegen patch** — velite 0.3.1 native typegen이 `import type __vc from '../velite.config.ts'`로 Zod 3 internal private 타입(`ZodInvalidStringIssue`, `ZodOptionalDef` 등)을 노출시켜 `tsc -b`에서 TS4082 폭발. `scripts/patch-velite-types.mjs`가 매 build 후 `.velite/index.d.ts`를 명시적 minimal 타입으로 교체. velite upstream fix 시 제거 (T008 D1)
+- **Path alias `#content` → `./.velite`** — `tsconfig.cloudflare.json`에 등록
 
 ### Search Index (F016 Cmd+K)
 - velite collection JSON을 클라이언트 번들 import → in-memory 토큰 검색 (별도 라이브러리 없이 includes/score)
@@ -55,16 +92,27 @@
 - **Indexing Policy** — App Terms/Privacy: `noindex, follow` / 404 splat: `noindex, nofollow`
 
 ### Forms & Email
-- **React Email** — Contact 자동응답 메일 템플릿
-- **Resend** — Contact form 발신 (`hello@tkstar.dev` → 본인 메일 + 제출자 자동응답). env: `RESEND_API_KEY`
-- **Cloudflare Turnstile** — 스팸 방지. env: `TURNSTILE_SECRET`
-- **Rate Limit** — Workers KV 기반 (`RATE_LIMIT_KV` binding)
+- **React Email 1.0.12** (`@react-email/components`) + **`@react-email/render` 2.0.8** — Contact 자동응답 메일 템플릿. service 에서 `render(createElement(AutoReplyEmail, {...}))` 로 html / plainText 두 출력 병렬 생성 (`app/application/contact/templates/AutoReplyEmail.tsx`)
+- **Resend** — Contact form 발신 (`hello@tkstar.dev` → 본인 메일 + 제출자 자동응답). HTTP API fetch 직접 사용 (SDK X). env: `RESEND_API_KEY` (wrangler secret per env)
+- **Cloudflare Turnstile** — 스팸 방지. siteverify FormData POST. env: public `TURNSTILE_SITE_KEY` (vars per env, default 는 always-pass test key `1x00000000000000000000AA`) + secret `TURNSTILE_SECRET` (wrangler secret per env, dev 는 `.dev.vars` always-pass test secret `1x0000000000000000000000000000000AA`)
+- **Rate Limit** — Workers KV 기반 (`RATE_LIMIT_KV` binding, 4개 namespace 환경 분리: default/preview/staging/production). key 패턴 `contact:{ip}:{yyyy-mm-dd-hh}`, max=5, TTL=3600s. 알려진 한계: TOCTOU race + fixed-window 경계 부스트 (후속 task 에서 Cloudflare Rate Limiting binding 으로 교체 예정)
+- **Local secrets**: `.dev.vars` (gitignored) — Workers `bunx wrangler dev` 가 자동 로드. 키 목록은 `.dev.vars.example` 참조
 
 ### Hosting / Edge
 - **Cloudflare Workers (SSR)** — `wrangler 4.85.0` + `@cloudflare/vite-plugin 1.33.2`
 - **Cloudflare Email Routing** — `hello@tkstar.dev` → 개인 Gmail forward
 - **Cloudflare Web Analytics** — 쿠키 없는 분석 스니펫
 - **Domain**: `tkstar.dev`
+
+### CMS 인프라 (계획 — 본 PR 시점에는 미구현)
+> 도입 일정과 task 분해는 [docs/ROADMAP.md](docs/ROADMAP.md) `Phase: CMS 인프라` 참조. 신규 기능 명세는 [docs/PRD.md](docs/PRD.md) F020~F023 참조.
+
+- **Cloudflare D1 (SQLite, edge-native)** — Post 원본 markdown / 메타 / Project 커버 메타 저장. binding: `DB`
+- **Drizzle ORM** + `drizzle-kit` — D1 first-class, 경량 (~10KB), runtime 의존 0. migration 관리
+- **Cloudflare R2** — Post 본문 이미지 / Project 커버 이미지 / 기타 미디어. S3 호환
+- **R2 클라이언트** — 후보 3개 (T023 PoC 후 T033 결정): (a) **R2 Workers binding** 1순위 (`MEDIA_BUCKET.put/get/delete/list`, 의존성 0) / (b) `aws4fetch` 2순위 (~2.5KB) / (c) `@aws-sdk/client-s3` 3순위 (~500KB, `compatibility_flags = ["nodejs_compat"]` 활성으로 import 가능 — multipart/streaming 진짜 필요 시만)
+- **Cloudflare Access (Zero Trust)** — `/admin/*` path 보호. 본인 1명 (이메일 1건 allowlist). Workers 는 `Cf-Access-Authenticated-User-Email` 헤더만 검증 — 자체 세션/쿠키/비밀번호 코드 X
+- **Tiptap (or Lexical) WYSIWYG** — admin editor. **순수 markdown 만** 직렬화 (커스텀 JSX 컴포넌트 X) → DB 에 markdown 문자열 저장
 
 ### Build / Dev / Quality
 - **Vite 8.0.3** + `@vitejs/plugin-react 6.0.1`
@@ -92,6 +140,10 @@
 - **Trivial doc-only changes**: GitHub Issue may be skipped (open a PR only). All other changes must create an Issue first.
 - **Plan phase on `chore/*` and `docs/*` branches**: the harness-pipeline's Phase 1 (Plan) and Phase 2 (TDD) are **not required** for these branch types. They carry non-behavioral changes (harness tooling, documentation, chores) that do not warrant a full Red/Green cycle. `plan-enforcement.sh` detects the branch prefix and suppresses its reminder; `abac-phase-policy.sh` already permits `.claude/**` / `docs/**` / `**/*.md` edits without `plan_approved`. PR review remains the safety net on these paths. `feature/*` and `fix/*` still follow the full 5-phase pipeline.
 - **Merge method**: `gh pr merge <N> --squash --delete-branch`. After merge, sync locally with `git checkout development && git pull --ff-only`.
+- **PR base = `development` (mandatory)**: every PR opened from a `feature/*` / `fix/*` / `docs/*` / `chore/*` branch MUST target `--base development`. The repo's GitHub default branch is `main` (production), and `gh pr create` without `--base` silently falls back to it — that is exactly how PR #22 (T006) leaked onto `main` and never reached `development`. Two-layer enforcement:
+  1. **Wrapper (preferred)**: `.claude/hooks/git-pr-create.sh` pins `--base $(config integrationBranch)` automatically. Always use it.
+  2. **Hook gate (defense-in-depth)**: `.claude/hooks/pre-pr-base-guard.sh` (PreToolUse:Bash) denies any direct `gh pr create` whose `--base` is missing or not equal to `development`.
+  - **Release flow exception**: `development → main` (production sync) is the only legitimate non-`development` base. It is performed by `.claude/hooks/git-release.sh`, which prefixes its `gh pr create` call with `HARNESS_PR_BASE_MAIN_OK=1` to opt in. Do NOT set this env var manually for routine work; it exists so release tooling has a sanctioned escape hatch.
 - **Self-check before a direct push**: "Is this really an exception?" — the answer is always "No". There are no exceptions.
 
 ## Workflow
@@ -102,12 +154,13 @@
 ### Test & Quality
 | Command | Description |
 |---------|-------------|
-| `bun run test` | Run all unit tests once |
+| `bun run test` | Run all unit tests once. `pretest` lifecycle가 먼저 `velite build`를 호출해 `.velite/` 산출물을 보장 |
 | `bun run test:watch` | Run tests in watch mode |
-| `bun run test:coverage` | Run tests with coverage report (threshold enforced via `coverageThreshold` in jest.config.js) |
-| `bun run typecheck` | TypeScript type checking (`babel.config.js` / `metro.config.js` excluded via `tsconfig.json`) |
+| `bun run test:coverage` | Run tests with coverage report (threshold: lines 80, branches 75, functions 80, statements 80 — `vitest.setup.ts`) |
+| `bun run typecheck` | TypeScript type checking (wrangler types + react-router typegen + `tsc -b`) |
 | `bun run lint` | Biome lint & format check |
 | `bun run format` | Biome auto-format |
+| `bun run velite:build` | Build velite collections (`content/**/*.mdx` → `.velite/{projects,posts,legal}.json`). 일반적으로 `pre*` lifecycle hook이 자동 호출하므로 직접 실행할 일 드묾 |
 
 **Presentation test notes**: Vitest + jsdom + `@testing-library/react`. `vitest.setup.ts`는 `@testing-library/jest-dom/vitest`를 import하여 `toBeInTheDocument`/`toHaveClass` 등 matcher를 등록한다. 이 matcher 타입이 `app/**/*.test.tsx`에서 인식되려면 `tsconfig.cloudflare.json`의 `include`에 `vitest.setup.ts`가 포함되어 있어야 한다 (T004에서 추가).
 
@@ -128,3 +181,5 @@ bunx expo prebuild --clean   # regenerate native projects
 bun run ios                  # verify iOS build
 bun run android              # verify Android build
 ```
+
+@docs/glossary.md

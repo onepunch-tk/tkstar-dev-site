@@ -11,7 +11,7 @@
 | **PRD Features** | **F011** (SSR + 동적 OG 이미지) |
 | **PRD AC** | **AC-F011-1**, **AC-F011-2**, **AC-F011-3** |
 | **예상 작업 시간** | 1.5d |
-| **Status** | Not Started |
+| **Status** | Done (2026-05-04) |
 
 ## Goal
 Satori standalone + Workers Asset Binding으로 `/og/projects/:slug.png` / `/og/blog/:slug.png` 리소스 라우트를 가동하여 슬러그별 1200×630 PNG OG 이미지를 SSR 시점 또는 첫 요청 시 생성한다. 미존재 slug는 fallback PNG, 폰트/yoga.wasm 누락 시 graceful degradation. 가정 A005 해소.
@@ -39,9 +39,9 @@ Satori standalone + Workers Asset Binding으로 `/og/projects/:slug.png` / `/og/
 - 디자인 토큰 사용한 OG 템플릿의 다크/라이트 분기 (단일 템플릿으로 시작)
 
 ## Acceptance Criteria (PRD AC 인용)
-- [ ] **AC-F011-1**: `/og/projects/:slug.png` 또는 `/og/blog/:slug.png` 요청 → Satori가 frontmatter(title/date/tags)로 PNG 생성 → 1200×630 PNG + `Content-Type: image/png` + `Cache-Control: public, max-age=31536000, immutable`
-- [ ] **AC-F011-2**: 미존재 slug 요청 → loader 핸들러 → 404가 아니라 default fallback PNG(브랜드 로고 + "tkstar.dev")
-- [ ] **AC-F011-3**: Satori 렌더링 실패(폰트 binary 누락 등) → 정적 fallback PNG + Workers logs 에러 기록
+- [x] **AC-F011-1**: `/og/projects/:slug.png` 또는 `/og/blog/:slug.png` 요청 → Satori가 frontmatter(title/date/tags)로 PNG 생성 → 1200×630 PNG + `Content-Type: image/png` + `Cache-Control: public, max-age=31536000, immutable`
+- [x] **AC-F011-2**: 미존재 slug 요청 → loader 핸들러 → 404가 아니라 default fallback PNG(브랜드 로고 + "tkstar.dev")
+- [x] **AC-F011-3**: Satori 렌더링 실패(폰트 binary 누락 등) → 정적 fallback PNG + Workers logs 에러 기록
 
 ## Implementation Plan (TDD Cycle)
 

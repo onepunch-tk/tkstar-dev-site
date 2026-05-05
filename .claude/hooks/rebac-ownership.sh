@@ -33,7 +33,7 @@ AGENT_ID=$(echo "$INPUT" | jq -r '.agent_id // empty')
 [[ -z "$AGENT_ID" ]] && exit 0
 
 PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$PWD}"
-OWNERSHIP_FILE="$PROJECT_DIR/.claude/ownership.json"
+OWNERSHIP_FILE="$PROJECT_DIR/.claude/runtime/ownership.json"
 
 [[ ! -f "$OWNERSHIP_FILE" ]] && exit 0
 
