@@ -47,11 +47,19 @@ id = "95b7366f0bf64aab9677eb43174e4b32"
 [env.production]
 name = "tkstar-dev-production"
 
+[[env.production.routes]]
+pattern = "tkstar.dev"
+custom_domain = true
+
+[[env.production.routes]]
+pattern = "www.tkstar.dev"
+custom_domain = true
+
 [env.production.vars]
 APP_ENV = "production"
 CONTACT_TO_EMAIL = "hello@tkstar.dev"
-# TURNSTILE_SITE_KEY: T022 deploy 단계에서 prod widget site key 로 교체 (공개 가능 값)
-TURNSTILE_SITE_KEY = "1x00000000000000000000AA"
+# T022 Stage 1: production Turnstile widget site key (공개 가능 값 — HTML 에 노출됨)
+TURNSTILE_SITE_KEY = "0x4AAAAAADJerjK_6MJH0kCx"
 # T020: 검색엔진 인증 토큰 + Web Analytics token — T022 deploy 단계에서 실제 값 주입
 GOOGLE_SITE_VERIFICATION = ""
 NAVER_SITE_VERIFICATION = ""
