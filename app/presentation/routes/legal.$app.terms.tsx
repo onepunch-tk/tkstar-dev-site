@@ -1,6 +1,6 @@
 import { buildBreadcrumbListLd } from "~/presentation/lib/jsonld";
 import { buildMeta } from "~/presentation/lib/meta";
-import MdxRenderer from "../components/content/MdxRenderer";
+import { legalTermsModules } from "../components/content/mdx-modules";
 import LegalDocLayout from "../components/legal/LegalDocLayout";
 import type { Route } from "./+types/legal.$app.terms";
 
@@ -31,26 +31,28 @@ export const meta: Route.MetaFunction = ({ data }) => {
 			robots: "noindex, follow",
 		}),
 		{
-			"script:ld+json": 				buildBreadcrumbListLd({
-					items: [
-						{ name: "Home", url: `${origin}/` },
-						{ name: "Legal", url: `${origin}/legal` },
-						{ name: docTitle, url: canonicalUrl },
-					],
-				}),
+			"script:ld+json": buildBreadcrumbListLd({
+				items: [
+					{ name: "Home", url: `${origin}/` },
+					{ name: "Legal", url: `${origin}/legal` },
+					{ name: docTitle, url: canonicalUrl },
+				],
+			}),
 		},
 	];
 };
 
 export default function AppTerms({ loaderData }: Route.ComponentProps) {
 	const { doc } = loaderData;
+	const Content =
+		legalTermsModules[`../../../../content/legal/apps/${doc.app_slug}/terms.mdx`]?.default;
 	return (
 		<LegalDocLayout
 			title={`${doc.app_slug} 서비스 이용약관`}
 			version={doc.version}
 			effectiveDate={doc.effective_date}
 		>
-			{doc.body ? <MdxRenderer code={doc.body} /> : null}
+			{Content ? <Content /> : null}
 		</LegalDocLayout>
 	);
 }

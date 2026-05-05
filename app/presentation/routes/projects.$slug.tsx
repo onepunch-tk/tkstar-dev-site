@@ -1,6 +1,6 @@
 import { buildBreadcrumbListLd, buildCreativeWorkLd } from "~/presentation/lib/jsonld";
 import { buildMeta } from "~/presentation/lib/meta";
-import MdxRenderer from "../components/content/MdxRenderer";
+import { projectModules } from "../components/content/mdx-modules";
 import OnThisPageToc from "../components/project/OnThisPageToc";
 import ProjectFooterNav from "../components/project/ProjectFooterNav";
 import ProjectMetaSidebar from "../components/project/ProjectMetaSidebar";
@@ -47,6 +47,7 @@ export const meta: Route.MetaFunction = ({ data }) => {
 
 export default function ProjectDetail({ loaderData }: Route.ComponentProps) {
 	const { project, prev, next } = loaderData;
+	const Content = projectModules[`../../../../content/projects/${project.slug}.mdx`]?.default;
 	return (
 		<main className="mx-auto flex max-w-[var(--container-measure)] flex-col gap-[22px] px-[var(--spacing-gutter)] pt-[22px] pb-20 min-[720px]:gap-7 min-[720px]:px-7 min-[720px]:pt-9 min-[720px]:pb-[120px]">
 			<header className="flex flex-col gap-2">
@@ -64,9 +65,7 @@ export default function ProjectDetail({ loaderData }: Route.ComponentProps) {
 			</header>
 
 			<div className="flex flex-col gap-8 min-[880px]:grid min-[880px]:grid-cols-[minmax(0,1fr)_280px] min-[880px]:gap-10">
-				<article className="project-body">
-					{project.body ? <MdxRenderer code={project.body} /> : null}
-				</article>
+				<article className="project-body">{Content ? <Content /> : null}</article>
 				<div className="flex flex-col gap-6 min-[880px]:sticky min-[880px]:top-[calc(var(--height-topbar)+36px)] min-[880px]:self-start min-[880px]:max-h-[calc(100dvh-var(--height-topbar)-48px)] min-[880px]:overflow-y-auto">
 					<ProjectMetaSidebar date={project.date} role={project.role} stack={project.stack} />
 					<OnThisPageToc toc={project.toc ?? []} />

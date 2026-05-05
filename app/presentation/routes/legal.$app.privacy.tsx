@@ -1,6 +1,6 @@
 import { buildBreadcrumbListLd } from "~/presentation/lib/jsonld";
 import { buildMeta } from "~/presentation/lib/meta";
-import MdxRenderer from "../components/content/MdxRenderer";
+import { legalPrivacyModules } from "../components/content/mdx-modules";
 import LegalDocLayout from "../components/legal/LegalDocLayout";
 import type { Route } from "./+types/legal.$app.privacy";
 
@@ -31,26 +31,28 @@ export const meta: Route.MetaFunction = ({ data }) => {
 			robots: "noindex, follow",
 		}),
 		{
-			"script:ld+json": 				buildBreadcrumbListLd({
-					items: [
-						{ name: "Home", url: `${origin}/` },
-						{ name: "Legal", url: `${origin}/legal` },
-						{ name: docTitle, url: canonicalUrl },
-					],
-				}),
+			"script:ld+json": buildBreadcrumbListLd({
+				items: [
+					{ name: "Home", url: `${origin}/` },
+					{ name: "Legal", url: `${origin}/legal` },
+					{ name: docTitle, url: canonicalUrl },
+				],
+			}),
 		},
 	];
 };
 
 export default function AppPrivacy({ loaderData }: Route.ComponentProps) {
 	const { doc } = loaderData;
+	const Content =
+		legalPrivacyModules[`../../../../content/legal/apps/${doc.app_slug}/privacy.mdx`]?.default;
 	return (
 		<LegalDocLayout
 			title={`${doc.app_slug} 개인정보 처리방침`}
 			version={doc.version}
 			effectiveDate={doc.effective_date}
 		>
-			{doc.body ? <MdxRenderer code={doc.body} /> : null}
+			{Content ? <Content /> : null}
 		</LegalDocLayout>
 	);
 }

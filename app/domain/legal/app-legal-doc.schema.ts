@@ -6,5 +6,4 @@ export const appLegalDocSchema = z.object({
 	doc_type: z.enum(["terms", "privacy"]),
 	version: zNonEmptyString(),
 	effective_date: zIso8601Date(),
-	body: z.string().optional(),
 });

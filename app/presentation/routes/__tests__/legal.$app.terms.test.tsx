@@ -4,9 +4,16 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { AppLegalDoc } from "../../../domain/legal/app-legal-doc.entity";
 
-// MdxRenderer를 모킹해 body 함수 평가 불안정성 회피 (projects.$slug 패턴)
-vi.mock("../../components/content/MdxRenderer", () => ({
-	default: () => <div data-testid="mdx-content">[mdx body]</div>,
+// build-time MDX 모듈 맵을 mock — 실제 콘텐츠 파일과 무관하게 testid 매칭 컴포넌트 반환
+vi.mock("../../components/content/mdx-modules", () => ({
+	legalTermsModules: new Proxy(
+		{},
+		{
+			get: () => ({
+				default: () => <div data-testid="mdx-content">[mdx body]</div>,
+			}),
+		},
+	),
 }));
 
 import AppTerms, { loader } from "../legal.$app.terms";
@@ -20,7 +27,6 @@ const moaiTerms: AppLegalDoc = {
 	doc_type: "terms",
 	version: "1.0.0",
 	effective_date: "2026-04-28T00:00:00.000Z",
-	body: "## moai terms",
 };
 
 // ---------------------------------------------------------------------------
@@ -103,7 +109,7 @@ describe("Group A — legal.$app.terms loader", () => {
 // ---------------------------------------------------------------------------
 
 describe("Group B — legal.$app.terms 컴포넌트", () => {
-	it("LegalDocLayout 안에 MdxRenderer 가 렌더된다 (title/version/effectiveDate 노출)", async () => {
+	it("LegalDocLayout 안에 MDX content 가 렌더된다 (title/version/effectiveDate 노출)", async () => {
 		// Arrange
 		const Stub = createRoutesStub([
 			{

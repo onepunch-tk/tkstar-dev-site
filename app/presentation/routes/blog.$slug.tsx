@@ -1,6 +1,6 @@
 import { buildBlogPostingLd, buildBreadcrumbListLd } from "~/presentation/lib/jsonld";
 import { buildMeta } from "~/presentation/lib/meta";
-import MdxRenderer from "../components/content/MdxRenderer";
+import { postModules } from "../components/content/mdx-modules";
 import PostFooterNav from "../components/post/PostFooterNav";
 import ShareTools from "../components/post/ShareTools";
 import OnThisPageToc from "../components/project/OnThisPageToc";
@@ -34,19 +34,20 @@ export const meta: Route.MetaFunction = ({ data }) => {
 			"script:ld+json": buildBlogPostingLd({ post, origin, ogImage: ogImageUrl }),
 		},
 		{
-			"script:ld+json": 				buildBreadcrumbListLd({
-					items: [
-						{ name: "Home", url: `${origin}/` },
-						{ name: "Blog", url: `${origin}/blog` },
-						{ name: post.title, url: canonicalUrl },
-					],
-				}),
+			"script:ld+json": buildBreadcrumbListLd({
+				items: [
+					{ name: "Home", url: `${origin}/` },
+					{ name: "Blog", url: `${origin}/blog` },
+					{ name: post.title, url: canonicalUrl },
+				],
+			}),
 		},
 	];
 };
 
 export default function BlogDetail({ loaderData }: Route.ComponentProps) {
 	const { post, prev, next, canonicalUrl } = loaderData;
+	const Content = postModules[`../../../../content/posts/${post.slug}.mdx`]?.default;
 	return (
 		<main className="mx-auto flex max-w-[var(--container-measure)] flex-col gap-[22px] px-[var(--spacing-gutter)] pt-[22px] pb-20 min-[720px]:gap-7 min-[720px]:px-7 min-[720px]:pt-9 min-[720px]:pb-[120px]">
 			<header className="flex flex-col gap-2">
@@ -64,9 +65,7 @@ export default function BlogDetail({ loaderData }: Route.ComponentProps) {
 			</header>
 
 			<div className="flex flex-col gap-8 min-[880px]:grid min-[880px]:grid-cols-[minmax(0,1fr)_280px] min-[880px]:gap-10">
-				<article className="post-body">
-					{post.body ? <MdxRenderer code={post.body} /> : null}
-				</article>
+				<article className="post-body">{Content ? <Content /> : null}</article>
 				<div className="flex flex-col gap-6 min-[880px]:sticky min-[880px]:top-[calc(var(--height-topbar)+36px)] min-[880px]:self-start min-[880px]:max-h-[calc(100dvh-var(--height-topbar)-48px)] min-[880px]:overflow-y-auto">
 					<OnThisPageToc toc={post.toc ?? []} />
 					<ShareTools title={post.title} canonicalUrl={canonicalUrl} />

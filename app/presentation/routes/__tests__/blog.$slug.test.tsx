@@ -2,9 +2,16 @@ import { render, screen } from "@testing-library/react";
 import { createRoutesStub } from "react-router";
 import { describe, expect, it, vi } from "vitest";
 
-// MdxRenderer를 모킹해 body 함수 평가 불안정성 회피
-vi.mock("../../components/content/MdxRenderer", () => ({
-	default: () => <div data-testid="mdx-content">[mdx body]</div>,
+// build-time MDX 모듈 맵을 mock — 실제 콘텐츠 파일과 무관하게 testid 매칭 컴포넌트 반환
+vi.mock("../../components/content/mdx-modules", () => ({
+	postModules: new Proxy(
+		{},
+		{
+			get: () => ({
+				default: () => <div data-testid="mdx-content">[mdx body]</div>,
+			}),
+		},
+	),
 }));
 
 // ---------------------------------------------------------------------------
@@ -25,7 +32,6 @@ type PostWithBody = {
 	date: string;
 	tags: string[];
 	read: number;
-	body?: string;
 	toc?: { slug: string; text: string }[];
 };
 
@@ -36,7 +42,6 @@ const POST_WITH_TOC: PostWithBody = {
 	date: "2026-05-02",
 	tags: ["rr7", "cloudflare"],
 	read: 5,
-	body: "[stub-mdx-body]",
 	toc: [
 		{ slug: "intro", text: "Introduction" },
 		{ slug: "conclusion", text: "Conclusion" },

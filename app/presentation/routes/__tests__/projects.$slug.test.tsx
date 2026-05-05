@@ -4,9 +4,16 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { Project } from "../../../domain/project/project.entity";
 
-// MdxRenderer를 모킹해 body 함수 평가 불안정성 회피
-vi.mock("../../components/content/MdxRenderer", () => ({
-	default: () => <div data-testid="mdx-content">[mdx body]</div>,
+// build-time MDX 모듈 맵을 mock — 실제 콘텐츠 파일과 무관하게 testid 매칭 컴포넌트 반환
+vi.mock("../../components/content/mdx-modules", () => ({
+	projectModules: new Proxy(
+		{},
+		{
+			get: () => ({
+				default: () => <div data-testid="mdx-content">[mdx body]</div>,
+			}),
+		},
+	),
 }));
 
 import ProjectDetail, { loader } from "../projects.$slug";
@@ -24,7 +31,6 @@ const PROJECT_WITH_TOC: Project = {
 	stack: ["TypeScript", "React Router"],
 	metrics: [],
 	role: "Lead Engineer",
-	body: "[stub-mdx-body]",
 	toc: [
 		{ slug: "problem", text: "Problem" },
 		{ slug: "approach", text: "Approach" },
