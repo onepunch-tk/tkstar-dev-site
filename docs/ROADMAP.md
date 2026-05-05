@@ -550,24 +550,32 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
   - 번들 사이즈: total +4.09 kB raw / +0.02 kB gzip (사실상 동일).
   - PR 1개 / 브랜치: `fix/issue-75-mdx-renderer-workers-eval`
 
-- [ ] **Task 022: Cloudflare Workers 배포 + 도메인 연결 + Email Routing + 검색엔진 인증 완료**
+- [ ] **Task 022: Cloudflare Workers 배포 + 도메인 연결 + Email Routing + 검색엔진 인증 완료** (Stage 1 진행 중)
   - **Must** Read: [tasks/T022-deploy-production.md](tasks/T022-deploy-production.md)
   - blockedBy: Task 021, **Task 021.5** (Critical fix 없이는 detail 페이지 SSR 차단)
   - Layer: 운영
   - 관련 Feature: F019 (인증 완료), 운영 (도메인/이메일)
   - 관련 AC: 없음 (운영 검증)
-  - 검증:
-    - `bunx wrangler deploy` 성공 → workers.dev 우선 동작
-    - `tkstar.dev` 도메인 등록 + Cloudflare DNS 연결 + Workers Custom Domain 매핑
-    - Cloudflare Email Routing: `hello@tkstar.dev` → 개인 Gmail forward 동작 확인 (실제 메일 송수신)
-    - Resend domain verification 완료 (DKIM/SPF DNS record 설정)
-    - `wrangler secret put RESEND_API_KEY` / `TURNSTILE_SECRET` / vars `GOOGLE_SITE_VERIFICATION` / `NAVER_SITE_VERIFICATION` 주입
-    - Google Search Console 도메인 소유권 인증 + `https://tkstar.dev/sitemap.xml` 제출
-    - Naver Search Advisor `naver-site-verification` meta 검증 + sitemap 제출
-    - 배포 후 `site:tkstar.dev` 검색으로 indexing 확인 (수일 ~ 수주 소요)
-  - 가정 해소: A010 (도메인 등록 채널 결정 시 기록), A008 완료 (실제 토큰 주입)
+  - **2단계 PR 분리** (DNS 전파 24~48h 흡수):
+    - **Stage 1 — Bootstrap** (`chore/issue-78-deploy-production-bootstrap`, Issue #78, 진행 중):
+      - [x] Cloudflare Registrar 도메인 등록 (`tkstar.dev`, expires 2027-05-05) — A010 결정: CF Registrar
+      - [x] Cloudflare Email Routing: `hello@tkstar.dev` → 개인 Gmail forward (외부 수신 검증)
+      - [x] Resend domain verification (region ap-northeast-1, status Verified) + API key 발급
+      - [x] Cloudflare Turnstile production widget (`tkstar-dev-production`, hostnames apex+www, Managed mode)
+      - [x] GitHub Actions secrets (`CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID`)
+      - [x] `wrangler.toml` `[[env.production.routes]]` apex+www custom_domain 추가 + `TURNSTILE_SITE_KEY` 평문 주입
+      - [x] `wrangler secret put` × 4 (production/staging × `RESEND_API_KEY`/`TURNSTILE_SECRET`)
+      - [ ] PR #N → development 머지 → main release → `https://tkstar.dev` 200 응답 확인 + Contact form 실 메일 발송 검증
+    - **Stage 2 — Search Engines** (별도 PR, Stage 1 머지 후 24~48h DNS 전파 완료 시 진행):
+      - [ ] Google Search Console 도메인 소유권 (TXT) + sitemap.xml 제출
+      - [ ] Naver Search Advisor HTML meta 인증 + sitemap 제출
+      - [ ] Cloudflare Web Analytics token 발급 + `wrangler.toml` `CLOUDFLARE_ANALYTICS_TOKEN` 주입
+      - [ ] `GOOGLE_SITE_VERIFICATION` / `NAVER_SITE_VERIFICATION` 평문 주입 → CI 재배포 → meta tag SSR 노출 → 인증 통과
+      - [ ] (수일~수주 후) `site:tkstar.dev` Google 검색 indexing 확인
+  - 가정 해소: A010 결정 (CF Registrar) ✅, A008 (Stage 2 에서 완료 예정)
   - 잔존 가정: A011(Bing 등록 보류), A012(Motion 라이브러리 보류)
-  - PR 1개 / 브랜치: `chore/deploy-production`
+  - PR 2개 / 브랜치: `chore/issue-78-deploy-production-bootstrap` (Stage 1) + `chore/deploy-production-search-engines` (Stage 2)
+  - 보고서: [reports/deploy-2026-05-05.md](reports/deploy-2026-05-05.md)
 
 ---
 
