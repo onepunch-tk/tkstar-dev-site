@@ -21,6 +21,7 @@
 		"prebuild": "bun run velite:build",
 		"prestart": "bun run velite:build",
 		"pretest": "bun run velite:build",
+		"pretypecheck": "bun run velite:build",
 		"postinstall": "wrangler types"
 	},
 	"dependencies": {
