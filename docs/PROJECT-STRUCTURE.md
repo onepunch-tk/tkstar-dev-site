@@ -235,6 +235,7 @@ app/application/
 **Contains**:
 - **config/** — DI 컨테이너 (Composition Root) — Workers 부팅 시 모든 의존성 조립. **수제 Plain object/Map 방식** (의존성 그래프 작아 라이브러리 도입 미사용)
 - **content/** — velite read-side 어댑터 (`.velite/` 산출물을 Domain 엔티티로 매핑) — `*.repository.ts` 구현체
+- **db/** — Cloudflare D1 (edge SQLite) + Drizzle ORM 스키마/마이그레이션. F021 (Post) / F022 (MediaAsset metadata) / F021.5 (ProjectMeta cover) 의 데이터 정본. 본 task (T024) 시점에는 schema + binding + migration 토대만 — Repository 구현은 T025 에서 추가
 - **email/** — Resend + React Email 통합
 - **captcha/** — Cloudflare Turnstile 서버 검증
 - **og/** — Satori standalone + Workers Asset Binding으로 폰트/yoga.wasm 로드
@@ -256,6 +257,11 @@ app/infrastructure/
 │   ├── velite-legal.repository.ts
 │   ├── mappers/                      # velite raw output → Domain Entity (`*.mapper.ts`)
 │   └── __tests__/
+├── db/
+│   ├── schema/
+│   │   └── posts.ts                  # F021 — Drizzle sqliteTable (PRD F021 Data Model 1:1)
+│   └── __tests__/
+│       └── posts.schema.test.ts      # 정적 schema 메타 검증 (getTableConfig 기반)
 ├── email/
 │   ├── resend-email-sender.ts        # implements email-sender.port (env.RESEND_API_KEY)
 │   ├── templates/                    # React Email 템플릿 (자동응답 메일)
@@ -588,6 +594,9 @@ app/
 ├── infrastructure/
 │   ├── config/.gitkeep
 │   ├── content/.gitkeep
+│   ├── db/                            # T024 — D1 + Drizzle (schema/migrations)
+│   │   ├── schema/
+│   │   └── __tests__/
 │   ├── email/.gitkeep
 │   ├── captcha/.gitkeep
 │   ├── og/.gitkeep

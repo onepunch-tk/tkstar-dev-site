@@ -29,6 +29,11 @@ binding = "RATE_LIMIT_KV"
 id = "933b671d6b8846deaad41febd80de8dd"
 preview_id = "c68513cba84e4eeca7b947d1d0ff07f5"
 
+[[d1_databases]]
+binding = "DB"
+database_name = "tkstar-dev-db-preview"
+database_id = "fb8d15ba-3d83-4dab-a8b8-d701a6f9c4c0"
+
 [env.staging]
 name = "tkstar-dev-staging"
 
@@ -43,6 +48,11 @@ CLOUDFLARE_ANALYTICS_TOKEN = ""
 [[env.staging.kv_namespaces]]
 binding = "RATE_LIMIT_KV"
 id = "95b7366f0bf64aab9677eb43174e4b32"
+
+[[env.staging.d1_databases]]
+binding = "DB"
+database_name = "tkstar-dev-db-preview"
+database_id = "fb8d15ba-3d83-4dab-a8b8-d701a6f9c4c0"
 
 [env.production]
 name = "tkstar-dev-production"
@@ -68,3 +78,8 @@ CLOUDFLARE_ANALYTICS_TOKEN = "ff5c6565162c478580790bdb4e32bf5c"
 [[env.production.kv_namespaces]]
 binding = "RATE_LIMIT_KV"
 id = "2ec496563f6c43699b493cf2c96304f1"
+
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "tkstar-dev-db"
+database_id = "601604ed-cbd0-4678-b481-f834a9d68f0f"
