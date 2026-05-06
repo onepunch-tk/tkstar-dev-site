@@ -515,7 +515,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
 > **진입 조건**: Phase 5 완료 (모든 F001~F019 자동 테스트 Green)
 > **완료 조건 (DoD)**: 프로덕션 도메인 `https://tkstar.dev` 접속 시 모든 페이지 정상, OG 미리보기가 SNS에서 정상 노출, Contact Form이 실제 메일 발송, Search Console에서 sitemap 제출 및 indexing 확인.
 
-- [ ] **Task 021: 통합 QA + Lighthouse + Axe 접근성 점검 + 모든 PRD AC 통과 매트릭스**
+- [x] **Task 021: 통합 QA + Lighthouse + Axe 접근성 점검 + 모든 PRD AC 통과 매트릭스** ✅ 2026-05-04 (Issue #74, PR #76)
   - **Must** Read: [tasks/T021-qa-pass-mvp.md](tasks/T021-qa-pass-mvp.md)
   - blockedBy: Task 020
   - Layer: 전 layer (회귀 테스트)
