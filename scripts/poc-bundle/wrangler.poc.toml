@@ -1,5 +1,0 @@
-#:schema ../../node_modules/wrangler/config-schema.json
-name = "tkstar-dev-poc"
-compatibility_date = "2026-04-27"
-compatibility_flags = ["nodejs_compat"]
-main = "./entries/drizzle-d1.ts"
