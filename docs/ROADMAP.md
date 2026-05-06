@@ -598,7 +598,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
 - [x] **Task 023: Workers 번들 사이즈 PoC + 의존성 합산 측정** - Priority — Done 2026-05-06 ([report](reports/cms-bundle-poc-2026-05-06.md))
   - **Must** Read: [tasks/T023-workers-bundle-poc.md](tasks/T023-workers-bundle-poc.md)
   - blockedBy: Task 022
-  - blocks: Task 024, Task 027, Task 030, Task 035
+  - blocks: Task 024, Task 027, Task 030, Task 033, Task 034, Task 035
   - Layer: Infrastructure (build-time 측정) + 운영
   - 관련 Feature: F020, F021, F022, F023 (전제)
   - 관련 AC: 없음 (사실 측정)

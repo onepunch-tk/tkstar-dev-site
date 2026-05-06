@@ -177,6 +177,8 @@ node scripts/poc-bundle/measure.mjs
 
 또는 본 보고서의 매트릭스 행을 그대로 사용 (deps 버전 고정 — Section 8 의 lockfile 스냅샷 참조).
 
+> **Squash merge 후 한계**: 본 PR 은 squash merge 정책 (`gh pr merge --squash --delete-branch`) — merge 이후에는 PoC commit + revert commit 이 단일 squash commit 에 흡수되고 `chore/issue-88-cms-bundle-poc` 브랜치도 삭제된다. 즉 squash merge 이후의 재측정은 위의 `git checkout` 절차로는 불가능하며, 본 보고서의 매트릭스 + Section 8 deps 버전 스냅샷을 기준으로 `scripts/poc-bundle/` 측정 인프라를 재작성해야 한다.
+
 ## 8. 측정 시점 deps 버전
 
 | Package | Version |
@@ -185,7 +187,7 @@ node scripts/poc-bundle/measure.mjs
 | marked | 18.0.3 |
 | micromark | 4.0.2 |
 | @mdx-js/mdx | 3.1.1 |
-| shiki | 4.0.2 (devDependency, 그대로 사용 — 빌드타임) |
+| shiki | 4.0.2 (devDependency — 빌드타임 사용. 본 PoC runtime 측정은 langs=`['typescript','javascript','shell']` + theme=`github-dark` 기준) |
 | jose | 6.2.3 |
 | aws4fetch | 1.0.20 |
 | @aws-sdk/client-s3 | 3.1043.0 |
