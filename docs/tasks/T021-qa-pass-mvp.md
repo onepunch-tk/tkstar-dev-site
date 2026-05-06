@@ -12,7 +12,7 @@
 | **PRD Features** | F001~F019 전체 |
 | **PRD AC** | AC-F003-1/2/3, AC-F008-1/2/3/4, AC-F009-1/2/3, AC-F011-1/2/3, AC-F016-1/2/3/4/5 — **18개 AC 전수** |
 | **예상 작업 시간** | 1d |
-| **Status** | In Review (자동 영역 완료, 수동 검증 대기) |
+| **Status** | ✅ Done |
 | **산출물** | [docs/reports/qa-2026-05-04.md](../reports/qa-2026-05-04.md) |
 
 ## Goal

@@ -11,7 +11,7 @@
 | **PRD Features** | F019 (인증 완료), 운영 (도메인/이메일) |
 | **PRD AC** | — (운영 검증) |
 | **예상 작업 시간** | 1d (DNS 전파 대기 시간 별도) |
-| **Status** | Not Started |
+| **Status** | ✅ Done |
 
 ## Goal
 `bunx wrangler deploy`로 Cloudflare Workers에 첫 배포하고, `tkstar.dev` 도메인 연결 + Cloudflare Email Routing + Resend domain verification + Google/Naver Search Console 인증을 모두 완료한다. 가정 A010(도메인 등록 채널) 결정 + A008(실제 토큰 주입) 완료.
