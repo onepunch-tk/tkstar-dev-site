@@ -595,23 +595,28 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
 > **진입 조건**: Phase 6 완료
 > **완료 조건 (DoD)**: 기존 `content/posts/*.mdx` 가 D1 `posts` 테이블로 일회성 이관 완료. `/blog` 와 `/blog/{slug}` 가 D1 SELECT + raw_markdown runtime compile + KV cache 로 SSR 렌더. RSS / sitemap / search index 모두 D1 published 항목만 반영. Workers 번들 사이즈 PoC 결과 사실 기록.
 
-- [ ] **Task 023: Workers 번들 사이즈 PoC + 의존성 합산 측정** - Priority
+- [x] **Task 023: Workers 번들 사이즈 PoC + 의존성 합산 측정** - Priority — Done 2026-05-06 ([report](reports/cms-bundle-poc-2026-05-06.md))
   - **Must** Read: [tasks/T023-workers-bundle-poc.md](tasks/T023-workers-bundle-poc.md)
   - blockedBy: Task 022
   - blocks: Task 024, Task 027, Task 030, Task 035
   - Layer: Infrastructure (build-time 측정) + 운영
   - 관련 Feature: F020, F021, F022, F023 (전제)
   - 관련 AC: 없음 (사실 측정)
+  - **결과 요약 (PASS — Free 3 MiB gzip 한계 안)**:
+    - Baseline: 1467.10 KiB gzip / 권장 stack 합산: 1522.48 KiB gzip / 헤드룸: ~1.51 MiB
+    - 카테고리 winner: MDX runtime = `marked` (13.59 KiB) / R2 = Workers binding (0.12 KiB) / JWT = `jose` (10.71 KiB) / ORM = `drizzle-orm/d1` (30.96 KiB)
+    - **shiki 빌드타임 유지 강력 권고** — runtime 시 +1.64 MiB 즉시 한계 초과 위험 확인
+    - Tiptap admin client: v2 = 90.21 KiB gzip / v3 = 115.39 KiB gzip (Workers 한계와 무관, 최종 선택은 T035 한국어 IME PoC 결과로)
   - 검증:
     - 임시 PoC 브랜치에서 [Tiptap (v2 또는 v3 + markdown serializer 후보) + MDX-like compiler 후보(`marked` / `micromark` / `@mdx-js/mdx` — `nodejs_compat` 는 wrangler.toml 에 이미 활성) + shiki 단일 theme(`github-dark`) + `jose` (JWT 검증) + R2 client 후보 (`aws4fetch` / R2 binding-only / `@aws-sdk/client-s3`)] 합산 import만으로 빈 Worker 빌드 → `bunx wrangler deploy --dry-run --outdir dist`로 산출물 측정. **`@aws-sdk/client-s3` 도 측정 대상에 포함** (nodejs_compat 으로 import 가능, 실측 ~500KB 가산 영향 확인 목적)
     - 합산이 Cloudflare Free 3 MiB 이내 → 기본 stack 확정 / 초과 시 (a) `aws4fetch` + R2 binding-only / (b) shiki 제거(syntax highlight 빌드 타임만) / (c) Workers Paid 플랜 ($5/월) 중 결정
     - 측정 보고서를 PR 본문 + `docs/reports/cms-bundle-poc-{date}.md` 에 기록 (각 의존성별 byte 분해)
   - 산출물:
-    - `docs/reports/cms-bundle-poc-{date}.md` (측정 결과 + stack 결정)
-    - 본 task 자체는 코드 머지 X — 측정 후 PoC 브랜치 폐기, 결과 문서만 머지
+    - [docs/reports/cms-bundle-poc-2026-05-06.md](reports/cms-bundle-poc-2026-05-06.md) (baseline + 9 Workers 후보 + 2 admin stack + 권장 stack 합산 + PASS/FAIL 판정 + 권고안)
+    - 본 task 자체는 코드 머지 X — PoC commit 전체 git revert, 결과 문서만 머지
     - 결정된 후보를 후속 task (T024, T027, T030, T035) 의 산출물에 명시
   - 가정 해소: Issue #2 (Workers 번들 사이즈 한계 vs CMS 의존성 합산), A014 일부 (Tiptap 메이저 버전 후보 좁힘), A015 일부 (MDX runtime compiler 후보 좁힘), Issue #1 부분 (R2 SDK 1차 후보 좁힘 — 최종 결정은 T033)
-  - PR 1개 / 브랜치: `chore/cms-bundle-poc`
+  - PR: #88 / 브랜치: `chore/issue-88-cms-bundle-poc`
 
 - [ ] **Task 024: Cloudflare D1 + Drizzle ORM 셋업 + posts schema migration**
   - **Must** Read: [tasks/T024-d1-drizzle-setup.md](tasks/T024-d1-drizzle-setup.md)
@@ -1170,7 +1175,7 @@ Phase 7.4 (Project Meta+Search Index):
 - [ ] Phase 5: SEO / OG / Indexing (Task 018~020)
 - [ ] Phase 6: Polish & Deploy (Task 021, **021.5**, 022)
 - [ ] Phase 7: CMS 인프라 — D1 + Drizzle + R2 + Cloudflare Access (Task 023~040)
-  - Phase 7.1 Read Path First (Task 023~028, 6 tasks)
+  - Phase 7.1 Read Path First (Task 023~028, 6 tasks) — Task 023 ✅ Done 2026-05-06
   - Phase 7.2 Auth + Admin Foundation (Task 029~032, 4 tasks)
   - Phase 7.3 Admin Editor + Media (Task 033~037, 5 tasks)
   - Phase 7.4 Project Meta + Search Index (Task 038~040, 3 tasks)
