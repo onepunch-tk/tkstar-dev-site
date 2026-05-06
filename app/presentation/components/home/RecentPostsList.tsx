@@ -2,6 +2,7 @@ import { Link } from "react-router";
 
 import type { Post } from "../../../domain/post/post.entity";
 import { formatDate } from "../../lib/format";
+import { formatRelativeTime } from "../../lib/format-relative-time";
 
 type Props = { posts: Post[] };
 
@@ -17,10 +18,10 @@ export default function RecentPostsList({ posts }: Props) {
 						className="grid grid-cols-[1fr_auto] min-[560px]:grid-cols-[88px_1fr_auto] items-baseline gap-2.5 border-line border-b py-3.5 font-sans text-[13px] text-fg no-underline transition-colors duration-[var(--duration-120)] ease-out hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent motion-reduce:transition-none"
 					>
 						<span className="col-span-full text-[11px] text-muted min-[560px]:col-span-1 min-[560px]:text-[11px]">
-							{formatDate(p.date)}
+							{p.datePublished ? formatDate(p.datePublished) : ""}
 						</span>
 						<span className="font-medium text-fg">{p.title}</span>
-						<span className="text-[11px] text-muted">{p.read} min</span>
+						<span className="text-[11px] text-muted">{formatRelativeTime(p.updatedAt)}</span>
 					</Link>
 				))}
 			</div>

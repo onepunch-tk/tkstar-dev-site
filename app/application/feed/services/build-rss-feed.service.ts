@@ -17,8 +17,8 @@ export const buildRssFeed = (posts: Post[]): string => {
 				"    <item>",
 				`      <title>${escapeXml(p.title)}</title>`,
 				`      <link>${url}</link>`,
-				`      <description>${escapeXml(p.lede)}</description>`,
-				`      <pubDate>${toRfc822(p.date)}</pubDate>`,
+				`      <description>${escapeXml(p.summary ?? "")}</description>`,
+				`      <pubDate>${toRfc822(p.datePublished ?? new Date(p.createdAt * 1000).toISOString())}</pubDate>`,
 				`      <guid>${url}</guid>`,
 				"    </item>",
 			].join("\n");

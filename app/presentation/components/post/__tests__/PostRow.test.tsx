@@ -9,39 +9,39 @@ import PostRow from "../PostRow";
 const mockPost: Post = {
 	slug: "example-post",
 	title: "Example Post",
-	lede: "A short lede of the post.",
-	date: "2026-04-28",
+	summary: "A short summary of the post.",
+	datePublished: "2026-04-28",
 	tags: ["solo", "ops"],
-	read: 3,
+	status: "published",
+	createdAt: 1714291200,
+	updatedAt: 1714291200,
 };
 
 describe("PostRow", () => {
-	it("date(YYYY-MM-DD), title, lede, tags, read 필드를 모두 렌더한다", () => {
-		// Arrange / Act
+	it("datePublished, title, summary, tags, updated relative 필드를 모두 렌더한다", () => {
 		render(
 			<MemoryRouter>
 				<PostRow post={mockPost} />
 			</MemoryRouter>,
 		);
 
-		// Assert
 		expect(screen.getAllByText("2026-04-28")).not.toHaveLength(0);
 		expect(screen.getByText("Example Post")).toBeInTheDocument();
-		expect(screen.getByText(/A short lede/)).toBeInTheDocument();
+		expect(screen.getByText(/A short summary/)).toBeInTheDocument();
 		expect(screen.getByText("solo")).toBeInTheDocument();
 		expect(screen.getByText("ops")).toBeInTheDocument();
-		expect(screen.getByText(/3\s*min/)).toBeInTheDocument();
+		expect(
+			screen.getByText(/ago|just now|y ago|mo ago|w ago|d ago|h ago|m ago/),
+		).toBeInTheDocument();
 	});
 
 	it("행 컨테이너가 /blog/{slug}로 향하는 Link이다", () => {
-		// Arrange / Act
 		render(
 			<MemoryRouter>
 				<PostRow post={mockPost} />
 			</MemoryRouter>,
 		);
 
-		// Assert
 		const row = screen.getByTestId("post-row");
 		expect(row.tagName).toBe("A");
 		expect(row).toHaveAttribute("href", "/blog/example-post");

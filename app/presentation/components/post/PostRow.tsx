@@ -2,11 +2,12 @@ import { Link } from "react-router";
 
 import type { Post } from "../../../domain/post/post.entity";
 import { formatDate } from "../../lib/format";
+import { formatRelativeTime } from "../../lib/format-relative-time";
 
 type Props = { post: Post };
 
 export default function PostRow({ post }: Props) {
-	const date = formatDate(post.date);
+	const date = post.datePublished ? formatDate(post.datePublished) : "";
 	return (
 		<Link
 			to={`/blog/${post.slug}`}
@@ -17,7 +18,7 @@ export default function PostRow({ post }: Props) {
 			<div className="flex flex-col gap-0.5">
 				<span className="font-sans text-[11px] text-accent min-[720px]:hidden">{date}</span>
 				<span className="font-semibold text-fg">{post.title}</span>
-				<span className="text-[11px] text-muted">{post.lede}</span>
+				<span className="text-[11px] text-muted">{post.summary ?? ""}</span>
 			</div>
 			<div className="flex flex-wrap justify-end gap-1.5">
 				{post.tags.map((t) => (
@@ -30,7 +31,7 @@ export default function PostRow({ post }: Props) {
 				))}
 			</div>
 			<span className="hidden text-right text-[11px] text-muted min-[720px]:inline">
-				{post.read} min
+				{formatRelativeTime(post.updatedAt)}
 			</span>
 		</Link>
 	);

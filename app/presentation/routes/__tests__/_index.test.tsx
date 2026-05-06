@@ -21,10 +21,38 @@ const mockFeatured: Project = {
 	cover: undefined,
 };
 
+const T = 1714291200;
 const mockPosts: Post[] = [
-	{ slug: "p1", title: "글 1", lede: "lede 1", date: "2026-04-01", tags: [], read: 5 },
-	{ slug: "p2", title: "글 2", lede: "lede 2", date: "2026-03-20", tags: [], read: 8 },
-	{ slug: "p3", title: "글 3", lede: "lede 3", date: "2026-03-05", tags: [], read: 12 },
+	{
+		slug: "p1",
+		title: "글 1",
+		summary: "summary 1",
+		datePublished: "2026-04-01",
+		tags: [],
+		status: "published",
+		createdAt: T,
+		updatedAt: T,
+	},
+	{
+		slug: "p2",
+		title: "글 2",
+		summary: "summary 2",
+		datePublished: "2026-03-20",
+		tags: [],
+		status: "published",
+		createdAt: T - 86400 * 12,
+		updatedAt: T - 86400 * 12,
+	},
+	{
+		slug: "p3",
+		title: "글 3",
+		summary: "summary 3",
+		datePublished: "2026-03-05",
+		tags: [],
+		status: "published",
+		createdAt: T - 86400 * 27,
+		updatedAt: T - 86400 * 27,
+	},
 ];
 
 // ---------------------------------------------------------------------------

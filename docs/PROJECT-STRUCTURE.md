@@ -253,14 +253,21 @@ app/infrastructure/
 │   └── __tests__/
 ├── content/
 │   ├── velite-project.repository.ts  # implements project-repository.port — `.velite/projects` 매핑
-│   ├── velite-post.repository.ts
 │   ├── velite-legal.repository.ts
 │   ├── mappers/                      # velite raw output → Domain Entity (`*.mapper.ts`)
 │   └── __tests__/
+│   # NOTE: velite-post.repository.ts / mappers/post.mapper.ts 는 T025 에서 폐기
+│   #       (Post 정본은 D1 으로 단방향 이관 — `app/infrastructure/db/d1-post.repository.ts` 참조)
 ├── db/
+│   ├── d1-post.repository.ts         # T025 — implements post-repository.port (Drizzle BaseSQLiteDatabase)
+│   ├── mappers/
+│   │   ├── post-row.mapper.ts        # T025 — D1 row → Domain Post (snake → camel + JSON.parse(tags))
+│   │   └── extract-toc.ts            # T025 — markdown ## heading → [{slug, text}] (github-slugger)
 │   ├── schema/
 │   │   └── posts.ts                  # F021 — Drizzle sqliteTable (PRD F021 Data Model 1:1)
 │   └── __tests__/
+│       ├── _helpers/in-memory-d1.ts  # T025 — better-sqlite3 + drizzle in-memory + migrations 적용
+│       ├── d1-post.repository.test.ts # T025 — 18 tests (status filter, findBodyBySlug, findRelated)
 │       └── posts.schema.test.ts      # 정적 schema 메타 검증 (getTableConfig 기반)
 ├── email/
 │   ├── resend-email-sender.ts        # implements email-sender.port (env.RESEND_API_KEY)

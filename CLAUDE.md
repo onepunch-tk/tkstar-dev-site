@@ -117,6 +117,7 @@
 ### Build / Dev / Quality
 - **Vite 8.0.3** + `@vitejs/plugin-react 6.0.1`
 - **Vitest 4.1.5** + `jsdom 29.1.0` + `@testing-library/react 16.3.2` + `@testing-library/jest-dom 6.9.1` + `@testing-library/dom 10.4.1`
+- **better-sqlite3 12.9.0** + `@types/better-sqlite3 7.6.13` (devDep) — D1 Repository 단위 테스트용 in-memory SQLite. `app/infrastructure/db/__tests__/_helpers/in-memory-d1.ts` 가 `drizzle-orm/better-sqlite3` 로 wrap 후 `migrations/` 디렉토리를 직접 적용 → production `drizzle(env.DB)` (D1) 와 동일한 `BaseSQLiteDatabase` 인터페이스로 repository factory 호출 (T025)
 - **Biome 2.4.13** — Lint & Format
 - **isbot 5.1.36** — SSR 봇 분기
 

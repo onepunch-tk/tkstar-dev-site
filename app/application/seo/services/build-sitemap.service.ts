@@ -4,7 +4,7 @@ import type { Project } from "~/domain/project/project.entity";
 type SitemapInput = {
 	origin: string;
 	projects: Pick<Project, "slug" | "date">[];
-	posts: Pick<Post, "slug" | "date">[];
+	posts: Pick<Post, "slug" | "datePublished" | "updatedAt">[];
 	generatedAt: Date;
 };
 
@@ -28,10 +28,10 @@ export const buildSitemap = ({ origin, projects, posts, generatedAt }: SitemapIn
 			`  <url>\n    <loc>${origin}/projects/${escapeXml(p.slug)}</loc>\n    <lastmod>${toDateOnly(p.date)}</lastmod>\n  </url>`,
 	);
 
-	const postEntries = posts.map(
-		(p) =>
-			`  <url>\n    <loc>${origin}/blog/${escapeXml(p.slug)}</loc>\n    <lastmod>${toDateOnly(p.date)}</lastmod>\n  </url>`,
-	);
+	const postEntries = posts.map((p) => {
+		const lastmod = p.datePublished ?? new Date(p.updatedAt * 1000).toISOString();
+		return `  <url>\n    <loc>${origin}/blog/${escapeXml(p.slug)}</loc>\n    <lastmod>${toDateOnly(lastmod)}</lastmod>\n  </url>`;
+	});
 
 	return [
 		'<?xml version="1.0" encoding="UTF-8"?>',
