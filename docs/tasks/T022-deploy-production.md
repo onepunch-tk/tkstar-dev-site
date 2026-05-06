@@ -42,15 +42,15 @@
 - Motion 라이브러리 도입 (A012, MVP 후)
 
 ## Acceptance Criteria
-- [ ] `bunx wrangler deploy` 성공 → `tkstar-dev.workers.dev` 첫 응답 정상
-- [ ] `tkstar.dev` 도메인 DNS가 Cloudflare를 가리키며 Workers Custom Domain 매핑 완료
-- [ ] `https://tkstar.dev` 접속 시 Home 정상 응답 (HTTPS, OG 미리보기 정상)
-- [ ] `hello@tkstar.dev` → 개인 Gmail로 forward 정상 (실제 메일 1통 송수신 검증)
-- [ ] Resend domain verification status: `verified`
-- [ ] Production Contact Form 제출 → Resend 발신 + 자동응답 메일 정상 (실제 1회 검증)
-- [ ] Google Search Console 도메인 소유권 인증 통과 + sitemap 제출 완료
-- [ ] Naver Search Advisor 인증 통과 + sitemap 제출 완료
-- [ ] (배포 후 수일~수주) `site:tkstar.dev` Google 검색에 최소 1개 페이지 indexing 확인
+- [x] `bunx wrangler deploy` 성공 → `tkstar-dev.workers.dev` 첫 응답 정상
+- [x] `tkstar.dev` 도메인 DNS가 Cloudflare를 가리키며 Workers Custom Domain 매핑 완료
+- [x] `https://tkstar.dev` 접속 시 Home 정상 응답 (HTTPS, OG 미리보기 정상)
+- [x] `hello@tkstar.dev` → 개인 Gmail로 forward 정상 (실제 메일 1통 송수신 검증)
+- [x] Resend domain verification status: `verified`
+- [x] Production Contact Form 제출 → Resend 발신 + 자동응답 메일 정상 (실제 1회 검증)
+- [x] Google Search Console 도메인 소유권 인증 통과 + sitemap 제출 완료
+- [x] Naver Search Advisor 인증 통과 + sitemap 제출 완료
+- [x] (배포 후 수일~수주) `site:tkstar.dev` Google 검색에 최소 1개 페이지 indexing 확인
 
 ## Implementation Plan (TDD Cycle)
 **N/A — chore branch policy.** 운영 task. 코드 변경은 wrangler.toml의 production 값 갱신 정도.

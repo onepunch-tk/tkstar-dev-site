@@ -91,22 +91,22 @@ Phase 7.1 (CMS 인프라 — Read Path First) 의 D1 데이터 정본 구축 첫
 
 ## Acceptance Criteria
 
-- [ ] `package.json` 에 `drizzle-orm` 이 정확히 `0.45.2` 로 pin (semver caret/tilde 없음)
-- [ ] `package.json` 에 `drizzle-kit` 이 devDependency 로 추가
-- [ ] `drizzle.config.ts` 가 repo root 에 존재하며 `dialect: "sqlite"`, `schema: "./app/infrastructure/db/schema/*"`, `out: "./migrations"` 설정
-- [ ] `app/infrastructure/db/schema/posts.ts` 의 컬럼이 PRD F021 Data Model 과 1:1 매칭 (10 컬럼)
-- [ ] `status` 컬럼이 `text({ enum: ['draft', 'published'] })` + `default('draft')` + `notNull()`
-- [ ] `slug` 컬럼이 `unique()` + `notNull()`
-- [ ] `bunx drizzle-kit generate` 가 idempotent (재실행 시 새 마이그레이션 파일이 생성되지 않고 "no changes" 출력)
-- [ ] `migrations/0000_*.sql` + `migrations/meta/_journal.json` 이 commit 에 포함
-- [ ] `wrangler.toml` 에 root `[[d1_databases]]` (preview) + `[[env.production.d1_databases]]` 두 entry 가 모두 등록
-- [ ] `bunx wrangler d1 migrations apply tkstar-dev-db --local` exit 0 → `posts` 테이블이 로컬 SQLite 에 생성
-- [ ] `app/infrastructure/db/__tests__/posts.schema.test.ts` 의 모든 케이스 통과 (TDD Green)
-- [ ] `bun run typecheck` exit 0 (postinstall lifecycle 의 `wrangler types` 가 `Cloudflare.Env.DB: D1Database` 자동 갱신 — `app/env.d.ts` 수동 편집 불필요, A021 fact 정정)
-- [ ] `bun run lint` exit 0
-- [ ] `bun run test` exit 0 (`posts.schema.test.ts` 포함 전체 통과)
-- [ ] `docs/PROJECT-STRUCTURE.md` 에 `app/infrastructure/db/` 디렉토리 신규 등록
-- [ ] ROADMAP T024 라인 [ ] → [x] + 본 task 링크 + 산출물 마이그레이션 파일 링크 → `docs-sync-gate.sh` 통과
+- [x] `package.json` 에 `drizzle-orm` 이 정확히 `0.45.2` 로 pin (semver caret/tilde 없음)
+- [x] `package.json` 에 `drizzle-kit` 이 devDependency 로 추가
+- [x] `drizzle.config.ts` 가 repo root 에 존재하며 `dialect: "sqlite"`, `schema: "./app/infrastructure/db/schema/*"`, `out: "./migrations"` 설정
+- [x] `app/infrastructure/db/schema/posts.ts` 의 컬럼이 PRD F021 Data Model 과 1:1 매칭 (10 컬럼)
+- [x] `status` 컬럼이 `text({ enum: ['draft', 'published'] })` + `default('draft')` + `notNull()`
+- [x] `slug` 컬럼이 `unique()` + `notNull()`
+- [x] `bunx drizzle-kit generate` 가 idempotent (재실행 시 새 마이그레이션 파일이 생성되지 않고 "no changes" 출력)
+- [x] `migrations/0000_*.sql` + `migrations/meta/_journal.json` 이 commit 에 포함
+- [x] `wrangler.toml` 에 root `[[d1_databases]]` (preview) + `[[env.production.d1_databases]]` 두 entry 가 모두 등록
+- [x] `bunx wrangler d1 migrations apply tkstar-dev-db --local` exit 0 → `posts` 테이블이 로컬 SQLite 에 생성
+- [x] `app/infrastructure/db/__tests__/posts.schema.test.ts` 의 모든 케이스 통과 (TDD Green)
+- [x] `bun run typecheck` exit 0 (postinstall lifecycle 의 `wrangler types` 가 `Cloudflare.Env.DB: D1Database` 자동 갱신 — `app/env.d.ts` 수동 편집 불필요, A021 fact 정정)
+- [x] `bun run lint` exit 0
+- [x] `bun run test` exit 0 (`posts.schema.test.ts` 포함 전체 통과)
+- [x] `docs/PROJECT-STRUCTURE.md` 에 `app/infrastructure/db/` 디렉토리 신규 등록
+- [x] ROADMAP T024 라인 [ ] → [x] + 본 task 링크 + 산출물 마이그레이션 파일 링크 → `docs-sync-gate.sh` 통과
 
 ## Implementation Plan (TDD Cycle)
 
@@ -131,7 +131,7 @@ Phase 7.1 (CMS 인프라 — Read Path First) 의 D1 데이터 정본 구축 첫
 - [x] **T9**: 로컬 적용 검증 — `bunx wrangler d1 migrations apply tkstar-dev-db-preview --local` 1 migration applied → `SELECT name FROM sqlite_master WHERE type='table' AND name='posts'` 1 row 확인
 - [x] **T10**: `docs/PROJECT-STRUCTURE.md` 갱신 — `app/infrastructure/db/` 신규 등록 (Contains 표 + Target structure 트리 + 페이지 끝 디렉토리 트리 3 군데)
 - [x] **T11**: ROADMAP T024 라인 [ ] → [x] + 산출물 정확한 버전/파일 갱신 + A021 [FACT] 전환
-- [ ] **T12**: `bun run typecheck` + `bun run lint` + `bun run test` 통과 → PR #91 생성 → 사용자 승인 → squash merge → **머지 후 사용자 수동** `bunx wrangler d1 migrations apply tkstar-dev-db --env production --remote`
+- [x] **T12**: `bun run typecheck` + `bun run lint` + `bun run test` 통과 → PR #91 생성 → 사용자 승인 → squash merge → **머지 후 사용자 수동** `bunx wrangler d1 migrations apply tkstar-dev-db --env production --remote`
 
 ## Files to Create / Modify
 

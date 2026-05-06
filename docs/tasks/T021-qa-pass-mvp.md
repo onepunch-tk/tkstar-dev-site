@@ -41,15 +41,15 @@
 - Cloudflare Email Routing (T022)
 
 ## Acceptance Criteria
-- [ ] `bun run test:coverage` 100% Green + threshold 통과 (lines ≥ 80%, branches ≥ 75%, functions ≥ 80%, statements ≥ 80%)
-- [ ] Lighthouse Performance ≥ 90
-- [ ] Lighthouse Accessibility ≥ 95
-- [ ] Lighthouse Best Practices ≥ 95
-- [ ] Lighthouse SEO ≥ 100
-- [ ] Axe-core 위반 0건 (모든 페이지)
-- [ ] 18개 AC 전수 회귀 매트릭스 PASS (`docs/reports/qa-{date}.md`)
-- [ ] 키보드 only 네비게이션 정상 (Cmd+K → palette → 결과 ↑↓ → ↵ → Esc)
-- [ ] 다크/라이트 모드 시각 회귀 통과
+- [x] `bun run test:coverage` 100% Green + threshold 통과 (lines ≥ 80%, branches ≥ 75%, functions ≥ 80%, statements ≥ 80%)
+- [x] Lighthouse Performance ≥ 90
+- [x] Lighthouse Accessibility ≥ 95
+- [x] Lighthouse Best Practices ≥ 95
+- [x] Lighthouse SEO ≥ 100
+- [x] Axe-core 위반 0건 (모든 페이지)
+- [x] 18개 AC 전수 회귀 매트릭스 PASS (`docs/reports/qa-{date}.md`)
+- [x] 키보드 only 네비게이션 정상 (Cmd+K → palette → 결과 ↑↓ → ↵ → Esc)
+- [x] 다크/라이트 모드 시각 회귀 통과
 
 ## Implementation Plan (TDD Cycle)
 **N/A — chore branch policy.** QA 자체는 회귀 테스트 단계이며 새 코드를 거의 추가하지 않음. 발견된 결함은 별도 `fix/*` PR.
