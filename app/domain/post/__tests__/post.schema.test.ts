@@ -1,84 +1,84 @@
 import { describe, expect, it } from "vitest";
 import { postSchema } from "../post.schema";
 
-const validFrontmatter = {
+const validPost = {
 	slug: "rr7-ssr-edge",
 	title: "RR7 SSR on Cloudflare Workers",
-	lede: "Edge-rendering React Router 7 with bindings",
-	date: "2026-04-28",
+	summary: "Edge-rendering React Router 7 with bindings",
+	datePublished: "2026-04-28",
 	tags: ["rr7", "cloudflare"],
-	read: 7,
+	status: "published" as const,
+	createdAt: 1714291200,
+	updatedAt: 1714291200,
 };
 
 describe("postSchema", () => {
-	it("정상 frontmatter 통과", () => {
-		const result = postSchema.safeParse(validFrontmatter);
+	it("정상 published Post 통과", () => {
+		const result = postSchema.safeParse(validPost);
 		expect(result.success).toBe(true);
 	});
 
-	it("read가 number가 아니면 reject", () => {
-		const result = postSchema.safeParse({ ...validFrontmatter, read: "7" });
+	it("draft status 통과", () => {
+		const result = postSchema.safeParse({ ...validPost, status: "draft" });
+		expect(result.success).toBe(true);
+	});
+
+	it("status enum 외 값 reject", () => {
+		const result = postSchema.safeParse({ ...validPost, status: "archived" });
 		expect(result.success).toBe(false);
 	});
 
-	it("date가 ISO 8601 위반 시 reject", () => {
+	it("datePublished ISO 8601 위반 시 reject", () => {
 		const result = postSchema.safeParse({
-			...validFrontmatter,
-			date: "April 28, 2026",
+			...validPost,
+			datePublished: "April 28, 2026",
 		});
 		expect(result.success).toBe(false);
 	});
 
+	it("datePublished null 허용 (draft 시점)", () => {
+		const result = postSchema.safeParse({ ...validPost, datePublished: null });
+		expect(result.success).toBe(true);
+	});
+
+	it("summary null 허용", () => {
+		const result = postSchema.safeParse({ ...validPost, summary: null });
+		expect(result.success).toBe(true);
+	});
+
 	it("필수 필드(title) 누락 시 reject", () => {
-		const { title: _t, ...rest } = validFrontmatter;
+		const { title: _t, ...rest } = validPost;
 		const result = postSchema.safeParse(rest);
 		expect(result.success).toBe(false);
 	});
 
-	// ---------------------------------------------------------------------------
-	// toc optional 필드 검증
-	// ---------------------------------------------------------------------------
-
-	it("toc 포함 시 parse 통과하고 결과에 toc 필드가 있다", () => {
-		// Arrange
-		const input = {
-			...validFrontmatter,
-			toc: [{ slug: "intro", text: "Intro" }],
-		};
-
-		// Act
-		const result = postSchema.safeParse(input);
-
-		// Assert
-		expect(result.success).toBe(true);
-		expect((result.data as Record<string, unknown>).toc).toEqual([
-			{ slug: "intro", text: "Intro" },
-		]);
-	});
-
-	it("toc 미제공 시 parse 통과하고 결과의 toc 는 undefined 이다", () => {
-		// Arrange
-		const input = { ...validFrontmatter };
-
-		// Act
-		const result = postSchema.safeParse(input);
-
-		// Assert
-		expect(result.success).toBe(true);
-		expect((result.data as Record<string, unknown>).toc).toBeUndefined();
-	});
-
-	it("toc 항목이 {slug,text} shape 위반이면 reject 한다", () => {
-		// Arrange — text 없이 slug만 있는 toc 항목
-		const input = {
-			...validFrontmatter,
-			toc: [{ slug: "intro" }], // text 누락 → shape 위반
-		};
-
-		// Act
-		const result = postSchema.safeParse(input);
-
-		// Assert
+	it("createdAt / updatedAt 은 unix epoch number", () => {
+		const result = postSchema.safeParse({
+			...validPost,
+			createdAt: "2026-04-28",
+		});
 		expect(result.success).toBe(false);
+	});
+
+	it("tags 는 string array", () => {
+		const result = postSchema.safeParse({ ...validPost, tags: "rr7" });
+		expect(result.success).toBe(false);
+	});
+
+	it("read 필드 노출 안 함 (passthrough 비활성)", () => {
+		const result = postSchema.safeParse({ ...validPost, read: 7 });
+		expect(result.success).toBe(true);
+		const data = result.data as Record<string, unknown>;
+		expect(data.read).toBeUndefined();
+	});
+
+	it("toc 필드 노출 안 함 (entity 외부에 분리)", () => {
+		const result = postSchema.safeParse({
+			...validPost,
+			toc: [{ slug: "intro", text: "Intro" }],
+		});
+		expect(result.success).toBe(true);
+		const data = result.data as Record<string, unknown>;
+		expect(data.toc).toBeUndefined();
 	});
 });

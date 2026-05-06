@@ -9,7 +9,7 @@ const GENERATED_AT = new Date("2026-05-04T12:00:00Z");
 const STATIC_LASTMOD = "2026-05-04";
 
 type SitemapProject = Pick<Project, "slug" | "date">;
-type SitemapPost = Pick<Post, "slug" | "date">;
+type SitemapPost = Pick<Post, "slug" | "datePublished" | "updatedAt">;
 
 const baseInput = {
 	origin: ORIGIN,
@@ -121,7 +121,7 @@ describe("buildSitemap — 동적 프로젝트 URL", () => {
 });
 
 describe("buildSitemap — 동적 포스트 URL", () => {
-	const posts: SitemapPost[] = [{ slug: "first-post", date: "2026-04-15" }];
+	const posts: SitemapPost[] = [{ slug: "first-post", datePublished: "2026-04-15", updatedAt: 0 }];
 
 	it("first-post 슬러그와 lastmod를 포함한다", () => {
 		// Arrange & Act
@@ -136,7 +136,9 @@ describe("buildSitemap — 동적 포스트 URL", () => {
 describe("buildSitemap — 날짜 정규화", () => {
 	it("post.date가 ISO 타임스탬프여도 lastmod는 날짜만 출력된다", () => {
 		// Arrange
-		const posts: SitemapPost[] = [{ slug: "ts-post", date: "2026-04-15T10:30:00Z" }];
+		const posts: SitemapPost[] = [
+			{ slug: "ts-post", datePublished: "2026-04-15T10:30:00Z", updatedAt: 0 },
+		];
 
 		// Act
 		const xml = buildSitemap({ ...baseInput, posts });

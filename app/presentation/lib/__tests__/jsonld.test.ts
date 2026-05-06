@@ -61,10 +61,9 @@ describe("buildBlogPostingLd", () => {
 		const post = {
 			slug: "my-post",
 			title: "My Post",
-			lede: "post lede",
-			date: "2026-04-15",
+			summary: "post lede",
+			datePublished: "2026-04-15", status: "published" as const, createdAt: 1714291200, updatedAt: 1714291200,
 			tags: ["typescript"],
-			read: 5,
 		};
 		const origin = "https://tkstar.dev";
 		const ogImage = "https://tkstar.dev/og/blog/my-post.png";
@@ -82,10 +81,9 @@ describe("buildBlogPostingLd", () => {
 		const post = {
 			slug: "my-post",
 			title: "My Post",
-			lede: "post lede",
-			date: "2026-04-15",
+			summary: "post lede",
+			datePublished: "2026-04-15", status: "published" as const, createdAt: 1714291200, updatedAt: 1714291200,
 			tags: ["typescript"],
-			read: 5,
 		};
 		const origin = "https://tkstar.dev";
 		const ogImage = "https://tkstar.dev/og/blog/my-post.png";
@@ -103,10 +101,9 @@ describe("buildBlogPostingLd", () => {
 		const post = {
 			slug: "my-post",
 			title: "My Post",
-			lede: "post lede",
-			date: "2026-04-15",
+			summary: "post lede",
+			datePublished: "2026-04-15", status: "published" as const, createdAt: 1714291200, updatedAt: 1714291200,
 			tags: ["typescript"],
-			read: 5,
 		};
 		const origin = "https://tkstar.dev";
 		const ogImage = "https://tkstar.dev/og/blog/my-post.png";
@@ -123,10 +120,9 @@ describe("buildBlogPostingLd", () => {
 		const post = {
 			slug: "my-post",
 			title: "My Post",
-			lede: "post lede",
-			date: "2026-04-15",
+			summary: "post lede",
+			datePublished: "2026-04-15", status: "published" as const, createdAt: 1714291200, updatedAt: 1714291200,
 			tags: ["typescript"],
-			read: 5,
 		};
 		const origin = "https://tkstar.dev";
 		const ogImage = "https://tkstar.dev/og/blog/my-post.png";
@@ -143,10 +139,9 @@ describe("buildBlogPostingLd", () => {
 		const post = {
 			slug: "my-post",
 			title: "My Post",
-			lede: "post lede",
-			date: "2026-04-15",
+			summary: "post lede",
+			datePublished: "2026-04-15", status: "published" as const, createdAt: 1714291200, updatedAt: 1714291200,
 			tags: ["typescript"],
-			read: 5,
 		};
 		const origin = "https://tkstar.dev";
 		const ogImage = "https://tkstar.dev/og/blog/my-post.png";
@@ -163,10 +158,9 @@ describe("buildBlogPostingLd", () => {
 		const post = {
 			slug: "my-post",
 			title: "My Post",
-			lede: "post lede",
-			date: "2026-04-15",
+			summary: "post lede",
+			datePublished: "2026-04-15", status: "published" as const, createdAt: 1714291200, updatedAt: 1714291200,
 			tags: ["typescript"],
-			read: 5,
 		};
 		const origin = "https://tkstar.dev";
 		const ogImage = "https://tkstar.dev/og/blog/my-post.png";
@@ -183,10 +177,9 @@ describe("buildBlogPostingLd", () => {
 		const post = {
 			slug: "my-post",
 			title: "My Post",
-			lede: "post lede",
-			date: "2026-04-15",
+			summary: "post lede",
+			datePublished: "2026-04-15", status: "published" as const, createdAt: 1714291200, updatedAt: 1714291200,
 			tags: ["typescript"],
-			read: 5,
 		};
 		const origin = "https://tkstar.dev";
 		const ogImage = "https://tkstar.dev/og/blog/my-post.png";

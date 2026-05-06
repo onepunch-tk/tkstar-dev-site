@@ -25,46 +25,57 @@ import BlogDetail, { loader } from "../blog.$slug";
 // Mock 데이터
 // ---------------------------------------------------------------------------
 
-type PostWithBody = {
+type PostFixture = {
 	slug: string;
 	title: string;
-	lede: string;
-	date: string;
+	summary: string | null;
+	datePublished: string | null;
 	tags: string[];
-	read: number;
-	toc?: { slug: string; text: string }[];
+	status: "draft" | "published";
+	createdAt: number;
+	updatedAt: number;
 };
 
-const POST_WITH_TOC: PostWithBody = {
+type DetailFixture = {
+	post: PostFixture;
+	toc: { slug: string; text: string }[];
+	prev: PostFixture | null;
+	next: PostFixture | null;
+};
+
+const POST_BASE: PostFixture = {
 	slug: "test-post",
 	title: "Test Blog Post",
-	lede: "A test lede sentence",
-	date: "2026-05-02",
+	summary: "A test summary sentence",
+	datePublished: "2026-05-02",
 	tags: ["rr7", "cloudflare"],
-	read: 5,
+	status: "published",
+	createdAt: 1714291200,
+	updatedAt: 1714291200,
+};
+
+const DETAIL_WITH_TOC: DetailFixture = {
+	post: POST_BASE,
 	toc: [
 		{ slug: "intro", text: "Introduction" },
 		{ slug: "conclusion", text: "Conclusion" },
 	],
+	prev: null,
+	next: null,
 };
 
-const POST_EMPTY_TOC: PostWithBody = {
-	...POST_WITH_TOC,
-	slug: "no-toc-post",
+const DETAIL_EMPTY_TOC: DetailFixture = {
+	post: { ...POST_BASE, slug: "no-toc-post" },
 	toc: [],
+	prev: null,
+	next: null,
 };
 
 // ---------------------------------------------------------------------------
 // Mock context 팩토리
 // ---------------------------------------------------------------------------
 
-const makeMockContext = (
-	detail: { post: PostWithBody; prev: PostWithBody | null; next: PostWithBody | null } = {
-		post: POST_WITH_TOC,
-		prev: null,
-		next: null,
-	},
-) => {
+const makeMockContext = (detail: DetailFixture = DETAIL_WITH_TOC) => {
 	const getPostDetail = vi.fn().mockResolvedValue(detail);
 	return {
 		context: {
@@ -134,9 +145,7 @@ describe("Group B — blog.$slug UI", () => {
 				path: "/blog/:slug",
 				Component: BlogDetail,
 				loader: () => ({
-					post: POST_WITH_TOC,
-					prev: null,
-					next: null,
+					...DETAIL_WITH_TOC,
 					canonicalUrl: CANONICAL,
 				}),
 			},
@@ -147,7 +156,7 @@ describe("Group B — blog.$slug UI", () => {
 
 		// Assert
 		await screen.findByTestId("mdx-content");
-		expect(screen.getByText(POST_WITH_TOC.title)).toBeInTheDocument();
+		expect(screen.getByText(DETAIL_WITH_TOC.post.title)).toBeInTheDocument();
 		// ShareTools — X 공유 링크
 		expect(screen.getByRole("link", { name: /share on x/i })).toBeInTheDocument();
 		// PostFooterNav — '모든 글' 링크
@@ -161,9 +170,7 @@ describe("Group B — blog.$slug UI", () => {
 				path: "/blog/:slug",
 				Component: BlogDetail,
 				loader: () => ({
-					post: POST_EMPTY_TOC,
-					prev: null,
-					next: null,
+					...DETAIL_EMPTY_TOC,
 					canonicalUrl: "https://example.dev/blog/no-toc-post",
 				}),
 			},

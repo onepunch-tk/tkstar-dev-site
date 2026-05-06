@@ -18,6 +18,7 @@ describe("listPosts", () => {
 			findRecent: vi.fn(),
 			findByTag: vi.fn().mockResolvedValue([postDelta]),
 			findRelated: vi.fn(),
+			findBodyBySlug: vi.fn(),
 		};
 	});
 

@@ -32,7 +32,7 @@ describe("renderPostOg", () => {
 		expect(mockRenderer.render).toHaveBeenCalledWith({
 			kind: "post",
 			title: postAlpha.title,
-			date: postAlpha.date,
+			date: postAlpha.datePublished,
 			tags: postAlpha.tags,
 			origin: "https://example.com",
 		});

@@ -645,7 +645,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
   - 가정 해소: A021 [FACT] — `drizzle-orm@0.45.2` pin (T023 worker SSR bundle gzip Δ +30.96 KiB 측정 근거 일치)
   - PR: #91 / 브랜치: `feature/issue-90-d1-drizzle-setup`
 
-- [ ] **Task 025: Domain Post entity D1 재정의 + D1PostRepository (Infrastructure)**
+- [x] **Task 025: Domain Post entity D1 재정의 + D1PostRepository (Infrastructure)**
   - **Must** Read: [tasks/T025-d1-post-repository.md](tasks/T025-d1-post-repository.md)
   - blockedBy: Task 024
   - blocks: Task 026, Task 027, Task 028
@@ -658,7 +658,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
     - velite Post 컬렉션은 **본 task 에서 비활성화** (`velite.config.ts`의 `posts` collection 제거 또는 주석 처리). `content/posts/*.mdx` 파일 자체는 T026 마이그레이션 후 삭제 예정.
     - Application port (`post-repository.port.ts`) 시그니처 갱신 — `status` 파라미터 추가 (default `published`)
   - 산출물:
-    - `app/domain/post/{post.entity.ts, post.schema.ts}` — `raw_markdown` / `status` 필드 추가, `body` MDX 필드 제거
+    - `app/domain/post/{post.entity.ts, post.schema.ts}` — D1 schema 1:1 (camelCase, `status` enum, `summary`/`datePublished` nullable, `createdAt`/`updatedAt` unix epoch). 메타데이터-only entity — `raw_markdown` 본문은 `findBodyBySlug` 가 별도 fetch (entity 외부)
     - `app/application/content/ports/post-repository.port.ts` — `findAll(status?: 'draft' | 'published' | 'all')` 등 시그니처 갱신
     - `app/infrastructure/db/d1-post.repository.ts` — Drizzle 기반 구현 (`db.select().from(posts).where(...)`)
     - `app/infrastructure/db/mappers/post-row.mapper.ts` — D1 row → Domain Post Entity (`tags` JSON parse, `status` enum 검증)
@@ -666,7 +666,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
     - `velite.config.ts` — `posts` collection 제거
     - `app/infrastructure/config/container.ts` — `D1PostRepository` 주입으로 교체
   - 가정 해소: 없음 (T024 의 schema 위에 1:1 매핑)
-  - PR 1개 / 브랜치: `feature/issue-N-d1-post-repository`
+  - PR: #TBD / 브랜치: `feature/issue-92-d1-post-repository`
 
 - [ ] **Task 026: 기존 MDX → D1 일회성 마이그레이션 스크립트**
   - **Must** Read: [tasks/T026-mdx-to-d1-migration.md](tasks/T026-mdx-to-d1-migration.md)

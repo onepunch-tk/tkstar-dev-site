@@ -33,12 +33,12 @@ export const meta: Route.MetaFunction = ({ data }) => {
 			ogImage: data.ogImageUrl,
 		}),
 		{
-			"script:ld+json": 				buildBreadcrumbListLd({
-					items: [
-						{ name: "Home", url: `${data.origin}/` },
-						{ name: "Blog", url: data.canonicalUrl },
-					],
-				}),
+			"script:ld+json": buildBreadcrumbListLd({
+				items: [
+					{ name: "Home", url: `${data.origin}/` },
+					{ name: "Blog", url: data.canonicalUrl },
+				],
+			}),
 		},
 	];
 };
@@ -56,7 +56,7 @@ export default function BlogIndex({ loaderData }: Route.ComponentProps) {
 					<span aria-hidden="true" className="h-px flex-1 bg-line" />
 				</h1>
 				<p className="font-sans text-[12px] text-faint">
-					total {posts.length} · velite collection · sorted by date desc
+					total {posts.length} · D1 posts · sorted by date desc
 				</p>
 			</header>
 
@@ -74,9 +74,9 @@ export default function BlogIndex({ loaderData }: Route.ComponentProps) {
 						className="hidden border-line-strong border-b-[1.5px] py-1 font-sans text-[11px] text-faint tracking-[0.08em] uppercase min-[720px]:grid min-[720px]:grid-cols-[72px_1fr_minmax(0,200px)_60px] min-[720px]:gap-2.5"
 					>
 						<span>date</span>
-						<span>title · lede</span>
+						<span>title · summary</span>
 						<span className="text-right">tags</span>
-						<span className="text-right">read</span>
+						<span className="text-right">updated</span>
 					</div>
 					{posts.map((p) => (
 						<PostRow key={p.slug} post={p} />

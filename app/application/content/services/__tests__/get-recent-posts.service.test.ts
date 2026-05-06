@@ -13,6 +13,7 @@ describe("getRecentPosts", () => {
 			findRecent: vi.fn(),
 			findByTag: vi.fn(),
 			findRelated: vi.fn(),
+			findBodyBySlug: vi.fn(),
 		};
 	});
 

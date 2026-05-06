@@ -13,7 +13,7 @@ export const renderPostOg = async (params: {
 	return params.renderer.render({
 		kind: "post",
 		title: post.title,
-		date: post.date,
+		date: post.datePublished ?? new Date(post.createdAt * 1000).toISOString().slice(0, 10),
 		tags: post.tags,
 		origin: params.origin,
 	});

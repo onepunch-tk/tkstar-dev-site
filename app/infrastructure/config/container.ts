@@ -21,8 +21,9 @@ import type { Project } from "~/domain/project/project.entity";
 import { createTurnstileVerifier } from "~/infrastructure/captcha/turnstile-verifier";
 import { createSatoriOgRenderer } from "~/infrastructure/og/satori-og-renderer";
 import { veliteLegalRepository } from "~/infrastructure/content/velite-legal.repository";
-import { velitePostRepository } from "~/infrastructure/content/velite-post.repository";
 import { veliteProjectRepository } from "~/infrastructure/content/velite-project.repository";
+import { createD1PostRepository } from "~/infrastructure/db/d1-post.repository";
+import { drizzle } from "drizzle-orm/d1";
 import { createResendEmailSender } from "~/infrastructure/email/resend-email-sender";
 import { createKvRateLimiter } from "~/infrastructure/ratelimit/kv-rate-limiter";
 
@@ -40,7 +41,12 @@ export type Container = {
 	) => Promise<{ project: Project; prev: Project | null; next: Project | null }>;
 	getFeaturedProject: () => Promise<Project | null>;
 	listPosts: (opts?: { tag?: string }) => Promise<Post[]>;
-	getPostDetail: (slug: string) => Promise<{ post: Post; prev: Post | null; next: Post | null }>;
+	getPostDetail: (slug: string) => Promise<{
+		post: Post;
+		toc: { slug: string; text: string }[];
+		prev: Post | null;
+		next: Post | null;
+	}>;
 	getRecentPosts: (n: number) => Promise<Post[]>;
 	buildRssFeed: () => Promise<string>;
 	buildSitemap: (origin: string) => Promise<string>;
@@ -54,7 +60,7 @@ export type Container = {
 
 export const buildContainer = (env: Env): Container => {
 	const projectRepo: ProjectRepository = veliteProjectRepository;
-	const postRepo: PostRepository = velitePostRepository;
+	const postRepo: PostRepository = createD1PostRepository(drizzle(env.DB));
 	const legalRepo: LegalRepository = veliteLegalRepository;
 
 	const contactEnv = env as unknown as ContactRuntimeEnv;
@@ -79,7 +85,11 @@ export const buildContainer = (env: Env): Container => {
 			return buildSitemap({
 				origin,
 				projects: projects.map((p) => ({ slug: p.slug, date: p.date })),
-				posts: posts.map((p) => ({ slug: p.slug, date: p.date })),
+				posts: posts.map((p) => ({
+					slug: p.slug,
+					datePublished: p.datePublished,
+					updatedAt: p.updatedAt,
+				})),
 				generatedAt: new Date(),
 			});
 		},

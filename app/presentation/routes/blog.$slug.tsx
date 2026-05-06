@@ -25,7 +25,7 @@ export const meta: Route.MetaFunction = ({ data }) => {
 	return [
 		...buildMeta({
 			title: `${post.title} — tkstar.dev`,
-			description: post.lede,
+			description: post.summary ?? "",
 			canonical: canonicalUrl,
 			ogImage: ogImageUrl,
 			ogType: "article",
@@ -46,7 +46,7 @@ export const meta: Route.MetaFunction = ({ data }) => {
 };
 
 export default function BlogDetail({ loaderData }: Route.ComponentProps) {
-	const { post, prev, next, canonicalUrl } = loaderData;
+	const { post, prev, next, toc, canonicalUrl } = loaderData;
 	const Content = postModules[`../../../../content/posts/${post.slug}.mdx`]?.default;
 	return (
 		<main className="mx-auto flex max-w-[var(--container-measure)] flex-col gap-[22px] px-[var(--spacing-gutter)] pt-[22px] pb-20 min-[720px]:gap-7 min-[720px]:px-7 min-[720px]:pt-9 min-[720px]:pb-[120px]">
@@ -61,13 +61,13 @@ export default function BlogDetail({ loaderData }: Route.ComponentProps) {
 				<h2 className="m-0 text-[28px] font-semibold tracking-[-0.01em] text-fg min-[720px]:text-[34px]">
 					{post.title}
 				</h2>
-				<p className="font-sans text-[12px] text-faint">{post.lede}</p>
+				<p className="font-sans text-[12px] text-faint">{post.summary ?? ""}</p>
 			</header>
 
 			<div className="flex flex-col gap-8 min-[880px]:grid min-[880px]:grid-cols-[minmax(0,1fr)_280px] min-[880px]:gap-10">
 				<article className="post-body">{Content ? <Content /> : null}</article>
 				<div className="flex flex-col gap-6 min-[880px]:sticky min-[880px]:top-[calc(var(--height-topbar)+36px)] min-[880px]:self-start min-[880px]:max-h-[calc(100dvh-var(--height-topbar)-48px)] min-[880px]:overflow-y-auto">
-					<OnThisPageToc toc={post.toc ?? []} />
+					<OnThisPageToc toc={toc} />
 					<ShareTools title={post.title} canonicalUrl={canonicalUrl} />
 				</div>
 			</div>
