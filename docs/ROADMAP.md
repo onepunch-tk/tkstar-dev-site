@@ -618,7 +618,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
   - 가정 해소: Issue #2 (Workers 번들 사이즈 한계 vs CMS 의존성 합산), A014 일부 (Tiptap 메이저 버전 후보 좁힘), A015 일부 (MDX runtime compiler 후보 좁힘), Issue #1 부분 (R2 SDK 1차 후보 좁힘 — 최종 결정은 T033)
   - PR: #88 / 브랜치: `chore/issue-88-cms-bundle-poc`
 
-- [ ] **Task 024: Cloudflare D1 + Drizzle ORM 셋업 + posts schema migration**
+- [x] **Task 024: Cloudflare D1 + Drizzle ORM 셋업 + posts schema migration**
   - **Must** Read: [tasks/T024-d1-drizzle-setup.md](tasks/T024-d1-drizzle-setup.md)
   - blockedBy: Task 023
   - blocks: Task 025, Task 026, Task 038
@@ -627,22 +627,23 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
   - 관련 AC: 없음 (스키마/binding 정합 검증)
   - 사전 단계 (PR 본 작업 전 1회):
     - `bunx wrangler d1 create tkstar-dev-db` (production) → 반환 `database_id` 기록
-    - `bunx wrangler d1 create tkstar-dev-db-preview` (preview) → `preview_database_id` 기록
-    - `wrangler.toml` 에 `[[d1_databases]] binding = "DB"`, `database_name = "tkstar-dev-db"`, `database_id = "..."`, `preview_database_id = "..."` 등록
+    - `bunx wrangler d1 create tkstar-dev-db-preview` (preview — default + staging + miniflare 공유) → `database_id` 기록
+    - `wrangler.toml` 에 D1 binding 3개 등록 — root `[[d1_databases]]` (preview ID) + `[[env.staging.d1_databases]]` (preview ID) + `[[env.production.d1_databases]]` (production ID). Cloudflare Workers named environment 는 bindings 를 상속하지 않으므로 staging 도 명시 필요.
   - 검증:
     - `drizzle.config.ts` 가 D1 dialect 로 동작, `bunx drizzle-kit generate` 가 SQL 마이그레이션 파일 생성
-    - `bunx wrangler d1 migrations apply tkstar-dev-db --local` 로컬 적용 성공 + `--remote` 도 적용 성공
-    - `posts` 테이블의 컬럼이 PRD F021 Data Model 과 1:1 매칭 (`id` PK, `slug` UNIQUE, `title`, `summary`, `raw_markdown`, `tags` JSON, `date_published`, `status` enum check, `created_at`, `updated_at`)
-    - `app/env.d.ts` 의 `interface AppLoadContext` (또는 `Env`) 에 `DB: D1Database` 추가
+    - `bunx wrangler d1 migrations apply tkstar-dev-db-preview --local` 로컬 적용 성공 + `--remote` 적용은 PR 머지 직후 사용자 수동
+    - `posts` 테이블의 컬럼이 PRD F021 Data Model 과 1:1 매칭 (`id` PK, `slug` UNIQUE, `title`, `summary`, `raw_markdown`, `tags` JSON, `date_published`, `status` enum (text + DEFAULT 'draft', application layer enforcement), `created_at`, `updated_at`)
+    - `Cloudflare.Env.DB: D1Database` 가 `wrangler types` postinstall lifecycle 로 자동 발행 (별도 `app/env.d.ts` 수동 편집 불필요 — A021 fact 정정)
   - 산출물:
-    - `package.json` — `drizzle-orm@0.44.x` (Issue #4: A021 결정 결과 따름), `drizzle-kit@0.x` (devDependency)
-    - `drizzle.config.ts` (D1 dialect)
-    - `app/infrastructure/db/schema/posts.ts` — Drizzle schema (`pgTable` 가 아닌 `sqliteTable`)
-    - `migrations/0001_create_posts.sql` (drizzle-kit 생성 산출물)
-    - `wrangler.toml` `[[d1_databases]]` binding `DB`
-    - `app/env.d.ts` `DB: D1Database` 추가
-  - 가정 해소: A021 (Drizzle 버전 pin — 0.44.x stable 채택 또는 v1.0 stable 출시 시 갱신, Issue #4)
-  - PR 1개 / 브랜치: `feature/issue-N-d1-drizzle-setup`
+    - `package.json` — `drizzle-orm@0.45.2` (T023 측정 근거 pin, A021 [FACT]), `drizzle-kit@^0.31.10` (devDependency)
+    - `drizzle.config.ts` (D1 dialect, schema=`./app/infrastructure/db/schema/*`, out=`./migrations`)
+    - `app/infrastructure/db/schema/posts.ts` — Drizzle `sqliteTable` (PRD F021 Data Model 1:1)
+    - `app/infrastructure/db/__tests__/posts.schema.test.ts` — 정적 schema 메타 검증 (13 테스트, getTableConfig 기반)
+    - `migrations/0000_futuristic_human_cannonball.sql` (drizzle-kit 산출 — `CREATE TABLE posts` + UNIQUE INDEX)
+    - `migrations/meta/_journal.json` + `migrations/meta/0000_snapshot.json`
+    - `wrangler.toml` 에 `[[d1_databases]]` 3개 (root preview / staging preview / production)
+  - 가정 해소: A021 [FACT] — `drizzle-orm@0.45.2` pin (T023 worker SSR bundle gzip Δ +30.96 KiB 측정 근거 일치)
+  - PR: #91 / 브랜치: `feature/issue-90-d1-drizzle-setup`
 
 - [ ] **Task 025: Domain Post entity D1 재정의 + D1PostRepository (Infrastructure)**
   - **Must** Read: [tasks/T025-d1-post-repository.md](tasks/T025-d1-post-repository.md)
@@ -1102,7 +1103,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
 | A018 | F022 project_meta 컬럼 (cover_image_url 외 featured 등) | F022 구현 PR | Task 038 (`slug` PK + `cover_image_url` + `cover_alt` 만 채택, `featured` 는 velite frontmatter 유지) | Phase 7.4 |
 | A019 | F023 Cloudflare Access 팀 도메인 (Free 플랜 충분성) | F023 구현 PR | Task 029 (Free 50 seats 1명 사용 채택 + 팀 subdomain 발급) | Phase 7.2 |
 | A020 | F020 search-index.json 저장 위치 (R2 vs KV) | F020 구현 PR | Task 039 (`build-search-index.service` 산출물 storage 결정) | Phase 7.4 |
-| A021 | Drizzle ORM 버전 pin (0.44.x stable vs v1.0 stable 출시) | F021 구현 PR | Task 024 (D1 셋업 시 0.44.x stable 채택, v1.0 stable 출시 시 갱신) | Phase 7.1 |
+| A021 | Drizzle ORM 버전 pin (0.44.x stable vs v1.0 stable 출시) | F021 구현 PR | [FACT] Task 024 — `drizzle-orm@0.45.2` pin (T023 worker SSR bundle gzip Δ +30.96 KiB 측정 근거 일치) | Phase 7.1 |
 
 > **운용 규칙**: 각 phase 완료 시점에 본 표를 점검하여 해당 phase가 게이트인 항목이 모두 [FACT]로 전환됐는지 확인하고 PRD 본문을 업데이트한다. A011/A012는 MVP 범위 외이므로 본 ROADMAP의 Phase 6 종료 후 Phase 7 시작 전 별도 issue로 트래킹한다. A014~A021은 Phase 7 진입 후 sub-phase 별로 단계적 해소.
 
@@ -1199,4 +1200,4 @@ Phase 7.4 (Project Meta+Search Index):
 > - A014 (Tiptap v2/v3 결정): T023 후보 좁힘 + T035 한국어 IME PoC (iOS Safari) 후 최종 결정
 > - A015 (MDX runtime compiler): T023 후보 좁힘 + T027 KV cache 통합 시 최종 결정
 > - A019 (Cloudflare Access 팀 도메인): T029 에서 Free 50 seats 1명 사용 채택 + 팀 subdomain 발급
-> - A021 (Drizzle 버전 pin) 신규: T024 에서 0.44.x stable 채택 (Issue #4 — prd-validator Suggestion #2)
+> - A021 (Drizzle 버전 pin) [FACT] (2026-05-06): T024 에서 `drizzle-orm@0.45.2` pin 결정 — T023 측정 근거 (gzip Δ +30.96 KiB, Cloudflare Free 한계 안)
