@@ -12,7 +12,7 @@
 | **PRD Features** | F021 (D1 Post Storage — 스키마/binding 정합) |
 | **PRD AC** | 없음 (스키마/binding 정합 검증 — F021 의 AC-F021-1~5 는 T025~T026 에서 통과) |
 | **예상 작업 시간** | 1d |
-| **Status** | In Review (PR 생성 중 — `--remote` 적용은 머지 후 사용자 수동) |
+| **Status** | ✅ Done (`--remote` 적용은 머지 후 사용자 수동 — PR 본문 Manual verification 참조) |
 
 ## Goal
 
