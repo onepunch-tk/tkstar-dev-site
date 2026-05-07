@@ -36,9 +36,8 @@ preview_id = "c68513cba84e4eeca7b947d1d0ff07f5"
 # 분리한 것과 달리, body cache 는 본인 1명 admin 의 작업 환경 분리 가치가 낮아 하나로 통합.
 [[kv_namespaces]]
 binding = "POST_BODY_CACHE_KV"
-# TODO(T027→T028): swap before any loader binds POST_BODY_CACHE_KV (`rg PLACEHOLDER_ wrangler.toml` should return 0 lines)
-id = "PLACEHOLDER_PREVIEW_KV_ID"
-preview_id = "PLACEHOLDER_PREVIEW_KV_ID"
+id = "4cbde7c40dbd4662a84e320017d84bd3"
+preview_id = "4cbde7c40dbd4662a84e320017d84bd3"
 
 [[d1_databases]]
 binding = "DB"
@@ -62,8 +61,7 @@ id = "95b7366f0bf64aab9677eb43174e4b32"
 
 [[env.staging.kv_namespaces]]
 binding = "POST_BODY_CACHE_KV"
-# TODO(T027→T028): swap before any loader binds POST_BODY_CACHE_KV
-id = "PLACEHOLDER_STAGING_KV_ID"
+id = "bb649f2413694909bc66801a45ac9dc2"
 
 [[env.staging.d1_databases]]
 binding = "DB"
@@ -97,8 +95,7 @@ id = "2ec496563f6c43699b493cf2c96304f1"
 
 [[env.production.kv_namespaces]]
 binding = "POST_BODY_CACHE_KV"
-# TODO(T027→T028): swap before any loader binds POST_BODY_CACHE_KV
-id = "PLACEHOLDER_PRODUCTION_KV_ID"
+id = "a128819f1701493dbc3bbcfbf006201f"
 
 [[env.production.d1_databases]]
 binding = "DB"
