@@ -28,7 +28,11 @@ export default defineConfig({
 		environment: "jsdom",
 		globals: true,
 		setupFiles: ["./vitest.setup.ts"],
-		include: ["app/**/*.{test,spec}.{ts,tsx}", "velite/**/*.{test,spec}.{ts,tsx}"],
+		include: [
+			"app/**/*.{test,spec}.{ts,tsx}",
+			"velite/**/*.{test,spec}.{ts,tsx}",
+			"scripts/**/*.{test,spec}.{ts,tsx}",
+		],
 		coverage: {
 			provider: "v8",
 			reporter: ["text", "html", "lcov"],
@@ -47,6 +51,7 @@ export default defineConfig({
 				"app/root.tsx",
 				".react-router/**",
 				"coverage/**",
+				"scripts/**",
 			],
 		},
 	},
