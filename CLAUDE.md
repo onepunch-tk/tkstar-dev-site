@@ -55,83 +55,61 @@
 
 ## Tech Stack
 
-### Frontend Framework
-- **React Router 7.14.0** (Framework mode, SSR) — 정적 콘텐츠도 SEO/OG 미리보기를 위해 SSR 사용
-- **React 19.2.4 / React DOM 19.2.4**
-- **TypeScript 5.9.3**
+> 라이브러리 1줄 = 버전 + 핵심 제약. war-story / 역사적 맥락은 task spec / `docs/PROJECT-STRUCTURE.md` 참조.
 
-### Styling & UI
-- **TailwindCSS 4.2.2** (`@tailwindcss/vite` 4.2.2) — 디자인 토큰은 `docs/design-system/styles.css`를 `@theme { --color-*, --font-* }`로 이식
-- **다크모드**: `[data-theme='dark|light']` HTML 속성 셀렉터 전략 (Tailwind 클래스 전략 X). `@variant dark (&:where([data-theme='dark'], [data-theme='dark'] *))`
-- **Color**: `oklch()` / `color-mix(in oklab, ...)` native 사용
-- **Animation**: CSS-only (`@keyframes` + `transition: 120ms ease`). Motion 라이브러리 MVP 보류
-
-### Typography
-- **Pretendard** (`v1.3.9` alternative variant) — primary 한/영 통합 sans-serif 폰트 (전 페이지 본문/UI). 한글 글리프 포함이라 OG 이미지 / SNS preview 의 한글 title 도 동일 폰트로 일관 렌더. T018 에서 JetBrains Mono → Pretendard 로 swap (JetBrains Mono 는 한글 미지원이라 OG 의 blog title 한글이 `.notdef` 박스로 깨졌던 문제 해결).
-- **Self-host**: `/public/fonts/Pretendard-{Regular,Medium,Bold}.woff2` + `@font-face` (Workers SSR FOIT 방지). OG 빌드용 ttf (`Pretendard-{Regular,Bold}.ttf`) 도 동일 폴더에 commit — Satori 는 ttf/otf 만 받음.
+### Frontend / Styling / Typography
+- React Router 7.14.0 (Framework mode, SSR) / React 19.2.4 / TypeScript 5.9.3
+- TailwindCSS 4.2.2 (`@tailwindcss/vite`) — 토큰은 `docs/design-system/styles.css` → `@theme`
+- 다크모드: `[data-theme='dark|light']` 셀렉터 전략 (Tailwind class 전략 X). Color: `oklch()` / `color-mix(in oklab,…)`. Animation: CSS-only
+- Pretendard `v1.3.9` (한/영 통합 sans-serif). woff2 self-host + Satori OG 용 ttf 2종 commit
 
 ### Content Pipeline
-- **velite 0.3.1** — MDX **frontmatter + TOC** 추출용 컬렉션 빌더 (Project / Post / AppLegalDoc). 본문(body) 컴파일은 담당하지 않음 (T021.5 부터 `@mdx-js/rollup` 으로 분리). collection schema는 velite 자체 `s` 헬퍼(Zod 3 internal) 사용 — Domain Zod 4.3.6과 버전 충돌 회피를 위해 schema shape을 velite 측에 미러링 (T007 D1)
-- **MDX** — 콘텐츠 작성 포맷. 본문은 `@mdx-js/rollup` (vite plugin) + `remark-frontmatter` 가 빌드 타임에 ESM 모듈로 컴파일. 라우트는 `import.meta.glob({ eager: true })` 로 lookup — `app/presentation/components/content/mdx-modules.ts`. Workers V8 isolate 의 runtime `new Function` 차단 (`Code generation from strings disallowed`) 회피 (T021.5)
-- **unified 11 + remark-parse 11 + remark-gfm 4 + remark-rehype 11** — D1 `posts.raw_markdown` 의 SSR runtime 컴파일러 (Project / AppLegalDoc 의 빌드타임 `@mdx-js/rollup` 과 분리). T027 이 Application port `CompileMarkdown` (`(raw: string) => Promise<HastRoot>`) + Infrastructure adapter `compileMarkdownToHast` 도입 — markdown → mdast → hast Root 변환만 담당. hast Root 는 KV 에 JSON 직렬화하여 캐시되고, hast → React Element 마운트는 T028 의 `MdxRenderer.tsx` 가 react-markdown / `hast-util-to-jsx-runtime` 으로 처리. raw HTML 은 `remark-rehype` 의 default `allowDangerousHtml: false` 로 escape 되어 XSS 차단 첫 레이어 형성.
-- **Cloudflare KV (POST_BODY_CACHE_KV)** — Post 본문 hast Root JSON 캐시 (T027). key 패턴 `post:{slug}:body:v{16-char SHA-256 hex of raw_markdown}`, TTL 무제한, 자연 invalidation by content-hash (`raw_markdown` 변경 → hash 변경 → 새 key, 옛 키는 KV LRU 가 정리). binding `POST_BODY_CACHE_KV` (env 별 분리 namespace). `app/infrastructure/cache/kv-post-body-cache.ts` 가 Application port `PostBodyCache { get, set }` 을 구현.
-- **shiki 4.0.2 + @shikijs/rehype 4.0.2** — 빌드 타임 코드블록 syntax highlight (theme: `github-dark` 단일, MVP). 클라이언트 번들 영향 0 (devDependency)
-- **rehype-slug 6.0.0** — 헤딩 anchor 자동 부여 (한국어 anchor 지원)
-- **github-slugger 2.0.0** (devDependency) — `velite/transforms/extract-toc.ts` 가 사용. `rehype-slug` 와 동일 라이브러리이므로 빌드-time TOC 추출 시 anchor id 와 1:1 매칭 보장 (T013)
-- **Satori 0.26 standalone + @resvg/resvg-wasm 2.6 + yoga.wasm (satori 묶음본)** — `/og/projects/:slug.png` / `/og/blog/:slug.png` resource route 가 SSR 시점에 1200×630 PNG 동적 생성 (T018). yoga.wasm + resvg.wasm 은 ES module `import` 로 받아 `compiled-wasm` 모듈로 worker bundle 에 묶임 — Workers 의 dynamic wasm compile 차단 정책 (`WebAssembly.instantiate(): Wasm code generation disallowed by embedder`) 우회. `node_modules/satori/yoga.wasm` 이 satori standalone init 이 받는 wrapper-호환본 (yoga-wasm-web 의 yoga.wasm 과 wrapper 가 다름). 폰트 ttf 2 개는 `env.ASSETS.fetch(${origin}/fonts/...)` 로 첫 요청 시 1 회만 fetch + factory closure 캐시. fallback PNG 는 `scripts/build-og-fallback.mjs` 가 빌드 타임에 1 회 사전 생성해 `public/og/fallback.png` 로 commit.
-- **velite lifecycle hooks** — `predev` / `prebuild` / `prestart` / `pretest`가 모두 `bun run velite:build`로 라우팅. `velite:build`는 `velite build && node scripts/patch-velite-types.mjs`로 chained — fresh clone / CI에서 stale `.velite/` 캐시 회귀 차단 + typegen 교체
-- **Velite typegen patch** — velite 0.3.1 native typegen이 `import type __vc from '../velite.config.ts'`로 Zod 3 internal private 타입(`ZodInvalidStringIssue`, `ZodOptionalDef` 등)을 노출시켜 `tsc -b`에서 TS4082 폭발. `scripts/patch-velite-types.mjs`가 매 build 후 `.velite/index.d.ts`를 명시적 minimal 타입으로 교체. velite upstream fix 시 제거 (T008 D1)
-- **Path alias `#content` → `./.velite`** — `tsconfig.cloudflare.json`에 등록
+- velite 0.3.1 — MDX frontmatter + TOC 추출 (Project / Post / AppLegalDoc). 본문 컴파일 X (T021.5 부터 `@mdx-js/rollup` 으로 분리). schema는 velite 자체 `s` 헬퍼 (Zod 3 internal) — Domain Zod 4 충돌 회피
+- MDX 본문 — `@mdx-js/rollup` + `remark-frontmatter` 가 빌드 타임 ESM 컴파일. 라우트는 `import.meta.glob({ eager: true })` lookup. Workers `new Function` 차단 회피
+- (T027) unified 11 + remark-parse + remark-gfm + remark-rehype — D1 `posts.raw_markdown` SSR runtime 컴파일 (markdown → hast Root). XSS escape는 `remark-rehype` default `allowDangerousHtml: false`. hast → React Element 마운트는 T028 `MdxRenderer.tsx`
+- shiki 4.0.2 + @shikijs/rehype 4.0.2 (devDep) — 빌드 타임 syntax highlight, theme `github-dark`
+- rehype-slug 6.0.0 + github-slugger 2.0.0 (devDep) — 한국어 anchor + TOC id 1:1 매칭
+- Satori 0.26 standalone + @resvg/resvg-wasm 2.6 + yoga.wasm — `/og/{projects,blog}/:slug.png` SSR. wasm은 `compiled-wasm` 모듈 (Workers dynamic wasm 차단 우회). 폰트는 `env.ASSETS.fetch` 1회 + factory 캐시
+- velite lifecycle (`pre{dev,build,start,test}`) → `bun run velite:build` (= `velite build && patch-velite-types.mjs`). typegen patch는 velite 0.3.1 의 Zod 3 internal type 누출 (TS4082) 회피, upstream fix 시 제거
+- Path alias `#content` → `./.velite` (`tsconfig.cloudflare.json`)
 
-### Search Index (F016 Cmd+K)
-- velite collection JSON을 클라이언트 번들 import → in-memory 토큰 검색 (별도 라이브러리 없이 includes/score)
+### Search / SEO
+- Cmd+K (F016): velite collection JSON 클라이언트 번들 → in-memory 토큰 검색 (라이브러리 X)
+- sitemap.xml / robots.txt: RR7 resource route. JSON-LD: schema.org (Person/BlogPosting/CreativeWork/BreadcrumbList). Meta: RR7 `meta` export
+- env: `GOOGLE_SITE_VERIFICATION` / `NAVER_SITE_VERIFICATION`. Indexing: App Terms/Privacy `noindex,follow`, 404 `noindex,nofollow`
 
-### SEO & Indexing
-- **sitemap.xml / robots.txt** — RR7 resource route로 동적 생성
-- **JSON-LD** — schema.org (Person / BlogPosting / CreativeWork / BreadcrumbList)
-- **Meta Tags** — RR7 `meta` export (per-page title/description/canonical/OG/Twitter Card)
-- **Search Engine Verification** — `GOOGLE_SITE_VERIFICATION` / `NAVER_SITE_VERIFICATION` env로 root layout 조건부 렌더
-- **Indexing Policy** — App Terms/Privacy: `noindex, follow` / 404 splat: `noindex, nofollow`
-
-### Forms & Email
-- **React Email 1.0.12** (`@react-email/components`) + **`@react-email/render` 2.0.8** — Contact 자동응답 메일 템플릿. service 에서 `render(createElement(AutoReplyEmail, {...}))` 로 html / plainText 두 출력 병렬 생성 (`app/application/contact/templates/AutoReplyEmail.tsx`)
-- **Resend** — Contact form 발신 (`hello@tkstar.dev` → 본인 메일 + 제출자 자동응답). HTTP API fetch 직접 사용 (SDK X). env: `RESEND_API_KEY` (wrangler secret per env)
-- **Cloudflare Turnstile** — 스팸 방지. siteverify FormData POST. env: public `TURNSTILE_SITE_KEY` (vars per env, default 는 always-pass test key `1x00000000000000000000AA`) + secret `TURNSTILE_SECRET` (wrangler secret per env, dev 는 `.dev.vars` always-pass test secret `1x0000000000000000000000000000000AA`)
-- **Rate Limit** — Workers KV 기반 (`RATE_LIMIT_KV` binding, 4개 namespace 환경 분리: default/preview/staging/production). key 패턴 `contact:{ip}:{yyyy-mm-dd-hh}`, max=5, TTL=3600s. 알려진 한계: TOCTOU race + fixed-window 경계 부스트 (후속 task 에서 Cloudflare Rate Limiting binding 으로 교체 예정)
-- **Local secrets**: `.dev.vars` (gitignored) — Workers `bunx wrangler dev` 가 자동 로드. 키 목록은 `.dev.vars.example` 참조
+### Forms / Email
+- React Email 1.0.12 + `@react-email/render` 2.0.8 — Contact 자동응답 템플릿
+- Resend HTTP API (SDK X). secret: `RESEND_API_KEY`
+- Cloudflare Turnstile — public `TURNSTILE_SITE_KEY` + secret `TURNSTILE_SECRET` (dev는 always-pass test key)
+- Rate Limit: `RATE_LIMIT_KV` (env별 namespace), key `contact:{ip}:{yyyy-mm-dd-hh}`, max=5/TTL=3600s. (TOCTOU + fixed-window → 후속 CF Rate Limiting binding 교체 예정)
+- Local secrets: `.dev.vars` (gitignored), `.dev.vars.example` 참조
 
 ### Hosting / Edge
-- **Cloudflare Workers (SSR)** — `wrangler 4.85.0` + `@cloudflare/vite-plugin 1.33.2`. **Workers Paid plan** ($5/mo + 사용량 종량) 구독 중 — 한도 해석 시 Free 가 아닌 Paid 기준으로 판단:
-  - Worker bundle: **10 MiB gzip** / 64 MiB uncompressed (Free 는 3 MiB)
-  - CPU time: 기본 30s, `[limits] cpu_ms` 로 5min 까지 확장 가능 (Free 는 10ms / 50ms burst)
-  - Requests: 10M/월 포함, 초과분 $0.30/M
-  - KV: 1k namespace/account, ops 종량 — body cache scale 에는 무한대 수준
-- **Cloudflare Email Routing** — `hello@tkstar.dev` → 개인 Gmail forward
-- **Cloudflare Web Analytics** — 쿠키 없는 분석 스니펫
-- **Domain**: `tkstar.dev`
-- **Secrets vs 공개 식별자 구분 원칙** — `wrangler.toml` 에 commit 가능한 것과 `wrangler secret` / `.dev.vars` 로 격리할 것:
-  - ✅ 공개 OK (식별자, 외부 API token 으로만 접근 가능): KV namespace `id` / `preview_id`, D1 `database_id`, R2 bucket name, Worker route, `TURNSTILE_SITE_KEY` (HTML 노출용)
-  - ❌ 비공개 (인증 토큰): Cloudflare API token, `RESEND_API_KEY`, `TURNSTILE_SECRET`, OAuth client_secret, JWT signing key → wrangler secret per env / `.dev.vars` (gitignored)
+- Cloudflare Workers (SSR) — `wrangler 4.85.0` + `@cloudflare/vite-plugin 1.33.2`. **Workers Paid plan** ($5/mo + 종량) — 한도 Paid 기준:
+  - Bundle: **10 MiB gzip** / 64 MiB uncompressed
+  - CPU: 기본 30s, `[limits] cpu_ms` 5min 확장 가능
+  - Requests: 10M/월 포함, 초과 $0.30/M
+- Cloudflare Email Routing (`hello@tkstar.dev` → Gmail) / Web Analytics (cookieless) / Domain: `tkstar.dev`
+- **Secrets vs 공개 식별자**:
+  - ✅ git OK (식별자, API token 없이는 접근 불가): KV `id`/`preview_id`, D1 `database_id`, R2 bucket name, Worker route, `TURNSTILE_SITE_KEY`
+  - ❌ 격리 (인증 토큰): CF API token, `RESEND_API_KEY`, `TURNSTILE_SECRET`, OAuth secret, JWT key → `wrangler secret` / `.dev.vars`
 
-### CMS 인프라 (Phase 7.1 진행 — 토대 도입됨)
-> 도입 일정과 task 분해는 [docs/ROADMAP.md](docs/ROADMAP.md) `Phase: CMS 인프라` 참조. 신규 기능 명세는 [docs/PRD.md](docs/PRD.md) F020~F023 참조.
+### CMS 인프라 (Phase 7.1 진행)
+> 도입 일정/task: [docs/ROADMAP.md](docs/ROADMAP.md) `Phase: CMS 인프라`. 명세: [docs/PRD.md](docs/PRD.md) F020~F023.
 
-- **Cloudflare D1 (SQLite, edge-native)** — Post 원본 markdown / 메타 / Project 커버 메타 저장. binding: `DB`. T024 에서 `posts` 테이블 schema + binding (production `tkstar-dev-db` / preview `tkstar-dev-db-preview` — default+staging+miniflare 공유) + 마이그레이션 토대 도입. 데이터 INSERT / Repository / velite Post 폐기는 T025/T026.
-- **Drizzle ORM 0.45.2** (`drizzle-orm`) + **drizzle-kit 0.31.10** (devDependency) — D1 first-class, T023 측정 worker SSR bundle gzip Δ +30.96 KiB (Cloudflare Free 한계 안). `drizzle.config.ts` (sqlite dialect, schema=`./app/infrastructure/db/schema/*`, out=`./migrations`). schema/마이그레이션 파일 위치는 [docs/PROJECT-STRUCTURE.md](docs/PROJECT-STRUCTURE.md) `app/infrastructure/db/` 참조.
-- **Cloudflare R2** — Post 본문 이미지 / Project 커버 이미지 / 기타 미디어. S3 호환 (T033 도입 예정)
-- **R2 클라이언트** — 후보 3개 (T023 PoC 후 T033 결정): (a) **R2 Workers binding** 1순위 (`MEDIA_BUCKET.put/get/delete/list`, 의존성 0) / (b) `aws4fetch` 2순위 (~2.5KB) / (c) `@aws-sdk/client-s3` 3순위 (~500KB, `compatibility_flags = ["nodejs_compat"]` 활성으로 import 가능 — multipart/streaming 진짜 필요 시만)
-- **Cloudflare Access (Zero Trust)** — `/admin/*` path 보호. 본인 1명 (이메일 1건 allowlist). Workers 는 `Cf-Access-Authenticated-User-Email` 헤더만 검증 — 자체 세션/쿠키/비밀번호 코드 X
-- **Tiptap (or Lexical) WYSIWYG** — admin editor. **순수 markdown 만** 직렬화 (커스텀 JSX 컴포넌트 X) → DB 에 markdown 문자열 저장
+- Cloudflare D1 (SQLite) — Post raw markdown / 메타 / Project 커버 메타. binding `DB`. production `tkstar-dev-db` / preview `tkstar-dev-db-preview` (default+staging+miniflare 공유)
+- Drizzle ORM 0.45.2 + drizzle-kit 0.31.10 (devDep). schema=`./app/infrastructure/db/schema/*`, out=`./migrations`
+- (T027) `POST_BODY_CACHE_KV` — Post body 컴파일 결과 hast JSON 캐시. key=`post:{slug}:body:v{16-char hash}`, 무제한 TTL + content-hash invalidation
+- Cloudflare R2 (T033 도입). 클라이언트 후보: (1) R2 Workers binding (의존성 0) > (2) `aws4fetch` (~2.5KB) > (3) `@aws-sdk/client-s3` (multipart 필요시만)
+- Cloudflare Access (Zero Trust) — `/admin/*` 보호 (1명 allowlist). `Cf-Access-Authenticated-User-Email` 헤더 검증 (자체 세션 X)
+- Tiptap (or Lexical) WYSIWYG — admin editor, 순수 markdown 직렬화
 
 ### Build / Dev / Quality
-- **Vite 8.0.3** + `@vitejs/plugin-react 6.0.1`
-- **Vitest 4.1.5** + `jsdom 29.1.0` + `@testing-library/react 16.3.2` + `@testing-library/jest-dom 6.9.1` + `@testing-library/dom 10.4.1`
-- **better-sqlite3 12.9.0** + `@types/better-sqlite3 7.6.13` (devDep) — D1 Repository 단위 테스트용 in-memory SQLite. `app/infrastructure/db/__tests__/_helpers/in-memory-d1.ts` 가 `drizzle-orm/better-sqlite3` 로 wrap 후 `migrations/` 디렉토리를 직접 적용 → production `drizzle(env.DB)` (D1) 와 동일한 `BaseSQLiteDatabase` 인터페이스로 repository factory 호출 (T025)
-- **Biome 2.4.13** — Lint & Format
-- **isbot 5.1.36** — SSR 봇 분기
-
-### Package Management
-- **bun** (`bun.lock`)
+- Vite 8.0.3 + `@vitejs/plugin-react 6.0.1`
+- Vitest 4.1.5 + jsdom 29.1.0 + `@testing-library/{react 16.3.2, jest-dom 6.9.1, dom 10.4.1}`. setup: `vitest.setup.ts` (`tsconfig.cloudflare.json` include 필수)
+- better-sqlite3 12.9.0 (devDep) — D1 Repository unit test in-memory SQLite. helper: `app/infrastructure/db/__tests__/_helpers/in-memory-d1.ts`
+- Biome 2.4.13 (lint+format) / isbot 5.1.36 (SSR 봇 분기) / bun (`bun.lock`)
 
 ## Critical Documents
 - Project Structure [docs/PROJECT-STRUCTURE.md](docs/PROJECT-STRUCTURE.md): **MANDATORY** - Reference before ANY task
