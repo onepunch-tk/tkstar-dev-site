@@ -101,10 +101,17 @@
 - **Local secrets**: `.dev.vars` (gitignored) — Workers `bunx wrangler dev` 가 자동 로드. 키 목록은 `.dev.vars.example` 참조
 
 ### Hosting / Edge
-- **Cloudflare Workers (SSR)** — `wrangler 4.85.0` + `@cloudflare/vite-plugin 1.33.2`
+- **Cloudflare Workers (SSR)** — `wrangler 4.85.0` + `@cloudflare/vite-plugin 1.33.2`. **Workers Paid plan** ($5/mo + 사용량 종량) 구독 중 — 한도 해석 시 Free 가 아닌 Paid 기준으로 판단:
+  - Worker bundle: **10 MiB gzip** / 64 MiB uncompressed (Free 는 3 MiB)
+  - CPU time: 기본 30s, `[limits] cpu_ms` 로 5min 까지 확장 가능 (Free 는 10ms / 50ms burst)
+  - Requests: 10M/월 포함, 초과분 $0.30/M
+  - KV: 1k namespace/account, ops 종량 — body cache scale 에는 무한대 수준
 - **Cloudflare Email Routing** — `hello@tkstar.dev` → 개인 Gmail forward
 - **Cloudflare Web Analytics** — 쿠키 없는 분석 스니펫
 - **Domain**: `tkstar.dev`
+- **Secrets vs 공개 식별자 구분 원칙** — `wrangler.toml` 에 commit 가능한 것과 `wrangler secret` / `.dev.vars` 로 격리할 것:
+  - ✅ 공개 OK (식별자, 외부 API token 으로만 접근 가능): KV namespace `id` / `preview_id`, D1 `database_id`, R2 bucket name, Worker route, `TURNSTILE_SITE_KEY` (HTML 노출용)
+  - ❌ 비공개 (인증 토큰): Cloudflare API token, `RESEND_API_KEY`, `TURNSTILE_SECRET`, OAuth client_secret, JWT signing key → wrangler secret per env / `.dev.vars` (gitignored)
 
 ### CMS 인프라 (Phase 7.1 진행 — 토대 도입됨)
 > 도입 일정과 task 분해는 [docs/ROADMAP.md](docs/ROADMAP.md) `Phase: CMS 인프라` 참조. 신규 기능 명세는 [docs/PRD.md](docs/PRD.md) F020~F023 참조.
