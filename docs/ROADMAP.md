@@ -688,7 +688,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
     - `scripts/seeds/posts-initial.sql` — 1회 실행 산출 (T028 머지 + production /blog UI 검증 완료 후 별도 PR 로 제거 예정 — 본 PR 범위 外)
   - PR: #TBD / 브랜치: `chore/issue-94-migrate-posts-to-d1`
 
-- [ ] **Task 027: MDX runtime compiler 결정 + 구현 + KV cache (post body)**
+- [x] **Task 027: MDX runtime compiler 결정 + 구현 + KV cache (post body)**
   - **Must** Read: [tasks/T027-mdx-runtime-compiler-kv-cache.md](tasks/T027-mdx-runtime-compiler-kv-cache.md)
   - blockedBy: Task 023, Task 025
   - blocks: Task 028
