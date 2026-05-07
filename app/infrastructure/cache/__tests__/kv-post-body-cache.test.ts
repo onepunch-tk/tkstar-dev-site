@@ -1,5 +1,11 @@
+import type { Root as HastRoot } from "hast";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createKvPostBodyCache } from "../kv-post-body-cache";
+
+const makeFixture = (label: string): HastRoot => ({
+	type: "root",
+	children: [{ type: "text", value: label }],
+});
 
 type StoredValue = { value: string };
 
@@ -50,14 +56,14 @@ describe("createKvPostBodyCache", () => {
 	it("set → get 라운드트립 — 동일 객체 반환", async () => {
 		// Arrange
 		const cache = createKvPostBodyCache(kv);
-		const hast = { tagName: "h1", children: [] };
+		const hast = makeFixture("roundtrip");
 
 		// Act
 		await cache.set("hello-world", "abc123def4567890", hast);
 		const result = await cache.get("hello-world", "abc123def4567890");
 
 		// Assert
-		expect(result).toEqual({ tagName: "h1", children: [] });
+		expect(result).toEqual(makeFixture("roundtrip"));
 	});
 
 	it("cache miss → null 반환", async () => {
@@ -77,14 +83,14 @@ describe("createKvPostBodyCache", () => {
 		const hash = "hash000000000000";
 
 		// Act
-		await cache.set("a", hash, { tagName: "div", children: ["a-content"] });
-		await cache.set("b", hash, { tagName: "span", children: ["b-content"] });
+		await cache.set("a", hash, makeFixture("a-content"));
+		await cache.set("b", hash, makeFixture("b-content"));
 		const resultA = await cache.get("a", hash);
 		const resultB = await cache.get("b", hash);
 
 		// Assert
-		expect(resultA).toEqual({ tagName: "div", children: ["a-content"] });
-		expect(resultB).toEqual({ tagName: "span", children: ["b-content"] });
+		expect(resultA).toEqual(makeFixture("a-content"));
+		expect(resultB).toEqual(makeFixture("b-content"));
 	});
 
 	it("다른 hash — 별도 key 로 격리 (slug 같지만 hash 다름, 구버전이 신버전을 덮어쓰지 않음)", async () => {
@@ -93,14 +99,14 @@ describe("createKvPostBodyCache", () => {
 		const slug = "post-1";
 
 		// Act
-		await cache.set(slug, "h1aaaaaaaaaaaaaa", { tagName: "h1", children: ["v1"] });
-		await cache.set(slug, "h2bbbbbbbbbbbbbb", { tagName: "h2", children: ["v2"] });
+		await cache.set(slug, "h1aaaaaaaaaaaaaa", makeFixture("v1"));
+		await cache.set(slug, "h2bbbbbbbbbbbbbb", makeFixture("v2"));
 		const resultV1 = await cache.get(slug, "h1aaaaaaaaaaaaaa");
 		const resultV2 = await cache.get(slug, "h2bbbbbbbbbbbbbb");
 
 		// Assert
-		expect(resultV1).toEqual({ tagName: "h1", children: ["v1"] });
-		expect(resultV2).toEqual({ tagName: "h2", children: ["v2"] });
+		expect(resultV1).toEqual(makeFixture("v1"));
+		expect(resultV2).toEqual(makeFixture("v2"));
 	});
 
 	it("cache key 패턴 검증 — post:{slug}:body:v{hash} 형태로 저장됨", async () => {
@@ -108,7 +114,7 @@ describe("createKvPostBodyCache", () => {
 		const cache = createKvPostBodyCache(kv);
 
 		// Act
-		await cache.set("hello-world", "abc123def4567890", { x: 1 });
+		await cache.set("hello-world", "abc123def4567890", makeFixture("anything"));
 
 		// Assert
 		expect(kv.__store.has("post:hello-world:body:vabc123def4567890")).toBe(true);
@@ -117,15 +123,13 @@ describe("createKvPostBodyCache", () => {
 	it("kv.put 의 value 는 JSON.stringify 결과 (string equality)", async () => {
 		// Arrange
 		const cache = createKvPostBodyCache(kv);
-		const hast = { tagName: "p", children: [{ type: "text", value: "hi" }] };
+		const hast = makeFixture("hi");
 
 		// Act
 		await cache.set("slug-x", "hash-x12345678", hast);
 
 		// Assert
 		const lastPut = kv.__putCalls.at(-1);
-		expect(lastPut?.value).toBe(
-			JSON.stringify({ tagName: "p", children: [{ type: "text", value: "hi" }] }),
-		);
+		expect(lastPut?.value).toBe(JSON.stringify(hast));
 	});
 });

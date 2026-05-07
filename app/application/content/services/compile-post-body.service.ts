@@ -1,5 +1,6 @@
-import type { CachedHast, PostBodyCache } from "~/application/content/ports/post-body-cache.port";
-import type { CompileMarkdown } from "~/infrastructure/content/markdown-compiler";
+import type { Root as HastRoot } from "hast";
+import type { CompileMarkdown } from "~/application/content/ports/markdown-compiler.port";
+import type { PostBodyCache } from "~/application/content/ports/post-body-cache.port";
 
 export const computeBodyHash = async (rawMarkdown: string): Promise<string> => {
 	const encoded = new TextEncoder().encode(rawMarkdown);
@@ -14,7 +15,7 @@ export const compilePostBody = async (
 	cache: PostBodyCache,
 	compile: CompileMarkdown,
 	args: { slug: string; rawMarkdown: string },
-): Promise<{ hast: CachedHast; hash: string; cacheHit: boolean }> => {
+): Promise<{ hast: HastRoot; hash: string; cacheHit: boolean }> => {
 	const hash = await computeBodyHash(args.rawMarkdown);
 	const cached = await cache.get(args.slug, hash);
 	if (cached !== null) {

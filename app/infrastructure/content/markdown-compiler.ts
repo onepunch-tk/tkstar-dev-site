@@ -3,8 +3,7 @@ import remarkGfm from "remark-gfm";
 import remarkParse from "remark-parse";
 import remarkRehype from "remark-rehype";
 import { unified } from "unified";
-
-export type CompileMarkdown = (rawMarkdown: string) => Promise<HastRoot>;
+import type { CompileMarkdown } from "~/application/content/ports/markdown-compiler.port";
 
 export const compileMarkdownToHast: CompileMarkdown = async (rawMarkdown) => {
 	const processor = unified().use(remarkParse).use(remarkGfm).use(remarkRehype);

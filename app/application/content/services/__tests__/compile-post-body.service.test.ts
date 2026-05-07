@@ -1,7 +1,13 @@
+import type { Root as HastRoot } from "hast";
 import { describe, expect, it, vi } from "vitest";
+import type { CompileMarkdown } from "~/application/content/ports/markdown-compiler.port";
 import type { PostBodyCache } from "~/application/content/ports/post-body-cache.port";
-import type { CompileMarkdown } from "~/infrastructure/content/markdown-compiler";
 import { compilePostBody, computeBodyHash } from "../compile-post-body.service";
+
+const makeFixture = (label: string): HastRoot => ({
+	type: "root",
+	children: [{ type: "text", value: label }],
+});
 
 describe("computeBodyHash", () => {
 	it("같은 input 은 같은 hex 를 반환한다", async () => {
@@ -70,7 +76,7 @@ describe("computeBodyHash", () => {
 describe("compilePostBody", () => {
 	// 테스트마다 새 mock 생성 — 호출 기록이 섞이지 않도록
 	const makeMocks = () => {
-		const fakeHast = { tagName: "h1", children: [{ value: "compiled" }] };
+		const fakeHast = makeFixture("compiled");
 		const cache: PostBodyCache = {
 			get: vi.fn(),
 			set: vi.fn(),
@@ -108,7 +114,7 @@ describe("compilePostBody", () => {
 	it("cache hit → compile 미호출 → cacheHit:true 반환", async () => {
 		// Arrange
 		const { cache, compile } = makeMocks();
-		const cachedHast = { tagName: "p" };
+		const cachedHast = makeFixture("from-cache");
 		vi.mocked(cache.get).mockResolvedValue(cachedHast);
 		vi.mocked(cache.set).mockResolvedValue(undefined);
 		const slug = "post-1";
