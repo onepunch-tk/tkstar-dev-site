@@ -11,6 +11,8 @@ export const computeBodyHash = async (rawMarkdown: string): Promise<string> => {
 	return hex.slice(0, 16);
 };
 
+// Caller (T028 loader) 는 전체 호출을 `ctx.waitUntil()` 로 감싸 cache.set 의 KV write 를
+// response flush 이후로 미룰 수 있다 — 본 service 는 ExecutionContext 를 모르므로 awaiting 만 한다.
 export const compilePostBody = async (
 	cache: PostBodyCache,
 	compile: CompileMarkdown,

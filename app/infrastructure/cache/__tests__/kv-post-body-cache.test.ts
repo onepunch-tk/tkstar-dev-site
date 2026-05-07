@@ -132,4 +132,30 @@ describe("createKvPostBodyCache", () => {
 		const lastPut = kv.__putCalls.at(-1);
 		expect(lastPut?.value).toBe(JSON.stringify(hast));
 	});
+
+	it("malformed cached value (type !== 'root') → null 반환 (cache miss fallthrough)", async () => {
+		// Arrange — 외부에서 잘못된 shape 가 KV 에 들어간 경우 (수동 wrangler kv put / schema 마이그레이션 잔존)
+		const cache = createKvPostBodyCache(kv);
+		const key = "post:bad-shape:body:vffffffffffffffff";
+		kv.__store.set(key, { value: JSON.stringify({ tagName: "h1", children: [] }) });
+
+		// Act
+		const result = await cache.get("bad-shape", "ffffffffffffffff");
+
+		// Assert — caller 는 cache miss 와 동일하게 처리하여 안전하게 재컴파일 fallback
+		expect(result).toBeNull();
+	});
+
+	it("non-object cached value (string / number) → null 반환", async () => {
+		// Arrange — JSON.parse 가 primitive 를 반환하는 corner case
+		const cache = createKvPostBodyCache(kv);
+		const key = "post:primitive:body:v0000000000000000";
+		kv.__store.set(key, { value: JSON.stringify("garbage-string") });
+
+		// Act
+		const result = await cache.get("primitive", "0000000000000000");
+
+		// Assert
+		expect(result).toBeNull();
+	});
 });
