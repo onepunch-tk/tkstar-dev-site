@@ -668,7 +668,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
   - 가정 해소: 없음 (T024 의 schema 위에 1:1 매핑)
   - PR: #TBD / 브랜치: `feature/issue-92-d1-post-repository`
 
-- [ ] **Task 026: 기존 MDX → D1 일회성 마이그레이션 스크립트**
+- [x] **Task 026: 기존 MDX → D1 일회성 마이그레이션 스크립트**
   - **Must** Read: [tasks/T026-mdx-to-d1-migration.md](tasks/T026-mdx-to-d1-migration.md)
   - blockedBy: Task 024, Task 025
   - blocks: Task 028
@@ -685,8 +685,8 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
     - `scripts/migrate-posts-to-d1.ts` (Bun 실행, `--dry-run` 플래그)
     - `scripts/__tests__/migrate-posts-to-d1.test.ts` (gray-matter 파싱 + INSERT 쿼리 빌드 단위 테스트)
     - `content/posts/` 삭제 (마이그레이션 완료 후 별도 commit)
-    - `docs/reports/post-migration-{date}.md` — 이관 결과 (이관 건수, 실패 건수, 롤백 절차)
-  - PR 1개 / 브랜치: `chore/migrate-posts-to-d1`
+    - `scripts/seeds/posts-initial.sql` — 1회 실행 산출 (T028 머지 + production /blog UI 검증 완료 후 별도 PR 로 제거 예정 — 본 PR 범위 外)
+  - PR: #TBD / 브랜치: `chore/issue-94-migrate-posts-to-d1`
 
 - [ ] **Task 027: MDX runtime compiler 결정 + 구현 + KV cache (post body)**
   - **Must** Read: [tasks/T027-mdx-runtime-compiler-kv-cache.md](tasks/T027-mdx-runtime-compiler-kv-cache.md)

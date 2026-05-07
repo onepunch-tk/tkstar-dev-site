@@ -58,6 +58,7 @@
 		"better-sqlite3": "^12.9.0",
 		"drizzle-kit": "^0.31.10",
 		"github-slugger": "^2.0.0",
+		"gray-matter": "^4.0.3",
 		"jsdom": "^29.1.0",
 		"rehype-slug": "^6.0.0",
 		"shiki": "^4.0.2",
