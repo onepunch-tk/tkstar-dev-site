@@ -234,8 +234,9 @@ app/application/
 
 **Contains**:
 - **config/** — DI 컨테이너 (Composition Root) — Workers 부팅 시 모든 의존성 조립. **수제 Plain object/Map 방식** (의존성 그래프 작아 라이브러리 도입 미사용)
-- **content/** — velite read-side 어댑터 (`.velite/` 산출물을 Domain 엔티티로 매핑) — `*.repository.ts` 구현체
+- **content/** — velite read-side 어댑터 (`.velite/` 산출물을 Domain 엔티티로 매핑) — `*.repository.ts` 구현체. T027 부터 D1 Post 본문 markdown → hast 변환자 (`markdown-compiler.ts`) 도 동거 (Application port 의 Infrastructure 구현)
 - **db/** — Cloudflare D1 (edge SQLite) + Drizzle ORM 스키마/마이그레이션. F021 (Post) / F022 (MediaAsset metadata) / F021.5 (ProjectMeta cover) 의 데이터 정본. 본 task (T024) 시점에는 schema + binding + migration 토대만 — Repository 구현은 T025 에서 추가
+- **cache/** — Cloudflare KV 어댑터 (Application cache port 의 Infrastructure 구현). T027 — `kv-post-body-cache.ts` (`POST_BODY_CACHE_KV` binding)
 - **email/** — Resend + React Email 통합
 - **captcha/** — Cloudflare Turnstile 서버 검증
 - **og/** — Satori standalone + Workers Asset Binding으로 폰트/yoga.wasm 로드
@@ -254,10 +255,14 @@ app/infrastructure/
 ├── content/
 │   ├── velite-project.repository.ts  # implements project-repository.port — `.velite/projects` 매핑
 │   ├── velite-legal.repository.ts
+│   ├── markdown-compiler.ts          # T027 — unified + remark-parse + remark-gfm + remark-rehype → hast Root
 │   ├── mappers/                      # velite raw output → Domain Entity (`*.mapper.ts`)
 │   └── __tests__/
 │   # NOTE: velite-post.repository.ts / mappers/post.mapper.ts 는 T025 에서 폐기
 │   #       (Post 정본은 D1 으로 단방향 이관 — `app/infrastructure/db/d1-post.repository.ts` 참조)
+├── cache/
+│   ├── kv-post-body-cache.ts         # T027 — implements post-body-cache.port (env.POST_BODY_CACHE_KV)
+│   └── __tests__/
 ├── db/
 │   ├── d1-post.repository.ts         # T025 — implements post-repository.port (Drizzle BaseSQLiteDatabase)
 │   ├── mappers/
