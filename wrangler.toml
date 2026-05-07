@@ -29,6 +29,14 @@ binding = "RATE_LIMIT_KV"
 id = "933b671d6b8846deaad41febd80de8dd"
 preview_id = "c68513cba84e4eeca7b947d1d0ff07f5"
 
+# T027: Post body cache (compiled hast JSON). key=`post:{slug}:body:v{16-char hash}`,
+# 무제한 TTL, 자연 invalidation by content-hash. 머지 후 PR 본문 안내대로
+# `wrangler kv namespace create POST_BODY_CACHE_KV` 결과 ID 로 placeholder 교체 필요.
+[[kv_namespaces]]
+binding = "POST_BODY_CACHE_KV"
+id = "PLACEHOLDER_PREVIEW_KV_ID"
+preview_id = "PLACEHOLDER_PREVIEW_KV_ID"
+
 [[d1_databases]]
 binding = "DB"
 database_name = "tkstar-dev-db-preview"
@@ -48,6 +56,10 @@ CLOUDFLARE_ANALYTICS_TOKEN = ""
 [[env.staging.kv_namespaces]]
 binding = "RATE_LIMIT_KV"
 id = "95b7366f0bf64aab9677eb43174e4b32"
+
+[[env.staging.kv_namespaces]]
+binding = "POST_BODY_CACHE_KV"
+id = "PLACEHOLDER_STAGING_KV_ID"
 
 [[env.staging.d1_databases]]
 binding = "DB"
@@ -78,6 +90,10 @@ CLOUDFLARE_ANALYTICS_TOKEN = "ff5c6565162c478580790bdb4e32bf5c"
 [[env.production.kv_namespaces]]
 binding = "RATE_LIMIT_KV"
 id = "2ec496563f6c43699b493cf2c96304f1"
+
+[[env.production.kv_namespaces]]
+binding = "POST_BODY_CACHE_KV"
+id = "PLACEHOLDER_PRODUCTION_KV_ID"
 
 [[env.production.d1_databases]]
 binding = "DB"
