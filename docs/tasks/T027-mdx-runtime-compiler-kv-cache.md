@@ -61,13 +61,12 @@ T027 은 다음의 "증명권" 레이어만 도입한다:
 
 | 검증 단계 | 결과 |
 |---|---|
-| `bun run test app/application/content/services/__tests__/compile-post-body.service.test.ts` | 10/10 ✅ |
-| `bun run test app/infrastructure/content/__tests__/markdown-compiler.test.ts` | 6/6 ✅ |
-| `bun run test app/infrastructure/cache/__tests__/kv-post-body-cache.test.ts` | 6/6 ✅ |
-| `bun run test` (전체) | 540/540 ✅ |
+| `bunx vitest run app/application/content/services/__tests__/compile-post-body.service.test.ts` | 10/10 ✅ |
+| `bunx vitest run app/infrastructure/content/__tests__/markdown-compiler.test.ts` | 6/6 ✅ |
+| `bunx vitest run app/infrastructure/cache/__tests__/kv-post-body-cache.test.ts` | 8/8 ✅ (Phase 3 review M1 advisory: malformed cached value → null fallthrough +2 tests) |
 | `bun run typecheck` | exit 0 ✅ |
-| `bun run lint` | exit 0 (Phase 4 시점 측정) |
-| Bundle gzip Δ (T023 baseline 1522.48 KiB 대비) | Phase 4 시점 측정 |
+| Bundle gzip Δ (T023 baseline 1522.48 KiB 대비) | **−22.67 KiB** ✅ (현재 1499.81 KiB · Workers Free 3 MiB 한계의 48.8%) |
+| `bun run lint` | (Phase 4 시점 measure 예정) |
 
 ## Remote Apply (사용자 수동, PR 머지 후)
 
