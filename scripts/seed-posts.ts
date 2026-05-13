@@ -101,8 +101,8 @@ const main = async (): Promise<void> => {
 	const targetFlag = target === "local" ? "--local" : "--remote";
 	const now = Math.floor(Date.now() / 1000);
 
-	const escape = (s: string): string => s.replace(/'/g, "''");
-	const lit = (v: string | null): string => (v === null ? "NULL" : `'${escape(v)}'`);
+	const escapeSql = (s: string): string => s.replace(/'/g, "''");
+	const lit = (v: string | null): string => (v === null ? "NULL" : `'${escapeSql(v)}'`);
 	const rowSql = HARDCODED_SEEDS.map(
 		(s) =>
 			`(${lit(s.slug)}, ${lit(s.title)}, ${lit(s.summary)}, ${lit(s.raw_markdown)}, ${lit(JSON.stringify(s.tags))}, ${lit(s.date_published)}, ${lit(s.status ?? "published")}, ${now}, ${now})`,
