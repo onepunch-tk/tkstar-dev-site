@@ -1,130 +1,68 @@
-# Task 010 — Home Page (F001 Hero + F017 Featured/Recent)
+# T010 — feature: Home Page (F001 Hero + F017 Featured/Recent)
 
-| Field | Value |
-|-------|-------|
-| **Task ID** | T010 |
-| **Phase** | Phase 3 — Core Pages UI |
-| **Layer** | Presentation (route + components) |
-| **Branch** | `feature/issue-N-home-page` |
-| **Depends on** | T005, T008, T009 |
-| **Blocks** | T016 |
-| **PRD Features** | **F001** (Hero), **F017** (Featured + Recent Posts) |
-| **PRD AC** | — (Page-by-Page Key Features 검증) |
-| **예상 작업 시간** | 1d |
-| **Status** | Completed |
+> **상위 ROADMAP**: [`../ROADMAP.md`](../ROADMAP.md)
+> **branch type**: `feature/`
+> **선행**: [T005](T005-theme-tokens.md), [T008](T008-content-ports-repos.md), [T009](T009-di-container.md)
+> **후행**: [T016](T016-command-palette.md)
 
-## Goal
-Home(`/`) 페이지에 PRD `F001 Hero (whoami + 검색 + 빠른 링크)` + `F017 Featured Project + Recent Posts 3개`를 렌더한다. 검색 트리거 버튼은 Task 016의 Cmd+K Command Palette를 트리거할 placeholder hook을 미리 연결한다.
+---
 
-## Context
-- **Why**: 사이트의 첫 진입점. B2B/B2C 두 청중을 콘텐츠 라우팅(About / Projects)으로 자연 수렴시키는 패러다임의 시작점. F017 Featured/Recent는 Home의 정보 밀도와 SEO 진입점.
-- **Phase 진입/완료 연결**: T005(Theme/Chrome) + T008(read-side service) + T009(DI) 모두 Done이어야 시작 가능. T010 Done이면 T016이 Home의 검색 트리거를 Cmd+K palette로 본격 연결.
-- **관련 PRD 섹션**: PRD `Page-by-Page — Home Page`, `F001`, `F017`
-- **관련 PROJECT-STRUCTURE 디렉토리**: `app/presentation/routes/_index.tsx`, `app/presentation/components/home/`
+## 목적
 
-## Scope
+Home 라우트의 placeholder 를 실 콘텐츠로 채운다 — Hero (whoami + 3-버튼 클러스터), Featured Project 큰 카드 1개, Recent Posts 3개 행, '모두 보기 →' 링크. Featured 미존재 시 fallback (해당 섹션 미렌더) 처리.
 
-### In Scope
-- `_index.tsx` loader가 `context.container.getFeaturedProject()` + `context.container.getRecentPosts(3)` 호출
-- Hero(`<HeroWhoami />`) — `whoami` 프롬프트 + "ship solo. ship fast." 카피 + 3-버튼 클러스터 ([검색해서 이동], [/about], [/projects])
-- `<FeaturedProjectCard />` — featured project 카드 (없으면 미렌더)
-- `<RecentPostsList />` — 정확히 3개 PostRow + "모두 보기 →" 링크
-- 검색 트리거 버튼은 `useCommandPalette` hook의 `open()`을 호출 (T016에서 본체 채워짐, T010에서는 hook signature placeholder)
+## PRD Feature ID 매핑
 
-### Out of Scope
-- Cmd+K palette UI 본체 (T016)
-- About 페이지 콘텐츠 (T011)
-- Project Detail / Blog Detail (T013, T014b)
-- 페이지별 meta export(F018) — T019
+- F001
+- F017
 
-## Acceptance Criteria
-- [x] `/` 진입 시 Hero / Featured / Recent 3 섹션이 순서대로 렌더
-- [x] Hero의 [/about] 클릭 시 `/about`으로 네비게이션
-- [x] Hero의 [/projects] 클릭 시 `/projects`로 네비게이션
-- [x] [검색해서 이동] 클릭 시 `useCommandPalette().open()` 호출 (T016 마운트 후 palette 오픈)
-- [x] Featured Project가 존재할 때 `<FeaturedProjectCard />` 렌더, 없을 때 미렌더 (전체 섹션 conditional)
-- [x] `<RecentPostsList />`가 정확히 3개 `<PostRow>`를 렌더 + "모두 보기 →" 링크
-- [x] DOM 구조 snapshot/selector assertion으로 위 3 섹션 순서 보장
+## 입력·출력 계약
 
-## Implementation Plan (TDD Cycle)
+**입력**: T009 container 의 `getFeaturedProject` + `getRecentPosts(3)` services. **출력**: `app/presentation/routes/_index.tsx` loader + components (`HeroWhoami` / `FeaturedProjectCard` / `RecentPostsList`). **검증**: RTL Hero/Featured/Recent 3 섹션 + ARIA role + 3개 PostRow + Featured fallback + DOM 구조 snapshot.
 
-### Red
-- `app/presentation/routes/__tests__/_index.test.tsx`
-  - mock container: `getFeaturedProject` resolves project / `getRecentPosts(3)` resolves 3 posts
-  - loader 호출 시 두 service 모두 호출됨 (`expect(mock).toHaveBeenCalledWith(...)`)
-  - RTL 렌더 후 `getByRole('heading', { name: /whoami/i })` / `getByText(/ship solo/i)` / 3-버튼 클러스터 ARIA role / Featured 카드 1개 + PostRow 3개 검증
-  - **Featured 미존재 케이스**: `getFeaturedProject` resolves null → Featured 섹션 미렌더 (`queryByTestId("featured-section")` null)
-- `app/presentation/components/home/__tests__/HeroWhoami.test.tsx`
-  - 3-버튼 클러스터 렌더 + ARIA role
-- `app/presentation/components/home/__tests__/RecentPostsList.test.tsx`
-  - props로 3 posts 전달 → `getAllByRole('article').toHaveLength(3)` + "모두 보기 →" link
+## 시퀀스
 
-### Green
-- `app/presentation/routes/_index.tsx` — loader + 컴포넌트 조합
-- `app/presentation/components/home/HeroWhoami.tsx`
-- `app/presentation/components/home/FeaturedProjectCard.tsx`
-- `app/presentation/components/home/RecentPostsList.tsx`
-- `app/presentation/hooks/useCommandPalette.ts` placeholder (T016에서 본체)
+```
+1. _index.tsx loader — container 에서 getFeaturedProject + getRecentPosts(3) 호출
+2. HeroWhoami.tsx — whoami 프롬프트 + 'ship solo. ship fast.' 카피 + 3-버튼 클러스터 (검색해서 이동 / /about / /projects)
+3. FeaturedProjectCard.tsx — Featured Project 큰 카드 (cover + title + summary + tags)
+4. RecentPostsList.tsx — `<PostRow>` 3개 + '모두 보기 →' 링크
+5. Featured 미존재 시 fallback — 해당 섹션 미렌더 (다른 섹션은 정상)
+6. RTL 테스트 — loader 호출 검증 + 3 섹션 렌더 + ARIA role + Featured fallback
+```
 
-### Refactor
-- HeroWhoami의 카피를 상수로 추출
-- 검색 트리거 버튼을 chrome Topbar의 트리거와 일관된 컴포넌트로 묶을 수 있는지 검토 (T005에서 placeholder 둠)
+## 엣지 케이스 + 구현
 
-## Files to Create / Modify
+## Implementation Notes
 
-### Presentation — Route (수정)
-| Path | Change |
-|------|--------|
-| `/Users/tkstart/Desktop/project/tkstar-dev/app/presentation/routes/_index.tsx` | placeholder 위에 loader + 컴포넌트 채움 |
-| `/Users/tkstart/Desktop/project/tkstar-dev/app/presentation/routes/__tests__/_index.test.tsx` | RTL + mock container |
+- Featured 0건 / Recent 0건 → 해당 섹션만 미렌더. Hero 는 항상 표시.
+- 3-버튼 클러스터의 [검색해서 이동] 은 본 task 시점엔 anchor placeholder — T016 (Cmd+K) 마운트 후 palette 트리거.
+- RecentPostsList 는 정확히 3개 — getRecentPosts(3) 시그니처 강제. 발행된 post 가 2건이면 2개 행만.
+- DOM 구조 assertion: Hero → Featured → Recent 순서를 명시적 selector 로 검증 (snapshot 대신).
+- loader 가 container mock 으로 단위 테스트 가능 — vitest setup 의 `vi.mock` 활용.
+- F001 (Hero) + F017 (Featured/Recent) 동시 구현 — 두 feature 가 같은 라우트에 위치.
 
-### Presentation — Components
-| Path | Responsibility |
-|------|---------------|
-| `/Users/tkstart/Desktop/project/tkstar-dev/app/presentation/components/home/HeroWhoami.tsx` | whoami + 카피 + 3-버튼 |
-| `/Users/tkstart/Desktop/project/tkstar-dev/app/presentation/components/home/FeaturedProjectCard.tsx` | Project 큰 카드 |
-| `/Users/tkstart/Desktop/project/tkstar-dev/app/presentation/components/home/RecentPostsList.tsx` | 3개 PostRow + "모두 보기 →" |
-| `/Users/tkstart/Desktop/project/tkstar-dev/app/presentation/components/home/__tests__/HeroWhoami.test.tsx` | RTL |
-| `/Users/tkstart/Desktop/project/tkstar-dev/app/presentation/components/home/__tests__/RecentPostsList.test.tsx` | RTL |
+## Change History from previous body
 
-### Presentation — Hook (placeholder)
-| Path | Responsibility |
-|------|---------------|
-| `/Users/tkstart/Desktop/project/tkstar-dev/app/presentation/hooks/useCommandPalette.ts` | placeholder — `{ open: () => void }` 시그니처만 (T016에서 본체) |
+- Page-by-Page Key Features 로 검증 (AC 별도 없음).
+- feature branch PR: `feature/issue-N-home-page`.
+- T016 (Cmd+K) 가 본 task 의 [검색해서 이동] 버튼 wiring 을 완성.
 
-## Verification Steps
+## DoD
 
-### 자동
-- `bun run test` — `_index.test.tsx`, `HeroWhoami.test.tsx`, `RecentPostsList.test.tsx` 모두 Green (Issue #1 보강)
-- loader가 `getFeaturedProject` + `getRecentPosts(3)` 모두 호출 (mock container assertion)
-- DOM 구조 snapshot 또는 명시적 selector assertion으로 Hero / Featured / Recent 3 섹션 순서 보장
-- `bun run typecheck` 통과
+- [x] _index.tsx loader 가 getFeaturedProject + getRecentPosts(3) 호출 (mock container)
+- [x] HeroWhoami 렌더 + 3-버튼 클러스터 ARIA role 검증
+- [x] RecentPostsList 가 정확히 3개의 PostRow 렌더 (RTL getAllByRole)
+- [x] Featured 미존재 시 fallback (섹션 미렌더) 처리
+- [x] Hero → Featured → Recent 3 섹션 순서 DOM assertion
+- [x] F001 + F017 동시 구현 검증
 
-### 수동
-- `wrangler dev`에서 `/` 접속 → 3 섹션 렌더 시각 확인
-- [/about] / [/projects] 클릭 → 네비게이션
-- 다크/라이트 모드 시각 회귀
+## Open Questions
 
-### 측정
-- 없음 (Phase 6 Lighthouse)
-
-## Dependencies
-- **Depends on**: T005 (Theme/Chrome), T008 (`getFeaturedProject`/`getRecentPosts`), T009 (DI)
-- **Blocks**: T016 (Cmd+K가 Home의 트리거에 연결)
-
-## Risks & Mitigations
-- **Risk**: Featured project가 0개일 때 빈 섹션이 어색하게 남음.
-  - **Mitigation**: Featured 미존재 시 전체 `<section>` 자체를 conditional render로 제거. AC에 명시.
-- **Risk**: T016이 아직 없으므로 [검색해서 이동] 버튼이 동작 검증 어려움.
-  - **Mitigation**: `useCommandPalette` hook signature만 T010에서 placeholder로 만들고, T016에서 본체 채우면 자동 통합.
-
-## References
-- PRD `Page-by-Page — Home Page`, `F001`, `F017`
-- PROJECT-STRUCTURE.md `Cross-cutting Concerns Mapping`
-- ROADMAP.md `Phase 3` Task 010 (Issue #1 검증 보강 반영)
+모두 해결됨 (No open questions)
 
 ## Change History
-| Date | Changes | Author |
-|------|---------|--------|
-| 2026-04-29 | Phase 2 Green: HeroWhoami / FeaturedProjectCard / RecentPostsList / `_index.tsx` loader 구현. 24/24 test files, 118/118 tests green. (commit `6645a30`) | TaekyungHa |
-| 2026-04-29 | Phase 3 Review fix: design-review 6 Critical(C1-C6) + R1/R3/R4 + code-review R2 일괄 반영. `--color-hatch` / `--duration-120` 토큰 등록, `text-faint`→`text-muted` (WCAG AA), main padding/gap 정본 lockup, 720px breakpoint, btn primary brightness 1.08 + filter transition, row meta `min` 단위 복원. (commit `769bd0c`) | TaekyungHa |
+
+| 날짜 | 변경 | 작성자 |
+| --- | --- | --- |
+| 2026-04-29 | T010 머지 — Home page F001 + F017 + RTL 보강 (branch `feature/issue-N-home-page`) | TaekyungHa |

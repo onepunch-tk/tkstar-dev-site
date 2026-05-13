@@ -1,134 +1,69 @@
-# Task 009 — DI Container (Composition Root) + workers/app.ts wiring + getLoadContext
+# T009 — feature: DI Container (Composition Root) + workers/app.ts wiring + AppLoadContext
 
-| Field | Value |
-|-------|-------|
-| **Task ID** | T009 |
-| **Phase** | Phase 2 — Content Pipeline |
-| **Layer** | Infrastructure (`config/`) + Platform Adapter (`workers/`) |
-| **Branch** | `feature/issue-31-di-container` |
-| **Depends on** | T008 |
-| **Blocks** | T010, T011, T012, T013, T014a, T014b, T015, T016, T017 |
-| **PRD Features** | 전반 (모든 유스케이스 주입 통로) |
-| **PRD AC** | — |
-| **예상 작업 시간** | 0.5d |
-| **Status** | ✅ Done |
+> **상위 ROADMAP**: [`../ROADMAP.md`](../ROADMAP.md)
+> **branch type**: `feature/`
+> **선행**: [T008](T008-content-ports-repos.md)
+> **후행**: [T010](T010-home-page.md), [T011](T011-about-page.md), [T012](T012-projects-list-page.md), [T013](T013-project-detail-page.md), [T014](T014-blog-list-rss.md), [T015](T015-legal-routes.md), [T016](T016-command-palette.md), [T017](T017-contact-form-turnstile-resend.md)
 
-## Goal
-PROJECT-STRUCTURE D2 결정에 따라 수제 Plain object DI Container를 `app/infrastructure/config/container.ts`에 구현하고, `workers/app.ts`의 `getLoadContext`로 페이지 loader/action에서 유스케이스를 꺼내 쓸 수 있게 한다.
+---
 
-## Context
-- **Why**: Application service들이 Repository를 직접 import하지 않고 Port에 의존하므로, 어디선가 둘을 묶어주는 Composition Root가 필요. 의존성 그래프가 작아 (~10개) 라이브러리(`awilix`, `tsyringe`)는 ROI 낮음 → 수제 채택.
-- **Phase 진입/완료 연결**: T008 Done 후 즉시. T009가 Done이면 Phase 3 페이지 task에서 `context.container.getProjectDetail(slug)` 식으로 호출 가능.
-- **관련 PRD 섹션**: PRD `Tech Stack — Hosting / Edge`
-- **관련 PROJECT-STRUCTURE 디렉토리**: `app/infrastructure/config/`, `workers/app.ts`, `app/env.d.ts`
+## 목적
 
-## Scope
+Composition Root 를 Infrastructure config 에 두고, 모든 services 를 plain object 로 묶은 `Container` 를 `buildContainer(env)` 로 생성한다. workers/app.ts 의 fetch handler 두 번째 인자에 주입하여 React Router loader/action 에서 `context.container.*` 로 접근 가능하게 한다.
 
-### In Scope
-- `Container` type 정의 — 모든 유스케이스 service의 함수형 시그니처를 한 객체로 묶음
-- `buildContainer(env: Env): Container` — env 인자로 Repository 인스턴스 생성 + service 인스턴스 조립
-- `workers/app.ts`의 `getLoadContext: () => ({ container: buildContainer(env) })` 연결
-- `app/env.d.ts`에 `interface AppLoadContext { container: Container }` 추가 (RR7 typegen이 loader/action `context` 타입을 자동 추론)
+## PRD Feature ID 매핑
 
-### Out of Scope
-- Resend / Turnstile / KV rate-limiter 등록 (T017에서 Container에 추가)
-- OG renderer 등록 (T018에서 Container에 추가)
-- Search index service 등록 (T016)
-- RSS / Sitemap service 등록 (T014a / T019)
+_해당 없음_
 
-## Acceptance Criteria
-- [x] `Container` type이 6개 read-side service(listProjects, getProjectDetail, getFeaturedProject, listPosts, getPostDetail, getRecentPosts)를 모두 포함
-- [x] `buildContainer(env)` 호출 시 모든 service가 정상 인스턴스화됨 (mock env로 단위 테스트)
-- [x] `workers/app.ts`가 RR7 request handler에 `container: buildContainer(env)` 전달 (Workers fetch 핸들러 패턴 — 두 번째 인자 객체에 직접 주입; spec의 `getLoadContext`는 Vite 플러그인 패턴이라 비채택)
-- [x] `AppLoadContext` 타입이 RR7 loader/action의 `context` 인자 타입에 자동 적용 (`app/env.d.ts` SSOT)
-- [x] `wrangler dev` smoke test — typecheck(AppLoadContext augmentation 인식) + container.test.ts(6개 service 위임 검증)로 동등 검증 (loader 임시 추가 → 원복 noise 회피)
-- [x] `bun run test` Container 테스트 Green (94 passed)
+## 입력·출력 계약
 
-## Implementation Plan (TDD Cycle)
+**입력**: T008 의 services + repositories. **출력**: `app/infrastructure/config/container.ts` + workers/app.ts 의 두 번째 인자 wiring + `app/env.d.ts` 의 `AppLoadContext` SSOT. **검증**: `container.test.ts` 6 service 위임 + ProjectNotFoundError 전파 + `bun run test` 94 passed / typecheck / lint Green.
 
-### Red
-- `app/infrastructure/config/__tests__/container.test.ts`
-  - `buildContainer({})` 호출 시 반환 객체에 6개 service property 존재 (typeof === "function")
-  - 각 service 호출 시 fixture 데이터를 반환 (Repository는 실제 velite repo 인스턴스가 아닌 fixture-backed 변형으로 테스트 — env 분기로 fixture/실제 선택)
+## 시퀀스
 
-### Green
-- `app/infrastructure/config/container.ts`:
-  ```ts
-  export type Container = {
-    listProjects: (opts?: { tag?: string }) => Promise<Project[]>;
-    getProjectDetail: (slug: string) => Promise<{ project: Project; prev: Project | null; next: Project | null }>;
-    getFeaturedProject: () => Promise<Project | null>;
-    listPosts: (opts?: { tag?: string }) => Promise<Post[]>;
-    getPostDetail: (slug: string) => Promise<{ post: Post; prev: Post | null; next: Post | null }>;
-    getRecentPosts: (n: number) => Promise<Post[]>;
-    // T017에서 submitContactForm 추가, T018에서 renderProjectOg 등 추가
-  };
+```
+1. container.ts — `type Container = {...}` + `buildContainer(env): Container` (수제 plain object, IoC 라이브러리 미사용)
+2. workers/app.ts — `requestHandler(request, { cloudflare, container: buildContainer(env) })`
+3. app/env.d.ts — `interface AppLoadContext { cloudflare; container }` SSOT (inline declare 제거)
+4. Velite repo singleton 직접 import (task spec 약식 표기 정정)
+5. container.test.ts — 6 service 위임 + 에러 전파 검증
+6. 94 unit test + typecheck + lint 모두 Green 확인
+```
 
-  export function buildContainer(env: Env): Container {
-    const projectRepo = new VeliteProjectRepository();
-    const postRepo = new VelitePostRepository();
-    const legalRepo = new VeliteLegalRepository();
-    return {
-      listProjects: (opts) => listProjectsService(projectRepo, opts),
-      getProjectDetail: (slug) => getProjectDetailService(projectRepo, slug),
-      // ...
-    };
-  }
-  ```
-- `workers/app.ts` 수정 (T003에서 만든 스텁 위에)
-- `app/env.d.ts`에 `AppLoadContext` 추가
+## 엣지 케이스 + 구현
 
-### Refactor
-- service들을 화살표 함수가 아닌 명시적 binding (`(opts) => listProjectsService(projectRepo, opts)`)으로 캡처 누수 방지
-- `Container` 타입을 service shapes에서 자동 derive할지(`type Container = {...}`) 명시 list로 둘지는 명시 list 채택 (의존성 그래프 가독성 우선)
+## Implementation Notes
 
-## Files to Create / Modify
+- 수제 DI 채택 (D2 fact) — IoC 라이브러리 (tsyringe / inversify) 미도입. 1인 프로젝트의 단순성 우선.
+- React Router v7 Workers 패턴: `getLoadContext` (Vite plugin 패턴) 가 아닌 fetch handler 두 번째 인자에 직접 객체 주입.
+- AppLoadContext SSOT 를 `app/env.d.ts` 로 이전 — workers/app.ts 의 inline declare 제거.
+- Velite repo 는 task spec 의 약식 표기 `new ...Repository()` 와 달리 singleton const 라 직접 import.
+- `_env` prefix 는 T017 (Resend/Turnstile/KV) 도입 시 활성화.
+- 6 service: listProjects / getProjectDetail / getFeaturedProject / listPosts / getPostDetail / getRecentPosts.
 
-### Infrastructure — Config
-| Path | Responsibility |
-|------|---------------|
-| `/Users/tkstart/Desktop/project/tkstar-dev/app/infrastructure/config/container.ts` | `Container` type + `buildContainer(env)` |
-| `/Users/tkstart/Desktop/project/tkstar-dev/app/infrastructure/config/__tests__/container.test.ts` | type-level + runtime 검증 |
+## Change History from previous body
 
-### Workers Entry (수정)
-| Path | Change |
-|------|--------|
-| `/Users/tkstart/Desktop/project/tkstar-dev/workers/app.ts` | `createRequestHandler({ build, getLoadContext: (c) => ({ container: buildContainer(c.cloudflare.env) }) })`로 wiring |
+- D2 (DI 라이브러리 vs 수제) — 수제 채택 결정.
+- Issue #31, PR `feature/issue-31-di-container`.
+- T010~T017 모든 라우트 loader/action 이 본 task 의 container 에 의존.
 
-### Env Types (수정)
-| Path | Change |
-|------|--------|
-| `/Users/tkstart/Desktop/project/tkstar-dev/app/env.d.ts` | `declare module "react-router" { interface AppLoadContext { container: Container } }` 추가 |
+## DoD
 
-## Verification Steps
+- [x] `app/infrastructure/config/container.ts` 의 `Container` 타입 + `buildContainer(env)` 정의
+- [x] workers/app.ts 가 fetch handler 두 번째 인자에 `{ cloudflare, container }` 주입
+- [x] `app/env.d.ts` 의 `AppLoadContext` SSOT (inline declare 제거)
+- [x] container.test.ts — 6 service 위임 + ProjectNotFoundError 전파 검증 Green
+- [x] `bun run test` 94 passed
+- [x] `bun run typecheck` Green
+- [x] `bun run lint` Green
+- [x] D2 (수제 DI 채택) 사실 기록
 
-### 자동
-- `bun run test` Container 테스트 Green
-- `bun run typecheck` 통과 — RR7 loader 시그니처에서 `context.container`가 Container 타입으로 인식
-- `bun run lint` 통과
+## Open Questions
 
-### 수동
-- `wrangler dev`에서 임시 `_index` loader에 `console.log(await context.container.getFeaturedProject())` 삽입 → seed project 출력 확인 (검증 후 삭제)
-
-### 측정
-- 없음
-
-## Dependencies
-- **Depends on**: T008 (service + Repository 구현)
-- **Blocks**: T010~T015 (페이지 loader가 `context.container` 호출), T016/T017 (각각 search/contact service를 Container에 추가)
-
-## Risks & Mitigations
-- **Risk**: RR7의 `AppLoadContext` 타입 보강 위치(`app/env.d.ts` vs `app/types/`)가 잘못되면 typegen이 인식하지 않음.
-  - **Mitigation**: PROJECT-STRUCTURE.md `app/env.d.ts`에 명시. 검증은 `bun run typecheck`로.
-- **Risk**: `buildContainer`가 매 request마다 호출되면 Repository 인스턴스 재생성으로 메모리 압박.
-  - **Mitigation**: velite Repository는 stateless이며 `.velite/*.json`을 module scope에서 1회 import만 하므로 재생성 비용 무시 가능. 추후 stateful resource(KV, Resend client) 추가 시 module-level singleton으로 캐싱 검토.
-
-## References
-- PROJECT-STRUCTURE.md `D2. DI 컨테이너` (line 573~)
-- PROJECT-STRUCTURE.md `workers/ Directory` (line 357~)
-- ROADMAP.md `Phase 2` Task 009, 가정 D2 확정
+모두 해결됨 (No open questions)
 
 ## Change History
-| Date | Changes | Author |
-|------|---------|--------|
-| - | - | - |
+
+| 날짜 | 변경 | 작성자 |
+| --- | --- | --- |
+| 2026-04-29 | T009 머지 — DI container + workers wiring + AppLoadContext SSOT (Issue #31, branch `feature/issue-31-di-container`) | TaekyungHa |

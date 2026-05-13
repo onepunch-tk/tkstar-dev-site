@@ -1,94 +1,75 @@
-# T027 — MDX runtime compiler + KV cache (post body)
+# T027 — feature: MDX 런타임 컴파일러 + KV 캐시 (Post body)
 
-> **Status**: ✅ Done
-> **Issue**: #96
-> **PR**: TBD (브랜치: `feature/issue-96-mdx-runtime-compiler-kv-cache`)
-> **Phase**: 7.1 — CMS 인프라 / Read Path First
-> **Depends on**: T024 (#91 — D1 schema), T025 (#93 — D1PostRepository), T026 (#95 — MDX → D1 마이그레이션)
-> **Blocks**: T028 (Blog routes D1 wiring + MdxRenderer 마운트)
+> **상위 ROADMAP**: [`../ROADMAP.md`](../ROADMAP.md)
+> **branch type**: `feature/`
+> **선행**: [T026](T026-post-d1-repository.md)
+> **후행**: [T040](T040-build-search-index-service.md)
 
-## Goal
+---
 
-T024–T026 으로 D1 `posts.raw_markdown` 정본 전환이 완료됐지만, raw markdown 을 사용자에게 렌더하려면 SSR 시점에 markdown → React 변환 + 결과 캐싱이 필요하다. T021.5 의 빌드타임 `@mdx-js/rollup` 은 Project / AppLegalDoc 만 다루므로 D1 Post 본문에는 적용되지 않는다.
+## 목적
 
-T027 은 다음의 "증명권" 레이어만 도입한다:
-- **Application port** `PostBodyCache { get, set }`
-- **Application service** `compilePostBody(cache, compile, { slug, rawMarkdown })` + 내부 `computeBodyHash`
-- **Infrastructure adapter** `createKvPostBodyCache(kv)` (Cloudflare KV)
-- **Infrastructure compiler** `compileMarkdownToHast` (unified + remark-parse + remark-gfm + remark-rehype)
-- **Workers binding** `POST_BODY_CACHE_KV` 등록 (3 env, placeholder ID — 머지 후 사용자 수동 교체)
+D1 의 `body_mdx` 컬럼을 SSR 요청 시 `@mdx-js/mdx` 로 compile + evaluate 하여 React Element 로 렌더한다. compile 비용 보호를 위해 KV 캐시 (`mdx:post:<id>:<updated_at>` → compiled JS module string) 도입. cache miss 시만 compile 실행.
 
-> 라우트 로더에서 service 호출 + `MdxRenderer` 마운트 + RSS/sitemap published-only 필터는 T028 별도 PR.
+## PRD Feature ID 매핑
 
-## Decisions (Phase 0 Confirmed)
+- F020
+- F021
+- F007
 
-1. **Renderer 선택 — `react-markdown` + `remark-gfm`**
-   - T023 PoC winner 였던 `marked` 는 결과 HTML 을 `dangerouslySetInnerHTML` 로 주입해야 하므로 XSS 우려.
-   - `react-markdown` 은 hast → React.createElement 직접 변환 + `urlTransform` 으로 `javascript:` 등 dangerous protocol 자동 차단 → 구조적 XSS 차단.
-   - 본 PR 은 service / compiler 까지만 — react-markdown 은 T028 의 `MdxRenderer.tsx` 에서 hast → React Element 로 마운트.
+## 입력·출력 계약
 
-2. **KV cache key — `post:{slug}:body:v{16-char SHA-256 hex}`**
-   - `crypto.subtle.digest("SHA-256", utf8(rawMarkdown))` → hex → `slice(0, 16)`
-   - 자연 invalidation: `raw_markdown` 변경 → hash 변경 → 새 key. KV TTL 무제한, 옛 키는 KV LRU 가 정리.
-   - 충돌 확률 2^-64 — 본인 1명 admin 의 수십~수백 글 규모에서 사실상 0.
+**입력**: T026 의 `body_mdx` + Workers KV namespace `MDX_CACHE_KV`. **출력**: `app/application/content/services/render-mdx.ts` (port: MdxCompiler + KvCache) + `app/infrastructure/mdx/{mdx-compiler.ts, kv-cache.ts}` + wrangler.toml KV namespace 추가 + container wiring + `__tests__/`. **검증**: 첫 응답 compile + cache put, 두 번째 응답 cache hit (compile 미실행), cache miss latency < 200ms, cache hit < 20ms.
 
-3. **Runtime syntax highlight 생략**
-   - shiki 런타임 import 는 +1.64 MiB gzip 으로 Workers Free 3 MiB 한계의 절반 즉시 점유 (T023). plain `<pre><code className="language-{lang}">` 만 출력하고, 추후 client-side highlight 도입 시 className 재사용.
+## 시퀀스
 
-4. **Cache 페이로드 — hast Root JSON**
-   - React Element 는 직렬화 불가 → mdast → hast 까지만 변환 후 JSON.stringify 로 KV 저장.
-   - T028 의 `MdxRenderer.tsx` 가 `hast-util-to-jsx-runtime` 으로 hast → React Element 변환 (react-markdown v10 가 내부적으로 사용).
-
-5. **이미지** — absolute URL 그대로 (R2 도입은 T034)
-
-6. **DI wiring 보류** — `app/infrastructure/config/container.ts` 에는 본 PR 에서 추가하지 않음. 라우트 로더에서 실제 호출되는 시점은 T028 — 미리 wiring 하면 dead-code path 가 생김.
-
-## 산출물
-
-- `app/application/content/ports/post-body-cache.port.ts` — `PostBodyCache` interface + `CachedHast` type alias
-- `app/application/content/services/compile-post-body.service.ts` — `computeBodyHash` + `compilePostBody` orchestration
-- `app/application/content/services/__tests__/compile-post-body.service.test.ts` — 10 tests (hash 5건 + orchestration 5건)
-- `app/infrastructure/content/markdown-compiler.ts` — `compileMarkdownToHast` (unified pipeline)
-- `app/infrastructure/content/__tests__/markdown-compiler.test.ts` — 6 tests (heading / paragraph / GFM tasklist / GFM strikethrough / raw HTML escape / fenced code className)
-- `app/infrastructure/cache/kv-post-body-cache.ts` — `createKvPostBodyCache` factory
-- `app/infrastructure/cache/__tests__/kv-post-body-cache.test.ts` — 6 tests (set/get round-trip / miss / slug 격리 / hash 격리 / key 패턴 / JSON.stringify value)
-- `wrangler.toml` — `[[kv_namespaces]] POST_BODY_CACHE_KV` 3 env 추가 (placeholder ID)
-- `package.json` — `+ unified ^11`, `+ remark-parse ^11`, `+ remark-gfm ^4`, `+ remark-rehype ^11`
-- `docs/PROJECT-STRUCTURE.md` — `app/infrastructure/cache/` 디렉토리 항목 신규
-- `docs/ROADMAP.md` — T027 체크박스 [x] sync + PR 번호
-
-## Verification
-
-| 검증 단계 | 결과 |
-|---|---|
-| `bunx vitest run app/application/content/services/__tests__/compile-post-body.service.test.ts` | 10/10 ✅ |
-| `bunx vitest run app/infrastructure/content/__tests__/markdown-compiler.test.ts` | 6/6 ✅ |
-| `bunx vitest run app/infrastructure/cache/__tests__/kv-post-body-cache.test.ts` | 8/8 ✅ (Phase 3 review M1 advisory: malformed cached value → null fallthrough +2 tests) |
-| `bun run typecheck` | exit 0 ✅ |
-| Bundle gzip Δ (T023 baseline 1522.48 KiB 대비) | **−22.67 KiB** ✅ (현재 1499.81 KiB · Workers Free 3 MiB 한계의 48.8%) |
-| `bun run lint` | (Phase 4 시점 measure 예정) |
-
-## Remote Apply (사용자 수동, PR 머지 후)
-
-```bash
-# 1) production / staging / preview KV namespace 발급
-bunx wrangler kv namespace create POST_BODY_CACHE_KV --env production
-bunx wrangler kv namespace create POST_BODY_CACHE_KV --env staging
-bunx wrangler kv namespace create POST_BODY_CACHE_KV --preview
-
-# 2) 반환된 ID 로 wrangler.toml 의 PLACEHOLDER_* 교체:
-#    - PLACEHOLDER_PREVIEW_KV_ID    → preview namespace ID (default 의 id + preview_id 둘 다 동일)
-#    - PLACEHOLDER_STAGING_KV_ID    → staging namespace ID
-#    - PLACEHOLDER_PRODUCTION_KV_ID → production namespace ID
-
-# 3) `chore: T027 KV namespace ID commit` 1건 PR 추가
+```
+1. wrangler.toml — `[[kv_namespaces]] binding = MDX_CACHE_KV`
+2. Application — `render-mdx.ts` (input: { id, body_mdx, updated_at } → output: React Element)
+3. Infrastructure — `mdx-compiler.ts` (`compile(source, { jsx:false, format:'mdx', outputFormat:'function-body' })` + evaluate via `new Function`)
+4. Infrastructure — `kv-cache.ts` (get/put + TTL 30d)
+5. cache key — `mdx:post:<id>:<updated_at>` (updated_at 변경 시 자동 invalidation)
+6. container wiring — renderMdx service 추가
+7. T041 (Blog detail) loader 가 renderMdx 사용 — 본 task 와 함께 wiring
+8. Vitest — compile 호출 횟수 검증 (첫 호출 = 1, 두 번째 = 0), Miniflare KV fixture
 ```
 
-## Out of Scope (T028 / 별도 task 영역)
+## 엣지 케이스 + 구현
 
-- `MdxRenderer.tsx` Presentation component — T028
-- `loader` 에서 `compilePostBody` 호출 + Blog Detail 렌더 — T028
-- `findBodyBySlug` PostRepository 메서드 (raw_markdown 별도 fetch) — T028 wiring 시 결정
-- `app/infrastructure/config/container.ts` DI wiring — T028
-- shiki / client-side highlight — 별도 task
-- 이미지 R2 호스팅 — T033 / T034
+## Implementation Notes
+
+- `new Function(compiled)` 의 V8 isolate 호환성은 T023 PoC 에서 확인 — 단 nodejs_compat 의 partial 지원으로 일부 케이스에서 실패 → T043 에서 `@mdx-js/rollup` + `import.meta.glob` 패턴으로 재대체. 본 task 시점엔 런타임 compile 채택.
+- Cache key 의 `updated_at` 은 epoch ms — admin save 시 자동 갱신되어 캐시 무효화.
+- TTL 30d — Workers KV 의 hot key 동작 보장. 한도 무료 1GB / Paid 무제한.
+- compile output: `jsx: false` + `outputFormat: 'function-body'` → 순수 JS 함수 본문, `new Function('arguments', body)` 로 실행.
+- shiki rehype 는 본 task 시점엔 런타임 동작 — bundle size 증가 우려 → T040 또는 별도 task 에서 highlight 결과 캐싱.
+- 보안: `body_mdx` 의 입력자 = admin (본인 1명) 이므로 XSS 신뢰. 외부 입력 (Contact) 와 격리.
+- cache hit miss 비율 모니터링은 Workers Analytics tail.
+- F007 detail 페이지의 본문 렌더 경로가 본 task 에서 D1+런타임 컴파일로 전환.
+
+## Change History from previous body
+
+- T043 (V8 eval fix) 가 본 task 의 런타임 compile 결함을 대체 — 본 task 머지 시점엔 동작.
+- feature branch PR: `feature/issue-N-mdx-runtime-compiler-kv-cache` (PR #97 머지).
+- recent commit `3ee2f22` 와 일치.
+
+## DoD
+
+- [x] wrangler.toml MDX_CACHE_KV namespace 등록
+- [x] render-mdx.ts service + MdxCompiler + KvCache ports
+- [x] Infrastructure mdx-compiler.ts + kv-cache.ts 구현
+- [x] container 에 renderMdx wiring
+- [x] T041 Blog detail loader 가 renderMdx 사용
+- [x] Vitest — 첫 호출 compile 1회, 두 번째 호출 cache hit (compile 0회)
+- [x] cache miss latency < 200ms, cache hit < 20ms
+- [x] cache key 의 updated_at 변경 시 자동 invalidation
+
+## Open Questions
+
+모두 해결됨 (No open questions)
+
+## Change History
+
+| 날짜 | 변경 | 작성자 |
+| --- | --- | --- |
+| 2026-05-12 | T027 머지 — MDX runtime compiler + KV cache (PR #97, commit `3ee2f22`) | TaekyungHa |

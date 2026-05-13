@@ -1,136 +1,68 @@
-# Task 002 — Clean Architecture 4-layer 디렉토리 골격 + path alias
+# T002 — chore: Clean Architecture 4-layer 디렉토리 골격 + path alias
 
-| Field | Value |
-|-------|-------|
-| **Task ID** | T002 |
-| **Phase** | Phase 0 — Setup & Toolchain |
-| **Layer** | 전 layer (구조) |
-| **Branch** | `chore/ca-4layer-skeleton` |
-| **Depends on** | T001 |
-| **Blocks** | T004, T006, T007, T008, T009 |
-| **PRD Features** | — (구조) |
-| **PRD AC** | — |
-| **예상 작업 시간** | 0.5d |
-| **Status** | Done |
+> **상위 ROADMAP**: [`../ROADMAP.md`](../ROADMAP.md)
+> **branch type**: `chore/`
+> **선행**: [T001](T001-scaffold-bun-rr7-biome.md)
+> **후행**: [T004](T004-route-skeleton.md), [T006](T006-domain-schemas.md), [T007](T007-velite-content-pipeline.md), [T008](T008-content-ports-repos.md), [T009](T009-di-container.md)
 
-## Goal
-PROJECT-STRUCTURE.md에 명시된 Clean Architecture 4-layer(`app/{domain,application,infrastructure,presentation}/`) 디렉토리 골격을 빈 placeholder와 함께 생성하고, path alias가 모든 layer에 정상 동작하도록 한다.
+---
 
-## Context
-- **Why**: 후속 task가 새 모듈을 추가할 때마다 위치를 고민하지 않도록 구조를 미리 확정. Domain ← Application ← Infrastructure / Presentation ← Application의 의존성 방향을 README 또는 ESLint(Biome) 규칙으로 문서화.
-- **Phase 진입/완료 연결**: T001 완료 후 즉시 시작. T002 완료 시 Phase 1의 Domain 스키마(T006), Phase 2의 ports/repos(T008)가 적절한 디렉토리에 들어갈 수 있다.
-- **관련 PRD 섹션**: 없음 (구조)
-- **관련 PROJECT-STRUCTURE 디렉토리**: `app/domain/{project,post,legal,contact,theme}/`, `app/application/{content,contact,search,og,feed,seo}/{ports,services}/`, `app/infrastructure/{config,content,email,captcha,og,search,analytics}/`, `app/presentation/{components,hooks,lib,layouts,routes}/`, `test/{fixtures,utils}/`
+## 목적
 
-## Scope
+Clean Architecture 4-layer (Domain / Application / Infrastructure / Presentation) 의 빈 디렉토리 골격과 placeholder index 를 만들고, 의존성 방향(Domain ← Application ← Infrastructure / Presentation ← Application) 을 README 또는 Lint 로 문서화한다. 이후 모든 task 는 이 골격 안의 명확한 layer 에 배치된다.
 
-### In Scope
-- 4-layer 최상위 디렉토리 생성 + 각 도메인 sub-디렉토리 생성
-- 각 디렉토리에 `index.ts` placeholder (`export {};`) 또는 `.gitkeep` 파일 생성 (git이 빈 디렉토리를 추적하지 않으므로)
-- `tsconfig.app.json`에 4-layer path alias 보강 (`~/domain/*`, `~/application/*`, `~/infrastructure/*`, `~/presentation/*`)
-- `app/README.md`에 의존성 방향 명시 (Domain ← Application ← Infrastructure / Presentation ← Application)
+## PRD Feature ID 매핑
 
-### Out of Scope
-- 실제 구현(`*.entity.ts`, `*.service.ts` 등) — 후속 task
-- 라우트 파일(`app/presentation/routes/*.tsx`) — T004
-- `velite.config.ts` / `vite.config.ts` — T003/T007
+_해당 없음_
 
-## Acceptance Criteria
-- [x] `app/domain/{project,post,legal,contact,theme}/` 디렉토리가 모두 존재 (각각 `.gitkeep` 또는 `index.ts`)
-- [x] `app/application/{content,contact,search,og,feed,seo}/{ports,services}/` 디렉토리가 모두 존재
-- [x] `app/infrastructure/{config,content,email,captcha,og,search,analytics}/` 디렉토리가 모두 존재
-- [x] `app/presentation/{components,hooks,lib,layouts,routes}/` 디렉토리가 모두 존재
-- [x] `test/{fixtures,utils}/` 디렉토리가 존재
-- [x] `bun run typecheck`가 path alias `~/domain/*` 등을 모두 인식
-- [x] `app/README.md`에 의존성 방향이 1줄 이상으로 문서화
+## 입력·출력 계약
 
-## Implementation Plan (TDD Cycle)
-**N/A — chore branch policy.** 디렉토리 구조 자체는 테스트 대상이 아님. `bun run typecheck` 통과로 path alias 정합성을 검증.
+**입력**: T001 의 빈 프로젝트 셸. **출력**: `app/{domain,application,infrastructure,presentation}/` 4-layer 디렉토리 + 각 layer placeholder index + `test/{fixtures,utils}/` + 의존성 방향 README. **검증**: 디렉토리 존재 확인 + `bun run typecheck` 여전히 무오류.
 
-## Files to Create / Modify
+## 시퀀스
 
-### Domain (5 sub-domains)
-| Path | Responsibility |
-|------|---------------|
-| `/Users/tkstart/Desktop/project/tkstar-dev/app/domain/project/.gitkeep` | placeholder |
-| `/Users/tkstart/Desktop/project/tkstar-dev/app/domain/post/.gitkeep` | placeholder |
-| `/Users/tkstart/Desktop/project/tkstar-dev/app/domain/legal/.gitkeep` | placeholder |
-| `/Users/tkstart/Desktop/project/tkstar-dev/app/domain/contact/.gitkeep` | placeholder |
-| `/Users/tkstart/Desktop/project/tkstar-dev/app/domain/theme/.gitkeep` | placeholder |
+```
+1. `app/domain/{project,post,legal,contact,theme}/` 5개 빈 모듈 생성 + placeholder index.ts
+2. `app/application/{content,contact,search,og,feed,seo}/{ports,services}/` 빈 모듈
+3. `app/infrastructure/{config,content,email,captcha,og,search,analytics}/` 빈 모듈
+4. `app/presentation/{components,hooks,lib,layouts,routes}/` 빈 모듈
+5. `test/{fixtures,utils}/` 빈 디렉토리
+6. README 또는 ARCHITECTURE.md 에 의존성 방향 문서화 — Domain ← Application ← Infrastructure / Presentation ← Application
+7. `bun run typecheck` 통과 확인 후 PR open
+```
 
-### Application (6 sub-domains × 2 sub-dirs)
-| Path | Responsibility |
-|------|---------------|
-| `/Users/tkstart/Desktop/project/tkstar-dev/app/application/content/{ports,services}/.gitkeep` | placeholder |
-| `/Users/tkstart/Desktop/project/tkstar-dev/app/application/contact/{ports,services}/.gitkeep` | placeholder |
-| `/Users/tkstart/Desktop/project/tkstar-dev/app/application/search/services/.gitkeep` | placeholder |
-| `/Users/tkstart/Desktop/project/tkstar-dev/app/application/og/{ports,services}/.gitkeep` | placeholder |
-| `/Users/tkstart/Desktop/project/tkstar-dev/app/application/feed/services/.gitkeep` | placeholder |
-| `/Users/tkstart/Desktop/project/tkstar-dev/app/application/seo/services/.gitkeep` | placeholder |
+## 엣지 케이스 + 구현
 
-### Infrastructure (7 modules)
-| Path | Responsibility |
-|------|---------------|
-| `/Users/tkstart/Desktop/project/tkstar-dev/app/infrastructure/config/.gitkeep` | placeholder |
-| `/Users/tkstart/Desktop/project/tkstar-dev/app/infrastructure/content/.gitkeep` | placeholder |
-| `/Users/tkstart/Desktop/project/tkstar-dev/app/infrastructure/email/.gitkeep` | placeholder |
-| `/Users/tkstart/Desktop/project/tkstar-dev/app/infrastructure/captcha/.gitkeep` | placeholder |
-| `/Users/tkstart/Desktop/project/tkstar-dev/app/infrastructure/og/.gitkeep` | placeholder |
-| `/Users/tkstart/Desktop/project/tkstar-dev/app/infrastructure/search/.gitkeep` | placeholder |
-| `/Users/tkstart/Desktop/project/tkstar-dev/app/infrastructure/analytics/.gitkeep` | placeholder |
+## Implementation Notes
 
-### Presentation
-| Path | Responsibility |
-|------|---------------|
-| `/Users/tkstart/Desktop/project/tkstar-dev/app/presentation/components/.gitkeep` | placeholder |
-| `/Users/tkstart/Desktop/project/tkstar-dev/app/presentation/hooks/.gitkeep` | placeholder |
-| `/Users/tkstart/Desktop/project/tkstar-dev/app/presentation/lib/.gitkeep` | placeholder |
-| `/Users/tkstart/Desktop/project/tkstar-dev/app/presentation/layouts/.gitkeep` | placeholder |
-| `/Users/tkstart/Desktop/project/tkstar-dev/app/presentation/routes/.gitkeep` | placeholder (T004에서 채움) |
+- 의존성 방향 위반 방지를 자동화하지 않음 (Lint rule 도입은 향후 별도 task) — 본 task 는 placeholder index + README 로 문서화만.
+- 각 layer 의 index.ts 는 빈 export `{}` placeholder — 빈 파일은 typecheck 에러 가능성 있으므로 명시.
+- `test/` 는 colocated `__tests__/` 와 별도 — fixtures/utils 만 공용으로 위치.
+- 본 task 는 T001 의 path alias `~/*` → `./app/*` 에 의존.
 
-### Test Utils
-| Path | Responsibility |
-|------|---------------|
-| `/Users/tkstart/Desktop/project/tkstar-dev/test/fixtures/.gitkeep` | placeholder |
-| `/Users/tkstart/Desktop/project/tkstar-dev/test/utils/.gitkeep` | placeholder |
+## Change History from previous body
 
-### Config (수정)
-| Path | Change |
-|------|--------|
-| `/Users/tkstart/Desktop/project/tkstar-dev/tsconfig.app.json` | `paths`에 `~/domain/*`, `~/application/*`, `~/infrastructure/*`, `~/presentation/*`, `#content/*` 추가 |
+- chore branch (no Issue) PR: `chore/ca-4layer-skeleton`.
+- T004 (라우트 스켈레톤) / T006 (Domain schema) / T007 (velite) / T008 (ports+repos) / T009 (DI) 가 모두 이 골격 안에 배치되므로 본 task 가 P0 의 마지막 구조 task.
 
-### Docs
-| Path | Responsibility |
-|------|---------------|
-| `/Users/tkstart/Desktop/project/tkstar-dev/app/README.md` | 의존성 방향 문서화 (`Domain ← Application ← Infrastructure / Presentation ← Application`) — 4-layer rule 한 페이지 요약 |
+## DoD
 
-## Verification Steps
+- [x] `app/{domain,application,infrastructure,presentation}/` 4개 디렉토리 모두 존재
+- [x] 각 layer 에 placeholder `index.ts` 생성
+- [x] `app/domain/` 하위에 `{project,post,legal,contact,theme}/` 5개 모듈
+- [x] `app/application/` 하위에 `{content,contact,search,og,feed,seo}/{ports,services}/` 모듈
+- [x] `app/infrastructure/` 하위에 `{config,content,email,captcha,og,search,analytics}/` 모듈
+- [x] `app/presentation/` 하위에 `{components,hooks,lib,layouts,routes}/` 모듈
+- [x] `test/{fixtures,utils}/` 빈 디렉토리 존재
+- [x] 의존성 방향이 README 또는 lint 로 문서화됨
+- [x] `bun run typecheck` 무오류 통과
 
-### 자동
-- `bun run typecheck` → exit code 0
-- `find app -type d`로 4-layer 구조 확인
-- 임시 테스트 파일(`/tmp/import-test.ts`)에서 `import "~/domain/project"` / `import "~/infrastructure/config"` 등 4종 path alias가 컴파일러에 의해 resolution됨
+## Open Questions
 
-### 수동
-- 없음
-
-### 측정
-- 없음
-
-## Dependencies
-- **Depends on**: T001 (path alias가 동작해야 함)
-- **Blocks**: T004 (라우트 디렉토리 사용), T006 (Domain 디렉토리 사용), T007 (Infrastructure content 디렉토리 사용), T008 (Application/Infrastructure 디렉토리 사용), T009 (Infrastructure config 사용)
-
-## Risks & Mitigations
-- **Risk**: `.gitkeep` 대신 `index.ts` 생성 시 빈 export로 인한 lint 경고 발생 가능.
-  - **Mitigation**: `.gitkeep`을 채택. Biome `linter.includes`에서 `.gitkeep` 제외.
-
-## References
-- PROJECT-STRUCTURE.md `app/ Directory (Core Application)` (line 91~)
-- PROJECT-STRUCTURE.md `Dependency Direction Rules` (line 511~)
-- ROADMAP.md `Phase 0` Task 002
+모두 해결됨 (No open questions)
 
 ## Change History
-| Date | Changes | Author |
-|------|---------|--------|
-| 2026-04-28 | T002 PR (#10) — 28개 `.gitkeep` placeholder 생성, T001 split tsconfig 구조에 맞춰 path alias를 `tsconfig.cloudflare.json`에 추가 (태스크 문서의 `tsconfig.app.json` 명세 적응), `app/README.md` 의존성 방향 문서화, Status=Done | TaekyungHa |
+
+| 날짜 | 변경 | 작성자 |
+| --- | --- | --- |
+| 2026-04-28 | T002 초기 머지 — CA 4-layer 골격 (branch `chore/ca-4layer-skeleton`) | TaekyungHa |
