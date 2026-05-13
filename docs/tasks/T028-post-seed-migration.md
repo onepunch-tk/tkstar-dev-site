@@ -54,15 +54,15 @@ T025/T026 으로 D1 schema + Repository 가 완성된 상태에서, 기존 `cont
 
 ## DoD
 
-- [ ] scripts/seed-posts.ts 작성 + 멱등 upsert
-- [ ] package.json 의 seed:posts:{local,preview,production} 3 scripts
-- [ ] `bun run seed:posts:local` 실행 후 D1 posts count = 기존 velite count
-- [ ] velite.config.ts 의 posts collection 제거
-- [ ] content/posts/ 디렉토리 삭제
-- [ ] velite-post.repository import 0건 (grep 검증)
-- [ ] Blog list/detail SSR 응답 200 (velite 의존 없음)
-- [ ] Vitest 통합 테스트 D1 fixture only Green
-- [ ] production seed 1회 실행 + 색인 페이지 일치 확인
+- [x] scripts/seed-posts.ts 작성 + 멱등 upsert
+- [x] package.json 의 seed:posts:{local,preview,production} 3 scripts
+- [x] `bun run seed:posts:local` 실행 후 D1 posts count = 기존 velite count
+- [x] velite.config.ts 의 posts collection 제거
+- [x] content/posts/ 디렉토리 삭제
+- [x] velite-post.repository import 0건 (grep 검증)
+- [x] Blog list/detail SSR 응답 200 (velite 의존 없음)
+- [x] Vitest 통합 테스트 D1 fixture only Green
+- [x] production seed 1회 실행 + 색인 페이지 일치 확인
 
 ## Open Questions
 
@@ -72,4 +72,4 @@ T025/T026 으로 D1 schema + Repository 가 완성된 상태에서, 기존 `cont
 
 | 날짜 | 변경 | 작성자 |
 | --- | --- | --- |
-| - | - | - |
+| 2026-05-13 | Post seed migration — scripts/seed-posts.ts (Drizzle .onConflictDoUpdate inline) + package.json seed:posts:{local,preview,production} + 기존 migrate-posts-to-d1 자산 제거 | TaekyungHa |
