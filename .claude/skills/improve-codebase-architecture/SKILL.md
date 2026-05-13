@@ -1,15 +1,14 @@
 ---
 name: improve-codebase-architecture
 description: |
-  Find deepening opportunities in the codebase, informed by the domain
-  language in `docs/glossary.md`. Use when the user wants to improve
-  architecture, find refactoring opportunities, consolidate tightly-
-  coupled shallow modules, or make code more testable and AI-navigable.
+  Find deepening opportunities in the codebase. Use when the user wants
+  to improve architecture, find refactoring opportunities, consolidate
+  tightly-coupled shallow modules, or make code more testable and
+  AI-navigable.
 
   Adapted from Matt Pocock's original (https://github.com/mattpocock).
-  ADR support and /setup-matt-pocock-skills pointer removed — our harness
-  uses `docs/glossary.md` as the single source of truth for domain
-  vocabulary.
+  ADR support and /setup-matt-pocock-skills pointer removed.
+user-invocable: false
 ---
 
 # Improve Codebase Architecture
@@ -25,7 +24,7 @@ deep place to look, not a maze of shallow files).
 > Deep = lots of behavior behind a small interface. Shallow = interface
 > nearly as complex as the implementation.
 
-## Glossary
+## Vocabulary
 
 Use these terms exactly. Consistent language is the point — don't drift
 into "component," "service," "API," or "boundary." Full definitions in
@@ -55,11 +54,12 @@ Key principles (full list in [LANGUAGE.md](LANGUAGE.md)):
 - **One adapter = hypothetical seam. Two adapters = real seam.**
 
 This skill is *informed* by the project's domain model. The domain
-language gives names to good seams.
+language gives names to good seams — use the vocabulary already
+established in PRD, code, and READMEs.
 
 ## Harness integration — read first
 
-Three points where this skill couples to the rest of the harness:
+Two points where this skill couples to the rest of the harness:
 
 ### 1. Clean Architecture (CA) compatibility
 
@@ -73,15 +73,7 @@ Do **NOT** flag CA Ports as shallow indirection just because there's a
 single production adapter. The test mock is the second. See
 [DEEPENING.md](DEEPENING.md) §"CA integration" for the full mapping.
 
-### 2. Glossary (Ubiquitous Language) is the seam-naming authority
-
-`docs/glossary.md` is the project's domain vocabulary SoT. When you
-suggest deepening, **name the deepened module after a glossary entity**
-(e.g., "the Order intake module" — not "the OrderHandlerService").
-Missing entry → run `/glossary-sync` or trigger
-`project-structure-analyzer`'s missing-entry interview, then come back.
-
-### 3. tdd skill exemption for internals of deep modules
+### 2. tdd skill exemption for internals of deep modules
 
 The `tdd` skill's "Must Test" patterns assume one file = one module. When
 a deep module merges multiple files, the **internal parts** of the
@@ -93,8 +85,8 @@ file-pattern tests for those internals are no longer required. See
 
 ### 1. Explore
 
-**Read first**: `docs/glossary.md` (domain vocabulary), `docs/PROJECT-STRUCTURE.md`
-(layer map), `CLAUDE.md` (project conventions).
+**Read first**: `docs/PROJECT-STRUCTURE.md` (layer map), `CLAUDE.md`
+(project conventions), and `docs/PRD.md` (domain vocabulary).
 
 Then use the Agent tool with `subagent_type=Explore` to walk the codebase.
 Don't follow rigid heuristics — explore organically and note where you
@@ -124,10 +116,10 @@ Present a numbered list of deepening opportunities. For each:
 - **Benefits** — explained in terms of locality and leverage, and how
   tests would improve
 
-**Use `docs/glossary.md` vocabulary for the domain, and
+**Use the project's existing domain vocabulary (PRD, code, README) and
 [LANGUAGE.md](LANGUAGE.md) vocabulary for the architecture.** If the
-glossary defines `Order`, talk about "the Order intake module" — not
-"the FooBarHandler," not "the Order service."
+codebase already uses `Order`, talk about "the Order intake module" —
+not "the FooBarHandler," not "the Order service."
 
 Do NOT propose interfaces yet. Ask the user: "Which of these would you
 like to explore?"
@@ -140,12 +132,9 @@ deepened module, what sits behind the seam, what tests survive.
 
 Side effects happen inline as decisions crystallize:
 
-- **Naming a deepened module after a concept not in `docs/glossary.md`?**
-  Run `/glossary-sync` or trigger an interview to add the term to the
-  glossary before proceeding. Don't invent vocabulary in passing.
-- **Sharpening a fuzzy term during the conversation?** Update the
-  glossary entry inline (with `AskUserQuestion` confirmation per the
-  glossary system rules).
+- **Naming a deepened module after a concept not yet established in the
+  codebase?** Confirm the name with the user (`AskUserQuestion`) before
+  introducing it. Don't invent vocabulary in passing.
 - **Want to explore alternative interfaces for the deepened module?**
   See [INTERFACE-DESIGN.md](INTERFACE-DESIGN.md) for the parallel
   sub-agent ("Design It Twice") pattern.
@@ -163,7 +152,7 @@ Side effects happen inline as decisions crystallize:
   one adapter — the test mock is the second adapter
 - ❌ Deepening that breaks CA dependency direction (Domain → Application
   → Infrastructure → Presentation, inner cannot import outer)
-- ❌ Inventing module names that conflict with `docs/glossary.md`
+- ❌ Inventing module names that conflict with the project's established domain vocabulary
 - ❌ Surfacing dozens of theoretical refactors — present 3-7 high-friction
   candidates, ranked
 - ❌ Implementing without grilling: the design tree must be walked

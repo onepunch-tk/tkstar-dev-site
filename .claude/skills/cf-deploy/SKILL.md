@@ -37,15 +37,9 @@ something the workflow needs (e.g. no `wrangler.toml`).
 
 ## When to invoke
 
-- User asks for Cloudflare Workers deployment automation
-- User shares a wrangler config and wants CI/CD around it
-- User says "deploy on push to main/development", "wrangler GitHub Action",
-  "Workers CI", and similar
-- Project has a `wrangler.toml`/`wrangler.jsonc`/`wrangler.json` but no
-  `.github/workflows/*.yml` referencing `cloudflare/wrangler-action`
+Invoke when the user asks for Cloudflare Workers deployment automation, shares a wrangler config and wants CI/CD, or the repo has `wrangler.{toml,jsonc,json}` but no GitHub Actions workflow referencing `cloudflare/wrangler-action`.
 
-**Do not invoke** for: Cloudflare Pages, R2-only deploys, Vercel/Netlify,
-local-only `wrangler dev`, or "explain wrangler" (documentation requests).
+**Skip** for: Cloudflare Pages, R2-only deploys, Vercel/Netlify, local-only `wrangler dev`, or pure documentation requests.
 
 ---
 
@@ -168,10 +162,12 @@ After writing, do these three checks:
 
 ### Step 5 — Commit per harness PR-only policy
 
-This change creates a CI configuration file, which falls under
-`.github/workflows/**` — not docs, not chore. Treat as `chore/*` per the
-project's branch-type carve-out (the workflow file isn't behavioral source
-code), but a PR is still mandatory:
+This change creates a CI configuration file under `.github/workflows/**`.
+Use a `chore/*` branch (workflows are not feature/fix work) and route
+through the standard PR-only workflow (CLAUDE.md §Git Integration). The
+file extension (`.yml`) places it under the TDD Exemption — Setup & Data
+Files rule, so Phase 2 (TDD) skips test generation but every other phase
+runs in full:
 
 ```
 chore/add-cloudflare-deploy-workflow → PR → squash merge

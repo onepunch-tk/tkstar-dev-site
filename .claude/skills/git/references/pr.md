@@ -33,26 +33,35 @@ Create PR + merge + cleanup. **GitHub Mode only** — requires `Remote Platform:
 
 ## Review
 - Issues found: {N}, Issues fixed: {N}
-- (Runtime report at `.claude/runtime/reviews/code/{report}.md` — gitignored, ephemeral; resolved findings summarized in this PR description.)
 
 ---
 Related: #{issue_number}
 ```
 
-## Execution (delegate to script)
+## Execution (delegate to scripts — two stages)
+
+The PR flow is **split** so the merge is always gated on an explicit user confirmation. Stage 1 only opens the PR; the agent then asks the user via `AskUserQuestion`, and only on approval invokes Stage 2 with `HARNESS_SKIP_MERGE_CONFIRM=1`.
 
 ```bash
-.claude/hooks/git-pr.sh \
+# Stage 1 — push + open PR (--base development is pinned automatically).
+# pre-pr-base-guard denies any direct gh pr create not targeting development;
+# this wrapper is the only sanctioned path.
+.claude/hooks/pr/git-pr-create.sh \
   --title "<emoji> <type>: <description in user's language>" \
   --body "<body following template above>" \
   --issue <issue_number>
+
+# Stage 2 — squash-merge + cleanup. pre-merge-ask denies the wrapper without
+# the env prefix; only set the prefix after a confirmed user "머지 진행" answer.
+HARNESS_SKIP_MERGE_CONFIRM=1 .claude/hooks/pr/git-pr-merge.sh \
+  --pr <pr_number> --issue <issue_number>
 ```
 
-Script handles automatically: push, PR creation, merge (--merge), issue close, branch deletion, pipeline-state reset, development checkout.
+Stage 2 handles automatically: squash-merge, branch deletion, issue close, integration checkout, pull, runtime state reset (`pipeline-state.json` / `hook-state.json` / `ownership.json`).
 
 ## Base Branch Freshness Policy
 
-Before PR creation, `git-pr.sh` performs a non-blocking base freshness check:
+Before PR creation, `git-pr-create.sh` performs a non-blocking base freshness check:
 
 ```bash
 git fetch origin development

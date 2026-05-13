@@ -16,11 +16,14 @@
     "**/*.spec.ts",
     "**/*.spec.tsx",
     "**/*.spec.js",
-    "**/*.spec.jsx"
+    "**/*.spec.jsx",
+    "src-tauri/tests/**/*.rs"
   ],
 
+  "_testFilePatterns_note": "Rust unit tests live inline inside source files via `#[cfg(test)] mod tests { ... }`, so no separate glob is needed for them. The `src-tauri/tests/**/*.rs` entry covers Cargo integration tests only.",
+
   "sourceExtensions": [
-    ".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs"
+    ".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs", ".rs"
   ],
 
   "allowedDuringPlanPatterns": [
@@ -42,41 +45,10 @@
 
   "packageManager": "auto",
 
-  "reportDirs": {
-    "codeReview": ".claude/runtime/reviews/code",
-    "designReview": ".claude/runtime/reviews/design",
-    "failures": ".claude/runtime/failures"
-  },
-
-  "configFilesRequireDocsSync": [
-    "package.json",
-    "tsconfig*.json",
-    "biome.json",
-    "biome.jsonc",
-    "bun.lockb",
-    "bun.lock",
-    "pnpm-lock.yaml",
-    "yarn.lock",
-    "package-lock.json"
-  ],
-
   "runtimeGitignoreEntries": [
     ".claude/runtime/",
     ".claude/agent-memory/",
-    "coverage/"
-  ],
-
-  "implementationIntentKeywords": [
-    "구현",
-    "추가",
-    "만들어",
-    "개발",
-    "작성해",
-    "implement",
-    "add",
-    "build",
-    "create",
-    "write",
-    "develop"
+    "coverage/",
+    "__pycache__/"
   ]
 }

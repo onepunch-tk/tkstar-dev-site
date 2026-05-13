@@ -1,18 +1,6 @@
 # Phase 4: Validate & Finalize
 
-> **Pipeline State → `validate`**: Update before Phase 4 starts:
-> ```bash
-> cat > .claude/runtime/pipeline-state.json << EOF
-> {
->   "current_phase": "validate",
->   "mode": "$(jq -r .mode .claude/runtime/pipeline-state.json)",
->   "branch": "$(git branch --show-current)",
->   "github_mode": $(jq -r .github_mode .claude/runtime/pipeline-state.json),
->   "issue_number": $(jq -r .issue_number .claude/runtime/pipeline-state.json),
->   "updated_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-> }
-> EOF
-> ```
+> **Pipeline State → `validate`**: Update `pipeline-state.json` — set `current_phase: "validate"`, carry forward `mode`/`branch`/`plan_approved`/`github_mode`/`issue_number`/`ui_involved`/`review_unresolved_count`/`design_review_unresolved_count`. Canonical template lives in [SKILL.md §Pipeline State Management](../SKILL.md#pipeline-state-management). `phase-gate.sh` blocks this transition while either review counter is &gt; 0.
 
 ## Sequential Mode
 
@@ -20,7 +8,7 @@
 |------|--------|-----------|
 | 12 | Run `e2e-tester` sub-agent | `Agent(subagent_type="e2e-tester")` |
 | 13 | Fix bugs discovered in E2E (skip if all pass) | — (main agent) |
-| 14 | **Doc Sync (strict order, each blocks the next)** — see Doc Sync Protocol below | `Agent(subagent_type="development-planner" \| "project-structure-analyzer" \| "prd-generator")` |
+| 14 | **Doc Sync (strict order, each blocks the next)** — see Doc Sync Protocol below | `Agent(subagent_type="roadmap-generator" \| "project-structure-generator" \| "prd-generator")` |
 | 15 | Commit docs updates as a single `📝 docs: sync` commit | — (main agent) |
 | 15a | **Create PR** — agent composes title/body and invokes `git-pr-create.sh`. Script pushes the branch and opens the PR, then exits with the PR URL. Do NOT call any merge script yet. | — (main agent) |
 | 15b | **User confirmation** — agent calls `AskUserQuestion` with the prompt "PR #N을 development 브랜치에 머지할까요?" and options "머지 진행" / "PR 수정 필요" / "머지 보류" | — (main agent) |
@@ -37,12 +25,10 @@
 
 | Substep | Target | Trigger | Action |
 |---------|--------|---------|--------|
-| **14a** | `docs/ROADMAP.md` | Always | Run `development-planner` — mark completed tasks, add `**Must** Read:` link to the current task. |
-| **14b** | `tasks/XXX-*.md` | Always (when ROADMAP `[x]` checked in 14a) | (1) Update `**Status**` field to `✅ Done` (required), (2) Replace the `feature/issue-N-…` placeholder in the Branch field with the actual Issue number, (3) Mark every `- [ ]` checkbox in the body (Acceptance Criteria / Implementation Plan / Verification Steps) as `- [x]` and append a Change History row — Status alone is not sufficient evidence of completion, the body checklist is the AC contract. If any AC item is genuinely not met, remove it from this task's scope or split it to a follow-up task before merging. **Enforcement**: `docs-sync-gate.sh` Condition 4 detects ROADMAP `[x]` ↔ task `Status` drift; Condition 5 detects ROADMAP `[x]` ↔ body `- [ ]` checkbox drift. Both block PR creation on mismatch. Override (last resort, justified deferral): `DOCS_SYNC_SKIP=1` prefix. |
-| **14c** | `docs/PROJECT-STRUCTURE.md` | Always | 1. Run `bash .claude/tools/doc-structure-linter.sh --human`. 2. Review the NEW / GHOST / OK categories and their severity tags. 3. Route each item: (a) task-completion drift → `project-structure-analyzer` to reflect; (b) intentional future work → add to Target structure; (c) orphan → delete on disk or document as "reference-only". 4. Include the updates in the docs commit. |
-| **14d** | `CLAUDE.md` | `package.json` / `tsconfig*` / `biome.json(c)` changes on branch | Review for config / dependency drift (commands table, tech-stack entries, tooling sections). |
+| **14a** | `docs/ROADMAP.md` + `docs/tasks/T###-*.md` | Always | Run `roadmap-generator` in **MARK COMPLETE** mode for each completed task (it invokes `mark_complete.py` to flip the ROADMAP entry from `- [ ]` to `- [x] … ✅` AND flip the task file DoD checkboxes + append a Change History row in one shot). Status field on the task file no longer exists — ROADMAP is the single source of truth. **Enforcement**: `docs-sync-gate.sh` Condition 3 detects ROADMAP `[x]` ↔ body `- [ ]` checkbox drift; blocks PR creation on mismatch. Override (last resort, justified deferral): `DOCS_SYNC_SKIP=1` prefix. If a DoD item is genuinely not met, edit `docs/.harness/roadmap-input.json` to remove it from `tasks[].dod[]` (or split to a follow-up task) and re-run `generate_roadmap.py`, then re-run `mark_complete.py`. |
+| **14c** | `docs/PROJECT-STRUCTURE.md` | Always | 1. Run `bash .claude/tools/doc-structure-linter.sh --human`. 2. Review the NEW / GHOST / OK categories and their severity tags. 3. Route each item: (a) task-completion drift → `project-structure-generator` to reflect; (b) intentional future work → add to Target structure; (c) orphan → delete on disk or document as "reference-only". 4. Include the updates in the docs commit. |
 
-> Skip 14b/14d whose trigger did not fire. Do NOT skip 14a or 14c.
+> Do NOT skip 14a or 14c.
 
 > **Rationale for order**: ROADMAP defines what "done" means; the linter catches PROJECT-STRUCTURE drift from reality; CLAUDE.md pins the commands / stack contract that agents rely on. Project-specific derived artifacts (e.g. E2E flow files, design-system references, PRD) are owned by their respective feature tasks — they're not cross-cutting checkpoints.
 
@@ -62,7 +48,7 @@ ISSUE_NUMBER=$(jq -r '.issue_number // empty' .claude/runtime/pipeline-state.jso
 # Agent composes PR title/body, then invokes the CREATE script. The script
 # pushes the branch and opens the PR, then prints the PR URL and exits.
 # It does NOT merge.
-.claude/hooks/git-pr-create.sh \
+.claude/hooks/pr/git-pr-create.sh \
   --title "<emoji> <type>: <description>" \
   --body "## Summary
 <change summary>
@@ -96,7 +82,7 @@ Step 16 — merge only, invoked only after the user chose "머지 진행". The m
 ```bash
 PR_NUMBER=<from Step 15a output>
 
-HARNESS_SKIP_MERGE_CONFIRM=1 .claude/hooks/git-pr-merge.sh --pr "$PR_NUMBER" --issue "$ISSUE_NUMBER"
+HARNESS_SKIP_MERGE_CONFIRM=1 .claude/hooks/pr/git-pr-merge.sh --pr "$PR_NUMBER" --issue "$ISSUE_NUMBER"
 ```
 
 The merge script calls `gh pr merge --squash --delete-branch`, closes the linked issue, checks out `development`, pulls, deletes the local feature branch, and resets `pipeline-state.json` / `hook-state.json` / `ownership.json`.
@@ -167,17 +153,3 @@ echo '{"last_reminded_phase":"","doc_reminders_sent":{},"workflow_warnings_sent"
 > Team Mode substeps 16a–16d mirror Sequential Step 14's Doc Sync Protocol above.
 
 **Commit**: Per [workflow-commits.md](../../git/references/workflow-commits.md) — E2E fix phase (if needed)
-
-## Context Tip (End of Phase 4 — task complete)
-
-PR title/body is derivable from `git log`/`git diff`, ROADMAP/task
-updates are file-based, and the merge is performed by
-`.claude/hooks/git-pr-merge.sh`. No automatic advisory fires at this
-boundary; the `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` env (set in
-`.claude/settings.json`, when present) handles overflow.
-
-After the PR is merged and the state is reset, running `/clear` is the
-right call before starting an unrelated new task — task outcomes are
-persisted in the merged PR, the closed GitHub Issue, and the
-ROADMAP/task-file updates. See SKILL.md `## Context Management` for the
-persistence rule.

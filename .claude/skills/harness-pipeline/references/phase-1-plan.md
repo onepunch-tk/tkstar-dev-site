@@ -7,63 +7,22 @@
 |------|--------|
 | 1 | Read `CLAUDE.md`. Read `docs/ROADMAP.md` if it exists (skip if not — e.g., bug fix without roadmap) |
 | 1a | **CA Structure Check**: Read `docs/PROJECT-STRUCTURE.md`. If it does NOT exist → auto-invoke `project-structure` skill to generate it from the CA template |
-| 1b | **Load CA Template**: Run framework detection per [`shared/framework-detection`](../../shared/framework-detection/SKILL.md) (and [`shared/monorepo-detection`](../../shared/monorepo-detection/SKILL.md) first if relevant) to pick the target directory and framework. Load the matching CA template from `.claude/skills/project-structure/references/` (react-router, nestjs, or expo). Use the template's **File Location Summary by Task** table as the file placement guide. |
+| 1b | **Load CA Template**: Run framework detection per [`framework-detection`](../../framework-detection/SKILL.md) (and [`monorepo-detection`](../../monorepo-detection/SKILL.md) first if relevant) to pick the target directory and framework. Load the matching CA template from `.claude/skills/project-structure/references/` (react-router, nestjs, or expo). Use the template's **File Location Summary by Task** table as the file placement guide. |
 | 1c | **GitHub Mode Check**: Read `Remote Platform` from CLAUDE.md. If set to `GitHub` → run `gh auth status`. If auth fails → instruct user to run `! gh auth login` and **STOP**. If not set → Local Mode (skip Issue/PR steps). Store result in `github_mode` variable for later steps. |
 | 2 | **Enter plan mode**: Call `EnterPlanMode` to start local planning. Output a summary of gathered context and task description for the user. Inform the user they can upgrade to ultraplan via `/ultraplan` if desired. |
 | 2a | **Pipeline State → `plan`**: Set `pipeline-state.json` `current_phase` to `"plan"`, `plan_approved` to `false`, `github_mode` to detected value, `issue_number` to `null`. (ABAC hook blocks source code modifications during plan phase). Mode is finalized after Step 4, so set `"pending"` for now. (see Pipeline State Management in SKILL.md) |
-| 2b | **Create GitHub Issue** (GitHub Mode only — skip if Local Mode): Agent composes title/body, then calls `.claude/hooks/git-issue.sh --title "..." --body "..." --label "..."`. Parse `ISSUE_NUMBER=N` from the last line of output and store in `pipeline-state.json` `issue_number`. |
+| 2b | **Create GitHub Issue** (GitHub Mode only — skip if Local Mode): Agent composes title/body, then calls `.claude/hooks/pr/git-issue.sh --title "..." --body "..." --label "..."`. Parse `ISSUE_NUMBER=N` from the last line of output and store in `pipeline-state.json` `issue_number`. |
 | 3 | Analyze current state and create detailed step-by-step plan in the plan file. **File placement MUST follow the CA template's layer structure**: Domain → Application → Infrastructure → Presentation. Use the Phase 0 intent summary as the source of truth for user intent — do NOT re-litigate decisions already confirmed there. |
 | 4 | **Count files and features** → determine execution mode (Sequential / Team) |
 | 4-ui | **UI Detection**: First read `docs/PROJECT-STRUCTURE.md` for the project's Presentation layer paths and use those as the primary match set. Fall back to the default glob patterns (`**/presentation/components/**`, `**/presentation/routes/**`, `**/presentation/layouts/**`, `**/presentation/pages/**`, `**/presentation/screens/**`, `app/routes/**`) if the structure doc does not enumerate them. Also check the task description for UI keywords (`component`, `page`, `screen`, `layout`, `UI`, `design`, `디자인`, `화면`). If ANY match → set `ui_involved = true`, otherwise `false`. **When `ui_involved = true`, the plan MUST allocate visual sub-tasks to `ux-design-lead` — see "UI/Design Delegation" section below.** |
 | 4z | **Pipeline State mode finalized**: Update `pipeline-state.json` with the mode determined in Step 4 (`"sequential"` \| `"team"`) and `"ui_involved"` from Step 4-ui |
 | 5 | Plan review → approve via `ExitPlanMode` (user may upgrade to ultraplan at this point) |
-| 5z | **Automatic**: On `ExitPlanMode` approval the `post-plan-approval.sh` PostToolUse hook flips `pipeline-state.json` `plan_approved` to `true`. **Agents MUST NOT attempt to write `plan_approved: true` manually** — a system-level safety filter blocks that pattern to prevent plan-mode skipping, and the hook is the only sanctioned flip path. If the hook somehow fails (check with `cat .claude/runtime/pipeline-state.json`), stop and escalate — do not try to bypass. The `pipeline-guardian` hook will **block Phase 2 entry** while `plan_approved` is `false`. |
-| 5zz | **MANDATORY ordering before Phase 2 (context gate)**: After approval the agent MUST execute, in this exact order, within the same response: (1) Steps 5a → 5a-clean → 5a-sync → 5b — sync `development` and create the feature branch; (2) the **Task Creation** section below — call `TaskCreate` to register ALL upfront pipeline tasks for the entire workflow (Phase 2 TDD red/green cycles, Phase 3 review, Phase 4 validate + PR), each task a concrete action derived from the approved plan. **CRITICAL — call pattern**: ALL `TaskCreate` calls MUST be issued in a SINGLE assistant message as parallel `tool_use` blocks (one block per task, emitted together). Splitting `TaskCreate` across multiple turns or sequential messages will cause the `post-task-created.sh` hook to fire mid-batch — the agent reads the advisory after the first call, halts prematurely, and remaining tasks are lost (regression observed in production). Batch ALL `TaskCreate` calls in one parallel emit, then yield. The first `TaskCreate` call triggers `post-task-created.sh`, which flips `pipeline-state.tasks_created` to `true` AND emits an `additionalContext` directive carrying the `/compact` advisory verbatim (with the focus prompt inlined as a copy-pasteable one-liner) — the same body is mirrored to stderr as a fallback for terminal-watching users. (3) STOP — do NOT advance `current_phase` to `"tdd"`, do NOT spawn sub-agents, do NOT begin Phase 2 work. The agent's next response relays the advisory verbatim and waits. **Unblocking replies**: user runs `/compact` themselves; user explicitly says to skip compact and proceed; user gives new direction. **Rationale**: with tasks created before compaction the user retains full pipeline visibility through the focus prompt; without this ordering the model silently enters TDD carrying Phase 1 reconnaissance noise that the plan file already captures, defeating the Context Engineering principle in CLAUDE.md. |
-
-## Stakeholder Consultation — Removed
-
-> Stakeholder Consultation (former Step 3a) has been **removed** from Phase 1.
-> Its purpose (surfacing ambiguities and gathering user intent) is now owned
-> entirely by **Phase 0 (Discovery)**. See
-> [`phase-0-discovery.md`](phase-0-discovery.md) and the
-> `interview-protocol` skill. The Phase 0 intent summary written to the plan
-> file is the contract Phase 1 reads from — re-asking the same questions in
-> Phase 1 is redundant.
-
----
+| 5z | **Automatic**: On `ExitPlanMode` approval the `post-plan-approval.sh` PostToolUse hook flips `pipeline-state.json` `plan_approved` to `true`. **Agents MUST NOT attempt to write `plan_approved: true` manually** — a system-level safety filter blocks that pattern, and the hook is the only sanctioned flip path. The `pipeline-guardian` hook **blocks Phase 2 entry** while `plan_approved` is `false`. |
+| 5zz | **Ordering before Phase 2**: After approval, in the same response, execute: (1) Steps 5a → 5a-clean → 5a-sync → 5b — sync `development` and create the feature branch; (2) the **Task Creation** section below — call `TaskCreate` to register ALL upfront pipeline tasks (Phase 2 TDD red/green cycles, Phase 3 review, Phase 4 validate + PR), each a concrete action derived from the approved plan. Batching the `TaskCreate` calls into a single parallel emit is preferred for atomicity, but splitting across turns is safe. (3) Proceed to Phase 2. |
 
 ## Ultraplan (Optional Upgrade)
 
-Ultraplan is a cloud-based planning feature. **Agents cannot trigger ultraplan programmatically** — the keyword trigger only works when typed by the user, not when output by an agent.
-
-The user can upgrade to ultraplan via:
-
-| Method | How It Works |
-|--------|-------------|
-| **User command** | User runs `/ultraplan <task>` directly in CLI |
-| **From local plan** | User chooses "refine with Ultraplan" at local plan approval dialog |
-
-> If the user does not trigger ultraplan, proceed with local plan mode (`EnterPlanMode`) — this is the default path.
-
-### Status Indicators (ultraplan active)
-
-| Status | Meaning |
-|--------|---------|
-| `◇ ultraplan` | Drafting the plan |
-| `◇ ultraplan needs your input` | Clarifying question — open session link |
-| `◆ ultraplan ready` | Plan ready for browser review |
-
-### Approval Options
-
-**Default (local plan mode):**
-- Call `ExitPlanMode` → user reviews and approves the plan file
-- User may upgrade to ultraplan via `/ultraplan` or "refine with Ultraplan"
-
-**If user activated ultraplan:**
-- **Approve & execute on the web** → implementation continues in the cloud session, opens PR when done
-- **Approve & teleport to terminal** → plan is sent back to CLI for local execution with full environment access
-
-> After approval (either path), the pipeline continues directly to Phase 2 (TDD). No separate confirmation needed.
+Ultraplan is a cloud-based planning feature. **Agents cannot trigger ultraplan programmatically** — only the user can via `/ultraplan <task>` or "refine with Ultraplan" at the local-plan approval dialog. Default path is local `EnterPlanMode`. After approval (either path), the pipeline continues directly to Phase 2 — no separate confirmation needed.
 
 ## CA File Placement Rules
 
@@ -78,7 +37,9 @@ When planning file locations, refer to the **CA template loaded in Step 1b** and
 
 > Use the template's **"File Location Summary by Task"** table for exact directory paths — do NOT assume fixed folder names.
 
-> **Dependency Rule**: see [`shared/ca-rules`](../../shared/ca-rules/SKILL.md) for the single source of truth on the layer dependency direction and TDD-exemption list.
+> **Tauri 2 / Rust note**: the Presentation surface is `src-tauri/src/presentation/commands/*.rs` — every function decorated with `#[tauri::command]` lives here and acts as a controller invoking Application use cases. Domain (`src-tauri/src/domain/`) and Application (`src-tauri/src/application/`) layers must NOT import `tauri::*` directly. See `ca-rules` §"Rust file patterns (Tauri backend)" for the complete per-layer file mapping (this PR's note must always match that source of truth).
+
+> **Dependency Rule**: see [`ca-rules`](../../ca-rules/SKILL.md) for the single source of truth on the layer dependency direction and TDD-exemption list.
 
 > After plan approval, create ALL tasks for the entire pipeline upfront via `TaskCreate`, then execute sequentially. No separate confirmation needed.
 
@@ -133,7 +94,7 @@ Every plan with `ui_involved = true` must include a table of this shape:
 
 ### TDD Exemption — Setup & Data Files
 
-> **Rule**: Setup, config, and pure data files are **NOT TDD targets**. Behavior/logic files **remain TDD**.
+> **Rule**: Setup, config, pure data, and harness/documentation files are **NOT TDD targets**. Behavior/logic files **remain TDD**.
 
 **Exempt from TDD** (do **not** create a matching `*.test.*`):
 
@@ -142,6 +103,18 @@ Every plan with `ui_involved = true` must include a table of this shape:
 - **Build tooling** — bundler config (`webpack.config.*`, `vite.config.*`, `metro.config.*`, `next.config.*`, `turbo.json`), compiler config (`babel.config.*`, `swc.config.*`), type config (`tsconfig.json`), test config (`jest.config.*`, `vitest.config.*`, `jest.setup.*`), deploy config (`eas.json`, `vercel.json`), generated framework dirs (`.expo/*`, `.next/*`, `.nuxt/*`)
 - **Pure stylesheets** — `.css`, `.scss`, `.sass`, `.less`, `.module.css`, `.css.ts` (vanilla-extract), generated class-name maps — no runtime assertion surface
 - **Asset manifests** — font/image/icon registration: `app.json`/`app.config.*` asset lists, `next/font` entries, static asset imports, splash/launch screen configs
+- **Harness tooling and documentation** — files whose role is configuration, scripting, declaration, or prose, not runtime behavior. Applies on every branch type (`feature/*`, `fix/*`, `chore/*`, `docs/*`):
+  - **Shell scripts (`.sh`)** — `.claude/hooks/**`, harness tooling, dev scripts. Verification falls to `shellcheck` (when wired) and PR review.
+  - **Markdown (`.md`)** — `CLAUDE.md`, `docs/**`, `.claude/skills/**/SKILL.md`, `.claude/skills/**/references/*.md`, ROADMAP, task files, READMEs. Verification falls to link checks and PR review.
+  - **Harness JSON / YAML (`.json`, `.yaml`, `.yml`)** — `.claude/config.json`, `.claude/runtime/*.json`, `docs/.harness/*.json`, `.github/workflows/*.yml`. Verification falls to schema/lint when configured and PR review.
+- **Tauri 2 / Rust entry points and declarative config** (in addition to the items already enumerated in `ca-rules` §"TDD exemption list"):
+  - `src-tauri/src/main.rs` — desktop entry; calls `lib::run()` only
+  - `src-tauri/src/lib.rs` — mobile entry + `tauri::Builder` setup + `invoke_handler` + `manage()` state registration only
+  - `src-tauri/src/build.rs` — build script (no runtime behaviour)
+  - `src-tauri/Cargo.toml`, `Cargo.lock` — dependency declarations
+  - `src-tauri/tauri.conf.json` — Tauri configuration data
+  - `src-tauri/capabilities/*.{json,toml}` — declarative permission/capability data; reviewed in code-reviewer Phase 5 for least-privilege, not unit-tested
+  - `*_port.rs` files when the file body is *only* a trait declaration (the port is mocked via `mockall` in consumers; the trait itself has no behaviour to verify)
 
 **Why**: These files *declare* data or plumbing. A failing "token equals 16" assertion doesn't catch a bug — it catches a contract mismatch that the next consuming file surfaces immediately via type error or visual regression. Testing declarations tests the test harness, not the product.
 
@@ -241,24 +214,8 @@ Branch type MUST follow [commit-prefix-rules.md](../../git/references/commit-pre
 After the plan is approved and the feature branch + tasks are set up, the plan
 file plus the GitHub Issue body hold everything the TDD phase needs.
 
-Two hooks coordinate the plan→tdd boundary:
-
-1. **`post-plan-approval.sh`** — `PostToolUse:ExitPlanMode`. Flips
-   `plan_approved=true`, resets `tasks_created=false`, and emits an
-   `additionalContext` directive instructing the agent to (a) create the
-   feature branch via Steps 5a–5b, (b) call `TaskCreate` for ALL upfront
-   pipeline tasks, and (c) STOP without entering Phase 2.
-2. **`post-task-created.sh`** — `PostToolUse:TaskCreate`. On the first
-   `TaskCreate` call inside plan phase (where `plan_approved==true && tasks_created==false`),
-   flips `tasks_created=true` and emits an `additionalContext` directive
-   carrying the `/compact` advisory verbatim (focus prompt inlined as a
-   copy-pasteable one-liner) — the same body is mirrored to stderr as a
-   fallback. Subsequent `TaskCreate` calls early-exit (idempotent — the
-   `false → true` transition is the natural dedup gate).
-
-The advisory is non-blocking (exit 0) and the agent cannot trigger
-`/compact` itself — only a user-entered slash command executes it.
-**Therefore Step 5zz is mandatory**: the agent must complete branch
-creation and TaskCreate within the same response as approval, then stop
-so the advisory has fired and the user can act on it. See SKILL.md
-`## Context Management` for the full policy.
+The `post-plan-approval.sh` PostToolUse:ExitPlanMode hook flips
+`pipeline-state.json` `plan_approved` to `true` after the user approves the
+plan and emits an `additionalContext` directive instructing the agent to
+create the feature branch (Steps 5a–5b), call `TaskCreate` for the upfront
+pipeline tasks, and proceed to Phase 2.

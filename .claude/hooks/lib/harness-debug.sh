@@ -8,8 +8,9 @@
 # HARNESS_DEBUG=1 makes each early exit self-identify to stderr.
 # No-op when unset (zero cost in normal operation).
 #
-# Usage:
-#   source "$(dirname "${BASH_SOURCE[0]}")/lib/harness-debug.sh"
+# Usage from a hook (e.g. .claude/hooks/<domain>/<hook>.sh):
+#   SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+#   source "$SCRIPT_DIR/../lib/harness-debug.sh"
 #   [[ condition ]] || { harness_debug hook-name "why we bailed"; exit 0; }
 
 # harness_debug <hook_name> <reason>

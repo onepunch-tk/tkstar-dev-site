@@ -2,6 +2,7 @@
 paths:
   - "**/*.ts"
   - "**/*.tsx"
+  - "**/*.rs"
 ---
 
 # File Naming & Creation Conventions
@@ -38,3 +39,24 @@ If you name a server-side utility `something.client.ts`, it will be bundled as `
 | `*.d.ts` | — | Type declarations only |
 | `**/types.ts` | — | Type definitions only |
 | `**/index.ts` | — | Barrel files (re-exports) |
+
+## File Creation Rules — Tauri Rust (CA Layer Mapping)
+
+> **Scope**: applies only to Rust files under `src-tauri/src/**`. Follow
+> the Rust convention: snake_case + `.rs` extension.
+
+| Pattern | CA Layer | Rule |
+|---------|----------|------|
+| `**/src-tauri/src/domain/**/*_entity.rs` | Domain | Pure Rust struct; no dependency on `tauri::*` or `serde_derive` |
+| `**/src-tauri/src/domain/**/*_vo.rs` | Domain | Value objects (immutable) |
+| `**/src-tauri/src/domain/**/errors.rs` | Domain | Domain error enum (thiserror etc. allowed; no `tauri::*`) |
+| `**/src-tauri/src/application/**/*_use_case.rs` | Application | Use case implementation |
+| `**/src-tauri/src/application/**/*_port.rs` | Application | `trait` definitions (interface / repository contract) |
+| `**/src-tauri/src/application/**/*_dto.rs` | Application | DTO struct |
+| `**/src-tauri/src/infrastructure/**/*_repository.rs` | Infrastructure | Implementation of domain ports (DB, HTTP, file system) |
+| `**/src-tauri/src/infrastructure/**/*_client.rs` | Infrastructure | External API clients |
+| `**/src-tauri/src/infrastructure/**/*_adapter.rs` | Infrastructure | OS / native adapters |
+| `**/src-tauri/src/presentation/commands/*.rs` | Presentation | `#[tauri::command]` function groups (IPC controllers) |
+| `**/src-tauri/src/presentation/state.rs` | Presentation | Globally managed state via `tauri::State<T>` |
+| `**/src-tauri/src/lib.rs` | — | Mobile entry + `invoke_handler` registration + `manage()` (bootstrap only) |
+| `**/src-tauri/src/main.rs` | — | Desktop entry, only calls `lib::run()` (bootstrap only) |

@@ -45,8 +45,8 @@ Give each agent a different design constraint:
 - **Agent 4** (if applicable): "Design around ports & adapters for
   cross-seam dependencies."
 
-Include both [LANGUAGE.md](LANGUAGE.md) vocabulary and
-`docs/glossary.md` (project domain) vocabulary in the brief so each
+Include [LANGUAGE.md](LANGUAGE.md) vocabulary and the project's
+existing domain terms (from PRD, code, README) in the brief so each
 sub-agent names things consistently with the architecture language and
 the project's domain language.
 

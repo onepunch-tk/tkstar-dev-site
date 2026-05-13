@@ -27,12 +27,12 @@ gates. They have no place in CI:
 
 | Hook | Why local-only |
 |------|----------------|
-| `abac-phase-policy.sh`, `phase-gate.sh`, `plan-enforcement.sh` | Enforce TDD/Plan discipline on the **author**, not on merged code |
-| `protect-files.sh`, `rbac-agent-role.sh`, `rebac-ownership.sh`, `rebac-teammate-idle.sh` | Multi-agent ownership in Team Mode — irrelevant once code is merged |
-| `block-dangerous-commands.sh` | Protects the local dev environment |
-| `gh-auth-check.sh`, `pre-merge-ask.sh`, `git-pr-create.sh`, `git-pr-merge.sh` | Local git workflow helpers |
-| `docs-sync-gate.sh`, `ensure-runtime-gitignore.sh` | Project state hygiene at edit time |
-| `pipeline-guardian.sh`, `post-plan-approval.sh`, `post-task-created.sh`, `load-pipeline-context.sh` | Pipeline state machine |
+| `phase/abac-phase-policy.sh`, `phase/phase-gate.sh` | Enforce TDD/Plan discipline on the **author**, not on merged code |
+| `access/protect-files.sh`, `access/rbac-agent-role.sh`, `access/rebac-ownership.sh`, `access/rebac-teammate-idle.sh`, `access/require-interview-protocol.sh` | Multi-agent ownership + interview discipline — irrelevant once code is merged |
+| `safety/block-dangerous-commands.sh` | Protects the local dev environment |
+| `pr/gh-auth-check.sh`, `pr/pre-merge-ask.sh`, `pr/pre-pr-base-guard.sh`, `pr/git-issue.sh`, `pr/git-pr-create.sh`, `pr/git-pr-merge.sh`, `pr/git-release.sh` | Local git workflow helpers |
+| `pr/docs-sync-gate.sh`, `safety/ensure-runtime-gitignore.sh` | Project state hygiene at edit time |
+| `phase/pipeline-guardian.sh`, `phase/load-pipeline-context.sh`, `phase/post-plan-approval.sh` | Pipeline state machine |
 
 Trying to run any of these in CI would either no-op (no `pipeline-state.json`
 to consult) or fail (no `gh auth status` in a workflow runner).
