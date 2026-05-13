@@ -1,3 +1,4 @@
+import { getSiteOrigin } from "~/application/seo/launch-gate";
 import { buildBreadcrumbListLd } from "~/presentation/lib/jsonld";
 import { buildMeta } from "~/presentation/lib/meta";
 import ProjectRow from "../components/project/ProjectRow";
@@ -5,8 +6,9 @@ import TagFilterChips from "../components/project/TagFilterChips";
 import type { Route } from "./+types/projects._index";
 
 export const loader = async ({ context, request }: Route.LoaderArgs) => {
+	const env = context.cloudflare.env as Env;
 	const url = new URL(request.url);
-	const origin = url.origin;
+	const origin = getSiteOrigin(env);
 	const tag = url.searchParams.get("tag") ?? undefined;
 	const [projects, all] = await Promise.all([
 		context.container.listProjects({ tag }),
@@ -33,12 +35,12 @@ export const meta: Route.MetaFunction = ({ data }) => {
 			ogImage: data.ogImageUrl,
 		}),
 		{
-			"script:ld+json": 				buildBreadcrumbListLd({
-					items: [
-						{ name: "Home", url: `${data.origin}/` },
-						{ name: "Projects", url: data.canonicalUrl },
-					],
-				}),
+			"script:ld+json": buildBreadcrumbListLd({
+				items: [
+					{ name: "Home", url: `${data.origin}/` },
+					{ name: "Projects", url: data.canonicalUrl },
+				],
+			}),
 		},
 	];
 };
