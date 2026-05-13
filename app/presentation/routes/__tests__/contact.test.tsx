@@ -2,6 +2,12 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { createRoutesStub } from "react-router";
 import { describe, expect, it, vi } from "vitest";
 
+// ---------------------------------------------------------------------------
+// 공통 상수
+// ---------------------------------------------------------------------------
+
+const SITE_ORIGIN = "https://tkstar.dev";
+
 vi.mock("~/presentation/components/contact/TurnstileWidget", () => ({
 	default: () => <div data-testid="turnstile-widget" />,
 }));
@@ -51,7 +57,9 @@ const makeMockContext = (
 			env: {
 				CONTACT_TO_EMAIL: "hello@tkstar.dev",
 				TURNSTILE_SITE_KEY: "1x00000000000000000000AA",
-			} as Partial<Env>,
+				SITE_LAUNCHED: "true",
+				SITE_ORIGIN,
+			} as unknown as Partial<Env>,
 			ctx: {},
 		},
 	},
@@ -73,6 +81,22 @@ describe("Group A — contact loader", () => {
 			siteKey: "1x00000000000000000000AA",
 			contactEmail: "hello@tkstar.dev",
 		});
+	});
+
+	it("env.SITE_ORIGIN 을 canonical origin 으로 사용 — request.url 의 호스트와 무관", () => {
+		// Arrange
+		const { context } = makeMockContext(vi.fn());
+
+		// Act — 다른 호스트로 요청
+		const result = loader({
+			context: context as never,
+			params: {},
+			request: new Request("https://www.tkstar.dev/contact"),
+		} as never);
+
+		// Assert
+		expect(result.origin).toBe(SITE_ORIGIN);
+		expect(result.canonicalUrl).toBe(`${SITE_ORIGIN}/contact`);
 	});
 });
 

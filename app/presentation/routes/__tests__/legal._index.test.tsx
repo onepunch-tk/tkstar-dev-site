@@ -5,6 +5,12 @@ import { describe, expect, it, vi } from "vitest";
 import LegalIndex, { loader } from "../legal._index";
 
 // ---------------------------------------------------------------------------
+// 공통 상수
+// ---------------------------------------------------------------------------
+
+const SITE_ORIGIN = "https://tkstar.dev";
+
+// ---------------------------------------------------------------------------
 // 테스트 헬퍼 — mock context 생성
 // ---------------------------------------------------------------------------
 
@@ -23,7 +29,10 @@ const makeMockContext = (apps: string[]) => {
 				buildRssFeed: vi.fn(),
 				findAppDoc: vi.fn(),
 			},
-			cloudflare: { env: {}, ctx: {} },
+			cloudflare: {
+				env: { SITE_LAUNCHED: "true", SITE_ORIGIN },
+				ctx: {},
+			},
 		},
 		spies: { listApps },
 	};
@@ -102,5 +111,27 @@ describe("Group B — legal._index 컴포넌트", () => {
 
 		// Assert
 		expect(await screen.findByText(/등록된 앱이 없/)).toBeInTheDocument();
+	});
+});
+
+// ---------------------------------------------------------------------------
+// Group C — env.SITE_ORIGIN 기반 origin 고정 (Launch Gate)
+// ---------------------------------------------------------------------------
+
+describe("Group C — env.SITE_ORIGIN 기반 origin 고정", () => {
+	it("env.SITE_ORIGIN 을 canonical origin 으로 사용 — request.url 의 호스트와 무관", async () => {
+		// Arrange
+		const { context } = makeMockContext([]);
+
+		// Act — 다른 호스트로 요청
+		const result = await loader({
+			context,
+			params: {},
+			request: new Request("https://www.tkstar.dev/legal"),
+		} as never);
+
+		// Assert
+		expect((result as Record<string, unknown>).origin).toBe(SITE_ORIGIN);
+		expect((result as Record<string, unknown>).canonicalUrl).toBe(`${SITE_ORIGIN}/legal`);
 	});
 });

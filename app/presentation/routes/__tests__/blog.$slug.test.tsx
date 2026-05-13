@@ -22,6 +22,12 @@ vi.mock("../../components/content/mdx-modules", () => ({
 import BlogDetail, { loader } from "../blog.$slug";
 
 // ---------------------------------------------------------------------------
+// 공통 상수
+// ---------------------------------------------------------------------------
+
+const SITE_ORIGIN = "https://tkstar.dev";
+
+// ---------------------------------------------------------------------------
 // Mock 데이터
 // ---------------------------------------------------------------------------
 
@@ -87,7 +93,10 @@ const makeMockContext = (detail: DetailFixture = DETAIL_WITH_TOC) => {
 				listPosts: vi.fn(),
 				getPostDetail,
 			},
-			cloudflare: { env: {}, ctx: {} },
+			cloudflare: {
+				env: { SITE_LAUNCHED: "true", SITE_ORIGIN },
+				ctx: {},
+			},
 		},
 		spies: { getPostDetail },
 	};
@@ -111,9 +120,9 @@ describe("Group A — blog.$slug loader", () => {
 
 		// Assert
 		expect(spies.getPostDetail.mock.calls[0][0]).toBe("test-post");
-		// loader 결과에 canonicalUrl 이 포함되어야 한다
+		// loader 결과에 canonicalUrl 이 포함되어야 한다 (origin 은 env.SITE_ORIGIN 기반)
 		expect((result as Record<string, unknown>).canonicalUrl).toBe(
-			"https://example.dev/blog/test-post",
+			"https://tkstar.dev/blog/test-post",
 		);
 	});
 
@@ -182,5 +191,27 @@ describe("Group B — blog.$slug UI", () => {
 		// Assert
 		await screen.findByTestId("mdx-content");
 		expect(screen.queryByTestId("on-this-page-toc")).toBeNull();
+	});
+});
+
+// ---------------------------------------------------------------------------
+// Group C — env.SITE_ORIGIN 기반 origin 고정 (Launch Gate)
+// ---------------------------------------------------------------------------
+
+describe("Group C — env.SITE_ORIGIN 기반 origin 고정", () => {
+	it("env.SITE_ORIGIN 을 canonical origin 으로 사용 — request.url 의 호스트와 무관", async () => {
+		// Arrange
+		const { context } = makeMockContext();
+
+		// Act — 다른 호스트로 요청
+		const result = await loader({
+			context,
+			params: { slug: "test-post" },
+			request: new Request("https://www.tkstar.dev/blog/test-post"),
+		} as never);
+
+		// Assert
+		expect((result as Record<string, unknown>).origin).toBe(SITE_ORIGIN);
+		expect((result as Record<string, unknown>).canonicalUrl).toBe(`${SITE_ORIGIN}/blog/test-post`);
 	});
 });
