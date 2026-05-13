@@ -41,7 +41,7 @@ Create a GitHub Issue. **GitHub Mode only** — requires `Remote Platform: GitHu
 ## Execution (delegate to script)
 
 ```bash
-.claude/hooks/git-issue.sh \
+.claude/hooks/pr/git-issue.sh \
   --title "<emoji> <description in user's language>" \
   --body "<body following template above>" \
   --label "<label>"

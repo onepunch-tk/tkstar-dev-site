@@ -1,16 +1,6 @@
 # Phase 2: TDD (after user approval)
 
-> **Pipeline State → `tdd`**: Update `pipeline-state.json` before Phase 2 starts (ABAC source code blocking lifted):
-> ```bash
-> cat > .claude/runtime/pipeline-state.json << EOF
-> {
->   "current_phase": "tdd",
->   "mode": "$(jq -r .mode .claude/runtime/pipeline-state.json)",
->   "branch": "$(git branch --show-current)",
->   "updated_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-> }
-> EOF
-> ```
+> **Pipeline State → `tdd`**: Update `pipeline-state.json` — set `current_phase: "tdd"`, carry forward `mode`/`branch`/`plan_approved`/`github_mode`/`issue_number`/`ui_involved`. Canonical template lives in [SKILL.md §Pipeline State Management](../SKILL.md#pipeline-state-management). The ABAC source-code block is lifted automatically once `current_phase` ≠ `plan`/`discovery`.
 
 > **Note**: Git branch setup (Steps 5a-5b) was already completed in Phase 1. All work below happens on the feature branch.
 
@@ -35,7 +25,7 @@
 
 > Skip Steps 9-ui through 9-ui-c entirely if `ui_involved` is `false`.
 
-**CA Implementation Order (Inside-Out)**: When implementing in Step 9, follow the layer order Domain → Application → Infrastructure → Presentation. Layer responsibilities, dependency direction, and TDD-exemption rules live in a single shared source — see [`shared/ca-rules`](../../shared/ca-rules/SKILL.md).
+**CA Implementation Order (Inside-Out)**: When implementing in Step 9, follow the layer order Domain → Application → Infrastructure → Presentation. Layer responsibilities, dependency direction, and TDD-exemption rules live in a single shared source — see [`ca-rules`](../../ca-rules/SKILL.md).
 
 ### Library Documentation Lookup (Step 9)
 
@@ -86,13 +76,3 @@ Use Opus for all teammates. Require plan approval.
 ```
 
 **Commit**: Per [workflow-commits.md](../../git/references/workflow-commits.md) — Red/Green phase
-
-## Context Tip (End of Phase 2)
-
-Tests, implementation, and commits are all on disk — the reviewer subagent
-reads them fresh. No automatic advisory fires at this boundary; the
-`CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` env (set in `.claude/settings.json`, when
-present) handles overflow. Before continuing, verify the persistence rule
-in SKILL.md `## Context Management` — skipped tests / Red→Green surprises
-/ reviewer hand-off notes / ad-hoc user directives must all be recorded to
-disk (TODO comments, commit body Why, task file).

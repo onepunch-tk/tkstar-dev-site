@@ -14,7 +14,7 @@ development → main Release PR + merge + tag. **GitHub Mode only**, **user-init
 ## Execution (delegate to script)
 
 ```bash
-.claude/hooks/git-release.sh \
+.claude/hooks/pr/git-release.sh \
   --version "v1.2.0" \
   --body "<release notes>"
 ```

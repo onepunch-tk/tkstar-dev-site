@@ -1,51 +1,7 @@
 ---
 name: e2e-tester
 description: |
-  Use this agent when code implementation is complete and end-to-end testing is required to verify user flows and UI functionality. This agent should be called after code changes that affect user-facing features, forms, navigation, or any interactive elements. Examples:\
-  \
-  <example>\
-  Context: User has completed implementing a login feature with form validation.\
-  user: "Please implement the login page with email/password validation"\
-  assistant: "Here is the login page implementation with form validation:"\
-  <code implementation omitted for brevity>\
-  assistant: "Now let me use the e2e-tester agent to verify the login flow works correctly"\
-  <commentary>\
-  Since a user-facing feature (login) was implemented, use the Task tool to launch the e2e-tester agent to run end-to-end tests.\
-  </commentary>\
-  </example>\
-  \
-  <example>\
-  Context: User has finished implementing a shopping cart checkout flow.\
-  user: "Implement the checkout process with payment integration"\
-  assistant: "Here is the checkout flow implementation:"\
-  <code implementation omitted for brevity>\
-  assistant: "The checkout flow is complete. I'll now launch the e2e-tester agent to verify the entire user journey"\
-  <commentary>\
-  Since a critical user flow (checkout) was implemented, use the Task tool to launch the e2e-tester agent to test the complete user journey.\
-  </commentary>\
-  </example>\
-  \
-  <example>\
-  Context: User has made changes to navigation and routing.\
-  user: "Update the navigation menu to include the new dashboard routes"\
-  assistant: "Navigation menu has been updated with new routes:"\
-  <code implementation omitted for brevity>\
-  assistant: "Let me run e2e tests to ensure all navigation links work correctly"\
-  <commentary>\
-  Since navigation changes affect user experience across the app, use the Task tool to launch the e2e-tester agent to verify all routes are accessible.\
-  </commentary>\
-  </example>\
-  \
-  <example>\
-  Context: User has implemented a new Expo/React Native screen with forms.\
-  user: "Implement the user profile edit screen with form validation"\
-  assistant: "Here is the profile edit screen implementation:"\
-  <code implementation omitted for brevity>\
-  assistant: "Now let me run Maestro E2E tests to verify the profile edit flow"\
-  <commentary>\
-  Since an Expo mobile feature was implemented, use the Task tool to launch the e2e-tester agent. The agent will detect the Expo project type, prepare testIDs, write Maestro YAML flows, and execute tests locally on the emulator/simulator.\
-  </commentary>\
-  </example>
+  End-to-end test agent for web (agent-browser), mobile (Maestro for Expo / React Native, tauri-driver for Tauri 2), and API (supertest) flows. Use after a user-facing feature, form, navigation, or interactive element is implemented — e.g., login/checkout/profile-edit flows, routing or navigation changes, or when the user asks to verify end-to-end behavior. Detects project type from config files (react-router.config.ts / app.config.ts / nest-cli.json / src-tauri/tauri.conf.json) and dispatches the matching tool. For mobile, verifies emulator + app build + testID coverage before running.
 model: sonnet
 color: cyan
 memory: project
@@ -77,6 +33,7 @@ Before installing any tools, detect the project type.
 | `react-router.config.ts` | React Router Framework | agent-browser |
 | `app.config.ts` / `app.config.js` / `app.json` with `"expo"` + `expo` dep | Expo / React Native | Maestro or Detox |
 | `nest-cli.json` | NestJS | supertest + jest |
+| `src-tauri/tauri.conf.json` + `src-tauri/Cargo.toml` | Tauri 2 desktop app | `tauri-driver` + WebDriver client (WebDriverIO recommended) |
 
 **After detecting the project type in Step 0, follow the setup path for the detected platform:**
 
@@ -221,6 +178,74 @@ Then proceed to **Maestro Testing Protocol** below.
 ### Path C: NestJS (supertest + jest)
 
 For NestJS API projects, use supertest with jest for endpoint testing. Follow the standard Testing Methodology below with API-focused test scenarios.
+
+---
+
+### Path D: Tauri 2 desktop (tauri-driver + WebDriverIO)
+
+Tauri 2 desktop apps render the frontend inside a platform webview (WebView2 on Windows, WKWebView on macOS, WebKitGTK on Linux). The official E2E story is **`tauri-driver`** — a WebDriver-compatible proxy that drives the underlying webview — combined with any WebDriver client (WebDriverIO is the driver recommended in Tauri's WebDriver guide).
+
+> **Note on `tauri-driver` status**: WebDriver support in Tauri 2 is currently flagged as a beta/preview integration in the official docs. Always verify the latest setup via context7 (`tauri` / `tauri-driver`) before committing to a test infrastructure choice. The flow below is the documented happy path as of Tauri 2 stable.
+
+> **Hybrid frontend disambiguation**: a Tauri project also contains a JavaScript frontend (React Router / Vue / Svelte / etc.) under `src/`. For frontend-only flows that do not depend on the Rust IPC layer, **Path A (agent-browser) remains a faster alternative** — point it at the frontend dev server (e.g., `bun run dev`) and skip the Tauri runtime entirely. Use Path D only when the test must exercise `#[tauri::command]` IPC, file system access, or window/menu behaviour that only manifests inside the desktop shell.
+
+#### Step 1: Detect / install `tauri-driver`
+
+```bash
+cargo install tauri-driver
+tauri-driver --version
+```
+
+If installation fails, instruct the user to install the platform-specific WebDriver backend (WebKitWebDriver on Linux, msedgedriver on Windows). macOS support is more limited — fall back to Path A (agent-browser) against the frontend dev server when needed.
+
+#### Step 2: Install WebDriverIO client
+
+```bash
+{pkg_cmd} add -D @wdio/cli @wdio/local-runner @wdio/mocha-framework webdriverio
+npx wdio config   # initialise wdio.conf.ts
+```
+
+In `wdio.conf.ts`, point the capabilities at `tauri-driver`:
+
+```ts
+export const config: WebdriverIO.Config = {
+  hostname: "127.0.0.1",
+  port: 4444,
+  capabilities: [{
+    "tauri:options": { application: "./src-tauri/target/release/<app-name>" }
+  }],
+  framework: "mocha",
+  specs: ["./e2e/**/*.spec.ts"],
+};
+```
+
+Replace `<app-name>` with the binary name from `src-tauri/Cargo.toml` `[package].name`.
+
+#### Step 3: Build the Tauri app in release mode
+
+```bash
+{pkg_cmd} tauri build
+```
+
+(In CI, prefer the release build because debug builds may take significantly longer and can drift from production behaviour. For local iteration `{pkg_cmd} tauri dev` is fine as long as the spec attaches to the running window.)
+
+#### Step 4: Run E2E suite
+
+```bash
+tauri-driver &              # background daemon listening on :4444
+npx wdio run wdio.conf.ts   # runs spec files
+```
+
+Stop `tauri-driver` after the suite (`pkill -f tauri-driver` or platform equivalent).
+
+#### Step 5: Test scenarios
+
+- **Frontend rendering** — same patterns as Path A: locate by `data-testid`, click, assert text.
+- **IPC commands** — drive the frontend to call `invoke("...")`, then assert the visible result. Do NOT call Rust commands directly; the E2E layer's job is to verify the full chain.
+- **File system / native dialogs** — Tauri capabilities scoped for testing must be present in `src-tauri/capabilities/*.json|*.toml`. Native dialogs (file picker, message box) are notoriously hard to automate — prefer mocking them at the Rust side (`tauri::test::mock_builder`) and asserting the IPC contract instead.
+- **Multi-window scenarios** — use `client.getWindowHandles()` and `switchToWindow()` to navigate between Tauri webviews.
+
+Then proceed to **Testing Methodology** below.
 
 ---
 
@@ -517,20 +542,6 @@ Align your tests with the detected project type and its specific testing pattern
 - Use clear formatting for easy scanning of results
 - Proactively suggest additional tests if you identify coverage gaps
 
-## Update your agent memory
+## Memory
 
-As you discover testing patterns, environment quirks, and UI interaction behaviors in this codebase, update your agent memory. Write concise notes about what you found and where.
-
-Examples of what to record:
-- testID coverage status and naming conventions per screen
-- Emulator/simulator boot issues and their resolutions
-- App build quirks (cache problems, specific Expo config issues)
-- Maestro YAML patterns that worked well or failed
-- Flaky test patterns and how they were stabilized
-- Platform-specific testing differences (iOS vs Android behavior)
-
-# Persistent Agent Memory
-
-Memory directory: `.claude/agent-memory/e2e-tester/`
-
-Memory lifecycle — types of memory, when to save, how to save, when to retrieve, and what NOT to save — is defined in the `agent-memory-guide` skill preloaded via this agent's `skills:` frontmatter. Follow that guide exactly. Save task-specific insights only; do not duplicate code patterns, git history, or anything already in CLAUDE.md.
+Memory directory: `.claude/agent-memory/e2e-tester/`. Lifecycle is defined in the preloaded `agent-memory-guide` skill — save task-specific insights only; do not duplicate code patterns, git history, or anything already in CLAUDE.md.

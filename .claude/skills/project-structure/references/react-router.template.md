@@ -1,239 +1,138 @@
-# Project Structure Guide
+# React Router Framework — Structure Reference
 
-## Overview
-
-{OVERVIEW_CONTENT}
-
-**Architecture Pattern**: Clean Architecture (4-layer separation)
-**Framework**: React Router Framework v7+
-**Key Characteristics**:
-- Platform-agnostic core (app/) reusable across Cloudflare Workers, Express, Fastify
-- Strict dependency flow: Presentation → Application → Domain
-- Infrastructure isolated via Dependency Injection
+> This document is a **reference guide** used by
+> `project-structure-generator` when filling the JSON input for a React
+> Router Framework v7+ project. The actual PROJECT-STRUCTURE.md body is
+> rendered by the Python script from a single unified template — this
+> file is **not** a placeholder template to be filled directly.
 
 ---
 
-## Top-Level Directory Structure
+## Framework identification
 
-```
-{TOP_LEVEL_TREE}
-```
-
-**Key directories**:
-- `app/` - Core application (Clean Architecture layers)
-- `adapters/` - Platform-specific adapters (Cloudflare, Express, Fastify)
-- `server/` - Node.js server entry point
-- `workers/` - Cloudflare Workers entry point
-- `public/` - Static assets
-- `test/` - Shared test utilities (fixtures, helpers)
-- `docs/` - Documentation
-- `.claude/` - AI agent configuration
+- **Framework value**: `react-router`
+- **Detection**: `react-router.config.ts` (or `.js`) present, or
+  `dependencies` includes `react-router` / `@react-router/*`
+- **Variants**: none
 
 ---
 
-## app/ Directory (Core Application)
+## Standard directory tree (skeleton)
 
-Follows Clean Architecture 4-layer structure.
-
-### app/domain/
-
-**Role**: Business rules and entity definitions (no external dependencies)
-
-**Contains**:
-- Entity - Core business objects
-- Types - Domain-related TypeScript types
-- Schemas - Zod validation schemas
-- Errors - Domain-specific error classes
-
-**When to use**:
-- Adding new business concepts (e.g., orders, products, payments)
-- When API request/response validation schemas are needed
-- Defining custom business errors
-
-**Structure**:
+```tree
+.
+├── app/
+│   ├── domain/
+│   ├── application/
+│   ├── infrastructure/
+│   │   └── config/                 # DI composition root
+│   ├── presentation/
+│   │   ├── components/
+│   │   ├── hooks/
+│   │   ├── routes/
+│   │   └── lib/
+│   ├── root.tsx                    # Root component + providers
+│   ├── routes.ts                   # Route definitions
+│   ├── entry.server.tsx            # SSR entry
+│   ├── app.css
+│   └── env.d.ts
+├── adapters/                       # Platform adapters (optional)
+│   ├── cloudflare/
+│   ├── express/
+│   └── shared/
+├── server/                         # Node server entry (optional)
+├── workers/                        # Cloudflare Workers entry (optional)
+├── public/
+└── test/                           # Shared fixtures / helpers (unit tests co-located)
 ```
-{DOMAIN_STRUCTURE}
-```
 
-**Example entities/schemas**:
-{DOMAIN_EXAMPLES}
+> Real projects may omit some directories (e.g. no `workers/`). Write the
+> JSON `directory_tree` from what actually exists on disk.
 
 ---
 
-### app/application/
+## CA layer mapping (JSON `layers[]`)
 
-**Role**: Business logic and use case implementation
+| Layer | Standard path | `role_ko` (Korean output) | `contains_ko` (Korean output) |
+|---|---|---|---|
+| Domain | `app/domain/` | 비즈니스 규칙과 엔티티 정의 (외부 의존 0) | 엔티티, 값 객체, Zod 스키마, 도메인 오류 |
+| Application | `app/application/` | Use case 와 외부 시스템 인터페이스(port) 정의 | Service, Port, Mapper, DTO |
+| Infrastructure | `app/infrastructure/` | 외부 시스템 통합 및 구현 | DI 컨테이너, ORM/DB 구현, 외부 API 클라이언트 |
+| Presentation | `app/presentation/` | UI, 라우팅, HTTP 표면 | 컴포넌트, 훅, 라우트, 미들웨어 |
 
-**Contains**:
-- Service - Business logic implementation
-- Port - External system interface definitions
-
-**When to use**:
-- Adding new business logic (sign-up, payment processing, etc.)
-- When communication with external systems (email, payment gateway) is needed
-
-**Structure**:
-```
-{APPLICATION_STRUCTURE}
-```
-
-**Port and Service relationship**:
-- `*.port.ts` - Interface definition (what can be done)
-- `*.service.ts` - Business logic (how to do it)
-
-**Example services**:
-{APPLICATION_EXAMPLES}
+> The `role_ko` / `contains_ko` columns above are **example values** for
+> the Korean output body. Use them as a baseline and adjust to the actual
+> project context.
 
 ---
 
-### app/infrastructure/
+## Path alias conventions
 
-**Role**: External system integration and implementations
+Default pattern (`tsconfig.app.json` or `tsconfig.json`):
 
-**Contains**:
-- **config/**: DI container (Composition Root)
-- **persistence/**: Database-related (ORM, schemas, repository implementations)
-- **external/**: External service integrations (Auth, Email, etc.)
+| Alias | Resolves to |
+|---|---|
+| `~/*` | `./app/*` |
 
-**When to use**:
-- Adding database tables/schemas → `persistence/schema/`
-- Creating new repository implementations → `persistence/`
-- Adding external API integrations (payment, notifications) → `external/`
-- Registering new services to DI container → `config/container.ts`
-
-**Structure**:
-```
-{INFRASTRUCTURE_STRUCTURE}
-```
-
-**Example integrations**:
-{INFRASTRUCTURE_EXAMPLES}
+Collect every alias declared in `tsconfig*.json` into `path_aliases[]`.
 
 ---
 
-### app/presentation/
+## Framework-specific extras candidates
 
-**Role**: UI, routing, user interface related
+These are candidate entries for `framework_extras[]`. Include only the
+conventions actually adopted by the project.
 
-**Contains**:
-- **components/**: UI components
-- **hooks/**: Custom React hooks
-- **routes/**: Pages and API routes (React Router v7)
-- **lib/**: Utilities and middleware
+### Route file naming
 
-**When to use**:
-- Adding new pages → `routes/`
-- Creating UI components → `components/`
-- When custom hooks are needed → `hooks/`
-- Adding route middleware → `lib/middleware/`
+- `_layout.tsx` — layout wrapper
+- `_index.tsx` — index route
+- `$param.tsx` — dynamic segment
+- `route.tsx` — folder-level route component
 
-**Structure**:
-```
-{PRESENTATION_STRUCTURE}
-```
+### `*.client.ts(x)` / `*.server.ts(x)` split
 
-**Route file conventions (React Router v7)**:
-- `_layout.tsx` - Layout wrapper
-- `_index.tsx` - Index route
-- `$param.tsx` - Dynamic segment
-- `route.tsx` - Route component
+- `*.client.ts(x)` — client-only (excluded from SSR bundle)
+- `*.server.ts(x)` — server-only (excluded from client bundle)
+- Mis-naming causes SSR runtime errors (`X is not a function`)
 
-**Example routes**:
-{PRESENTATION_EXAMPLES}
+### app/ root files
 
----
+- `root.tsx` — provider / ThemeProvider mount point
+- `routes.ts` — route tree declaration
+- `entry.server.tsx` — SSR customization
 
-### app/ Root Files
+### Platform adapters
 
-| File | Role | When to modify |
-|------|------|----------------|
-| `root.tsx` | React Router root component, Theme Provider | When adding global Providers |
-| `routes.ts` | Route definitions | When adding new pages/layouts |
-| `entry.server.tsx` | Server rendering entry point | When customizing SSR |
-| `app.css` | Global styles (Tailwind) | When adding global CSS variables |
-| `env.d.ts` | Client environment variable types (Vite `import.meta.env`) | When adding client-side environment variables |
+- `adapters/cloudflare/`, `adapters/express/`, `adapters/fastify/` — per-
+  deployment adapter. Lives outside the CA layers.
+- `adapters/shared/` — context, env consolidation
 
 ---
 
-## adapters/ Directory (Platform Adapters)
+## File location summary candidates
 
-**Role**: Connect the application to various runtime environments
-
-```
-{ADAPTERS_STRUCTURE}
-```
-
-**When to use**:
-- When supporting a new deployment platform
-- When adding platform-specific middleware
-- When modifying environment variable handling
-
-**shared/ directory**:
-- `context.ts` - Platform-common context types
-- `env.ts` - Unified environment variable handling
-- `react-router.d.ts` - React Router type extensions
+| Task (Korean output) | Location |
+|---|---|
+| 새 페이지 추가 | `app/presentation/routes/` |
+| UI 컴포넌트 추가 | `app/presentation/components/` |
+| 비즈니스 로직 추가 | `app/application/{도메인}/` |
+| DB 스키마 추가 | `app/infrastructure/persistence/schema/` |
+| 외부 API 통합 추가 | `app/infrastructure/external/` |
+| 엔티티/타입 정의 | `app/domain/{도메인}/` |
+| 단위 테스트 | 소스와 동일 위치의 `__tests__/` |
+| 정적 자산 | `public/` |
 
 ---
 
-## Other Key Directories
+## Scope discipline (do NOT include)
 
-### server/
+The PROJECT-STRUCTURE.md body must not include the following (Python
+`[REJECT]`):
 
-**Role**: Node.js server entry point
+- Entity / domain model definitions (PRD §7 area)
+- Feature descriptions, business logic, user flows (PRD §3·§4)
+- TypeScript code examples / implementation snippets
+- Library recommendations, NFR figures (PRD `tech_stack` / `nfr`)
 
-**When to use**: When changing Express/Fastify server settings
-
----
-
-### workers/
-
-**Role**: Cloudflare Workers entry point
-
-**When to use**: When changing Cloudflare Workers settings
-
----
-
-### public/
-
-**Role**: Static asset storage (served directly without build)
-
-**Contains**: Images, fonts, favicon, etc.
-
----
-
-### test/ (Shared Test Utilities)
-
-**Role**: Shared test fixtures, helpers, and mock data builders
-
-**Contains**: `fixtures/`, `utils/`
-
-**Note**: Unit test files are **co-located** with source code using `__tests__/` subdirectories within each CA layer (e.g., `app/domain/entities/__tests__/user.entity.test.ts`). This `test/` directory is only for shared utilities across layers.
-
----
-
-## Path Aliases
-
-```typescript
-// Defined in tsconfig.app.json
-{PATH_ALIASES}
-```
-
-**Usage example**:
-```typescript
-{PATH_ALIAS_EXAMPLES}
-```
-
----
-
-## File Location Summary by Task
-
-| Task | Location |
-|------|----------|
-| Add new page | `app/presentation/routes/` |
-| Add UI component | `app/presentation/components/` |
-| Add business logic | `app/application/{domain}/` |
-| Add DB schema | `app/infrastructure/persistence/schema/` |
-| Add external API integration | `app/infrastructure/external/` |
-| Define types/entities | `app/domain/{domain}/` |
-| Write test files | Co-located `__tests__/` directories (e.g., `app/{layer}/components/__tests__/`) |
-| Add static files | `public/` |
+Move any such content into PRD or task files.

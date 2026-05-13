@@ -1,8 +1,9 @@
 #!/bin/bash
 # config.sh — harness configuration loader for hook scripts.
 #
-# Usage from a hook:
-#   source "$(dirname "${BASH_SOURCE[0]}")/lib/config.sh"
+# Usage from a hook (e.g. .claude/hooks/<domain>/<hook>.sh):
+#   SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+#   source "$SCRIPT_DIR/../lib/config.sh"
 #   branches=$(config_get_array '.protectedBranches')
 #
 # All helpers return safe defaults when .claude/config.json is absent, so hooks
@@ -84,19 +85,33 @@ detect_package_manager() {
   printf 'npm\n'
 }
 
-# config_report_dir <kind>
-#   Kind is one of: codeReview, designReview, failures.
-#   Returns the configured path or a sensible default.
-config_report_dir() {
-  local kind="$1"
-  local default=""
-  case "$kind" in
-    codeReview)    default=".claude/runtime/reviews/code" ;;
-    designReview)  default=".claude/runtime/reviews/design" ;;
-    failures)      default=".claude/runtime/failures" ;;
-    *)             default="docs/reports/$kind" ;;
-  esac
-  config_get ".reportDirs.$kind" "$default"
+# detect_rust_project <start-path>
+#   Walks up from <start-path> (default: CWD) looking for a `Cargo.toml`.
+#   On success: prints the absolute directory containing Cargo.toml AND returns 0.
+#   On failure: prints nothing AND returns 1.
+#
+#   Typical use in a hook:
+#     if cargo_dir=$(detect_rust_project "$FILE_PATH"); then
+#       (cd "$cargo_dir" && cargo check --manifest-path Cargo.toml)
+#     fi
+detect_rust_project() {
+  local start="${1:-$PWD}"
+  local dir
+  if [[ -f "$start" ]]; then
+    dir=$(dirname "$start")
+  elif [[ -d "$start" ]]; then
+    dir="$start"
+  else
+    dir="$PWD"
+  fi
+  while [[ "$dir" != "/" && -n "$dir" ]]; do
+    if [[ -f "$dir/Cargo.toml" ]]; then
+      printf '%s\n' "$dir"
+      return 0
+    fi
+    dir=$(dirname "$dir")
+  done
+  return 1
 }
 
 # config_is_protected_branch <branch-name>
@@ -125,4 +140,4 @@ config_is_protected_branch() {
   return 1
 }
 
-export -f config_get config_get_array config_matches_pattern detect_package_manager config_report_dir config_is_protected_branch
+export -f config_get config_get_array config_matches_pattern detect_package_manager detect_rust_project config_is_protected_branch

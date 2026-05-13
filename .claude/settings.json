@@ -7,8 +7,7 @@
 		"FAILURE_RECOVERY_MAX_RETRIES": "20",
 		"CLAUDE_CODE_EFFORT_LEVEL": "xhigh",
 		"ANTHROPIC_DEFAULT_OPUS_MODEL": "claude-opus-4-7[1m]",
-		"ANTHROPIC_DEFAULT_SONNET_MODEL": "claude-sonnet-4-6",
-		"CLAUDE_AUTOCOMPACT_PCT_OVERRIDE": "75"
+		"ANTHROPIC_DEFAULT_SONNET_MODEL": "claude-sonnet-4-6"
 	},
 	"hooks": {
 		"PreToolUse": [
@@ -17,27 +16,32 @@
 				"hooks": [
 					{
 						"type": "command",
-						"command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/protect-files.sh",
+						"command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/access/protect-files.sh",
 						"timeout": 5
 					},
 					{
 						"type": "command",
-						"command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/rbac-agent-role.sh",
+						"command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/access/rbac-agent-role.sh",
 						"timeout": 5
 					},
 					{
 						"type": "command",
-						"command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/abac-phase-policy.sh",
+						"command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/phase/abac-phase-policy.sh",
 						"timeout": 5
 					},
 					{
 						"type": "command",
-						"command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/phase-gate.sh",
+						"command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/phase/phase-gate.sh",
 						"timeout": 5
 					},
 					{
 						"type": "command",
-						"command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/rebac-ownership.sh",
+						"command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/access/rebac-ownership.sh",
+						"timeout": 5
+					},
+					{
+						"type": "command",
+						"command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/phase/blueprint-phase-gate.sh",
 						"timeout": 5
 					}
 				]
@@ -47,32 +51,47 @@
 				"hooks": [
 					{
 						"type": "command",
-						"command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-dangerous-commands.sh",
+						"command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/safety/block-dangerous-commands.sh",
 						"timeout": 5
 					},
 					{
 						"type": "command",
-						"command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/phase-gate.sh",
+						"command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/phase/phase-gate.sh",
 						"timeout": 5
 					},
 					{
 						"type": "command",
-						"command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/gh-auth-check.sh",
+						"command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/pr/gh-auth-check.sh",
 						"timeout": 10
 					},
 					{
 						"type": "command",
-						"command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/docs-sync-gate.sh",
+						"command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/pr/docs-sync-gate.sh",
 						"timeout": 5
 					},
 					{
 						"type": "command",
-						"command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/pre-merge-ask.sh",
+						"command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/pr/pre-merge-ask.sh",
 						"timeout": 5
 					},
 					{
 						"type": "command",
-						"command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/pre-pr-base-guard.sh",
+						"command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/pr/pre-pr-base-guard.sh",
+						"timeout": 5
+					},
+					{
+						"type": "command",
+						"command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/phase/blueprint-phase-gate.sh",
+						"timeout": 5
+					}
+				]
+			},
+			{
+				"matcher": "AskUserQuestion",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/access/require-interview-protocol.sh",
 						"timeout": 5
 					}
 				]
@@ -84,12 +103,12 @@
 				"hooks": [
 					{
 						"type": "command",
-						"command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/biome-format.sh",
+						"command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/quality/biome-format.sh",
 						"timeout": 10
 					},
 					{
 						"type": "command",
-						"command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/typecheck.sh",
+						"command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/quality/typecheck.sh",
 						"timeout": 60
 					}
 				]
@@ -99,17 +118,7 @@
 				"hooks": [
 					{
 						"type": "command",
-						"command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/post-plan-approval.sh",
-						"timeout": 5
-					}
-				]
-			},
-			{
-				"matcher": "TaskCreate",
-				"hooks": [
-					{
-						"type": "command",
-						"command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/post-task-created.sh",
+						"command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/phase/post-plan-approval.sh",
 						"timeout": 5
 					}
 				]
@@ -121,7 +130,7 @@
 				"hooks": [
 					{
 						"type": "command",
-						"command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/pipeline-guardian.sh",
+						"command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/phase/pipeline-guardian.sh",
 						"timeout": 5
 					}
 				]
@@ -133,7 +142,7 @@
 				"hooks": [
 					{
 						"type": "command",
-						"command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/rebac-teammate-idle.sh",
+						"command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/access/rebac-teammate-idle.sh",
 						"timeout": 10
 					}
 				]
@@ -145,24 +154,12 @@
 				"hooks": [
 					{
 						"type": "command",
-						"command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/ensure-runtime-gitignore.sh",
+						"command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/safety/ensure-runtime-gitignore.sh",
 						"timeout": 5
 					},
 					{
 						"type": "command",
-						"command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/load-pipeline-context.sh",
-						"timeout": 5
-					}
-				]
-			}
-		],
-		"UserPromptSubmit": [
-			{
-				"matcher": "",
-				"hooks": [
-					{
-						"type": "command",
-						"command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/plan-enforcement.sh",
+						"command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/phase/load-pipeline-context.sh",
 						"timeout": 5
 					}
 				]
@@ -175,5 +172,8 @@
 	"enabledPlugins": {
 		"typescript-lsp@claude-plugins-official": true,
 		"discord@claude-plugins-official": true
+	},
+	"worktree": {
+		"baseRef": "head"
 	}
 }

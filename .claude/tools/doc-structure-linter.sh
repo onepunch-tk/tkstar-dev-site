@@ -42,7 +42,7 @@ fi
 PRUNE_NAMES=(
     node_modules .git dist build .cache __pycache__ coverage
     .expo .next .turbo .react-router
-    ios android
+    ios android gen
     .claude .vscode .cursor .idea
 )
 
