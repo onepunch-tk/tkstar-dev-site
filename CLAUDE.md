@@ -137,6 +137,20 @@
 ## Workflow
 > Before starting any implementation task, load the `harness-pipeline` skill.
 
+## Launch Gate
+
+`wrangler.toml [vars] SITE_LAUNCHED` (default `"false"`) 가 `"false"` 동안:
+- 모든 페이지 `<meta name="robots" content="noindex,nofollow">`
+- `/robots.txt` → `User-agent: *\nDisallow: /`
+- `/sitemap.xml` → 빈 `<urlset/>`
+
+`workers/app.ts` 는 항상 `tkstar.dev` 도메인의 비-`https://tkstar.dev` 변형 (www / http) 을 https apex 로 301 영구 리다이렉트 — launch 상태와 무관.
+
+Launch 절차:
+1. `wrangler.toml [env.production.vars] SITE_LAUNCHED = "true"` 로 변경
+2. `bunx wrangler deploy --env production`
+3. Search Console "URL 검사" → 색인 요청
+
 ## Commands
 
 ### Test & Quality
