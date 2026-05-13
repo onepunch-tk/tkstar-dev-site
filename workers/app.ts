@@ -8,6 +8,12 @@ const requestHandler = createRequestHandler(
 
 export default {
 	async fetch(request, env, ctx) {
+		const url = new URL(request.url);
+		const isTkstarDomain = url.host === "tkstar.dev" || url.host === "www.tkstar.dev";
+		const isApexHttps = url.host === "tkstar.dev" && url.protocol === "https:";
+		if (isTkstarDomain && !isApexHttps) {
+			return Response.redirect(`https://tkstar.dev${url.pathname}${url.search}`, 301);
+		}
 		return requestHandler(request, {
 			cloudflare: { env, ctx },
 			container: buildContainer(env),
