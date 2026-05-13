@@ -21,7 +21,10 @@ import { Layout, loader } from "../root";
 // Mock context 팩토리
 // ---------------------------------------------------------------------------
 
-const makeMockContext = (apps: string[], env: Record<string, string> = {}) => {
+const makeMockContext = (
+	apps: string[],
+	env: Record<string, string> = { SITE_LAUNCHED: "false", SITE_ORIGIN: "https://tkstar.dev" },
+) => {
 	const listApps = vi.fn().mockResolvedValue(apps);
 	return {
 		context: {
@@ -65,6 +68,8 @@ describe("root loader", () => {
 			googleVerification: "",
 			naverVerification: "",
 			analyticsToken: "",
+			siteLaunched: false,
+			siteOrigin: "https://tkstar.dev",
 		});
 	});
 
@@ -85,6 +90,8 @@ describe("root loader", () => {
 			googleVerification: "",
 			naverVerification: "",
 			analyticsToken: "",
+			siteLaunched: false,
+			siteOrigin: "https://tkstar.dev",
 		});
 	});
 
@@ -94,6 +101,8 @@ describe("root loader", () => {
 			GOOGLE_SITE_VERIFICATION: "google-abc",
 			NAVER_SITE_VERIFICATION: "naver-xyz",
 			CLOUDFLARE_ANALYTICS_TOKEN: "cf-token-123",
+			SITE_LAUNCHED: "true",
+			SITE_ORIGIN: "https://example.com",
 		});
 
 		// Act
@@ -109,7 +118,27 @@ describe("root loader", () => {
 			googleVerification: "google-abc",
 			naverVerification: "naver-xyz",
 			analyticsToken: "cf-token-123",
+			siteLaunched: true,
+			siteOrigin: "https://example.com",
 		});
+	});
+
+	it("env.SITE_LAUNCHED='true' 시 siteLaunched=true 반환", async () => {
+		// Arrange
+		const { context } = makeMockContext([], {
+			SITE_LAUNCHED: "true",
+			SITE_ORIGIN: "https://tkstar.dev",
+		});
+
+		// Act
+		const result = await loader({
+			context,
+			params: {},
+			request: new Request("http://localhost/"),
+		} as never);
+
+		// Assert
+		expect(result).toMatchObject({ siteLaunched: true, siteOrigin: "https://tkstar.dev" });
 	});
 });
 
@@ -130,6 +159,8 @@ describe("Layout — verification meta / analytics script 조건부 렌더", () 
 			googleVerification: "google-abc",
 			naverVerification: "naver-xyz",
 			analyticsToken: "cf-token-123",
+			siteLaunched: true,
+			siteOrigin: "https://tkstar.dev",
 		});
 
 		render(
@@ -157,6 +188,8 @@ describe("Layout — verification meta / analytics script 조건부 렌더", () 
 			googleVerification: "",
 			naverVerification: "",
 			analyticsToken: "",
+			siteLaunched: false,
+			siteOrigin: "https://tkstar.dev",
 		});
 
 		render(
@@ -194,6 +227,8 @@ describe("Layout — verification meta / analytics script 조건부 렌더", () 
 			googleVerification: "google-only",
 			naverVerification: "",
 			analyticsToken: "",
+			siteLaunched: true,
+			siteOrigin: "https://tkstar.dev",
 		});
 
 		render(
@@ -209,5 +244,78 @@ describe("Layout — verification meta / analytics script 조건부 렌더", () 
 		expect(
 			document.querySelector('script[src="https://static.cloudflareinsights.com/beacon.min.js"]'),
 		).toBeNull();
+	});
+});
+
+// ---------------------------------------------------------------------------
+// Layout — robots noindex meta
+// ---------------------------------------------------------------------------
+
+describe("Layout — robots noindex meta", () => {
+	beforeEach(() => {
+		useRouteLoaderDataMock.mockReset();
+	});
+
+	it("siteLaunched: false → noindex,nofollow meta 렌더", () => {
+		// Arrange
+		useRouteLoaderDataMock.mockReturnValue({
+			appCount: 0,
+			googleVerification: "",
+			naverVerification: "",
+			analyticsToken: "",
+			siteLaunched: false,
+			siteOrigin: "https://tkstar.dev",
+		});
+
+		// Act
+		render(
+			<Layout>
+				<div data-testid="children" />
+			</Layout>,
+		);
+
+		// Assert
+		expect(
+			document.querySelector('meta[name="robots"][content="noindex,nofollow"]'),
+		).not.toBeNull();
+	});
+
+	it("siteLaunched: true → noindex meta 미렌더", () => {
+		// Arrange
+		useRouteLoaderDataMock.mockReturnValue({
+			appCount: 0,
+			googleVerification: "",
+			naverVerification: "",
+			analyticsToken: "",
+			siteLaunched: true,
+			siteOrigin: "https://tkstar.dev",
+		});
+
+		// Act
+		render(
+			<Layout>
+				<div data-testid="children" />
+			</Layout>,
+		);
+
+		// Assert
+		expect(document.querySelector('meta[name="robots"][content="noindex,nofollow"]')).toBeNull();
+	});
+
+	it("useRouteLoaderData undefined (ErrorBoundary 케이스) → 런치 상태 미확인 시 방어적 noindex 렌더 (defense-in-depth: unknown launch state → noindex)", () => {
+		// Arrange
+		useRouteLoaderDataMock.mockReturnValue(undefined);
+
+		// Act
+		render(
+			<Layout>
+				<div data-testid="children" />
+			</Layout>,
+		);
+
+		// Assert
+		expect(
+			document.querySelector('meta[name="robots"][content="noindex,nofollow"]'),
+		).not.toBeNull();
 	});
 });
