@@ -21,7 +21,7 @@
 | P4 | Phase 4: Forms / Email — Command Palette + Contact Form + Turnstile + Resend | ✅ Completed | T016, T017, T042 |
 | P5 | Phase 5: SEO / OG / Indexing — Satori OG + Sitemap + Robots + JSON-LD + 검색엔진 등록 | ✅ Completed | T018, T019, T020 |
 | P6 | Phase 6: Polish & Deploy — QA + 배포 + 도메인 연결 | ✅ Completed | T021, T022, T043 |
-| P7 | Phase 7.1: CMS Read Path First — 번들 PoC + D1/Drizzle + 마이그레이션 + 런타임 컴파일러 | 🚧 InProgress | T023, T024, T025, T026, T027, T028 |
+| P7 | Phase 7.1: CMS Read Path First — 번들 PoC + D1/Drizzle + 마이그레이션 + 런타임 컴파일러 | ✅ Completed | T023, T024, T025, T026, T027, T028 |
 | P8 | Phase 7.2: CMS Auth + Admin Foundation — Cloudflare Access + JWT 검증 + Admin shell | ⏳ Pending | T029, T030, T031, T032 |
 | P9 | Phase 7.3: CMS Admin Editor + Media — R2 + Tiptap + Upload + Editor | ⏳ Pending | T033, T034, T035, T036, T037 |
 | P10 | Phase 7.4: CMS Project Meta + Search Index — D1 분리 + buildSearchIndex use case 분리 | ⏳ Pending | T038, T039, T040 |
@@ -264,7 +264,7 @@ F011 동적 OG 이미지, F018 SEO 메타 + sitemap/robots + JSON-LD, F019 Googl
   - **PRD Features**: F020, F021, F007
   - D1 의 `body_mdx` 컬럼을 SSR 요청 시 `@mdx-js/mdx` 로 compile + evaluate 하여 React Element 로 렌더한다. compile 비용 보호를 위해 KV 캐시 (`mdx:post:<id>:<updated_at>` → compiled JS module string) 도입. cache miss 시만 compile 실행.
 
-- [ ] **T028 — chore: Post seed migration — velite → D1 데이터 이관 + velite collection 폐기**
+- [x] **T028 — chore: Post seed migration — velite → D1 데이터 이관 + velite collection 폐기** ✅
   - **blockedBy**: T026, T027
   - **blocks**: T032
   - **Must Read**: [T028-post-seed-migration.md](/docs/tasks/T028-post-seed-migration.md)
