@@ -1,3 +1,4 @@
+import { getSiteOrigin } from "~/application/seo/launch-gate";
 import { buildBlogPostingLd, buildBreadcrumbListLd } from "~/presentation/lib/jsonld";
 import { buildMeta } from "~/presentation/lib/meta";
 import { postModules } from "../components/content/mdx-modules";
@@ -9,8 +10,9 @@ import type { Route } from "./+types/blog.$slug";
 export const loader = async ({ context, params, request }: Route.LoaderArgs) => {
 	if (!params.slug) throw new Response("Not Found", { status: 404 });
 	const detail = await context.container.getPostDetail(params.slug);
+	const env = context.cloudflare.env as Env;
 	const url = new URL(request.url);
-	const origin = url.origin;
+	const origin = getSiteOrigin(env);
 	return {
 		...detail,
 		origin,

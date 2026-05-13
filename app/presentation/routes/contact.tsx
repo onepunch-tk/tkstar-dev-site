@@ -5,6 +5,7 @@ import {
 	InvalidCaptchaError,
 	RateLimitExceededError,
 } from "~/application/contact/errors";
+import { getSiteOrigin } from "~/application/seo/launch-gate";
 import ContactForm from "~/presentation/components/contact/ContactForm";
 import { contactSubmissionSchema } from "~/domain/contact/contact-submission.schema";
 import { buildBreadcrumbListLd } from "~/presentation/lib/jsonld";
@@ -50,7 +51,7 @@ export type ContactActionData =
 export const loader = ({ context, request }: LoaderFunctionArgs): LoaderData => {
 	const env = context.cloudflare.env as Env;
 	const url = new URL(request.url);
-	const origin = url.origin;
+	const origin = getSiteOrigin(env);
 	return {
 		siteKey: env.TURNSTILE_SITE_KEY,
 		contactEmail: env.CONTACT_TO_EMAIL,

@@ -1,9 +1,11 @@
+import { getSiteOrigin } from "~/application/seo/launch-gate";
 import { PNG_HEADERS, toPngBody } from "~/presentation/lib/png-response";
 import type { Route } from "./+types/og.blog.$slug[.png]";
 
-export const loader = async ({ context, request, params }: Route.LoaderArgs) => {
+export const loader = async ({ context, params }: Route.LoaderArgs) => {
 	const { container } = context;
-	const origin = new URL(request.url).origin;
+	const env = context.cloudflare.env as Env;
+	const origin = getSiteOrigin(env);
 	const slug = params.slug;
 
 	if (slug) {

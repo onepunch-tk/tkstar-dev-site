@@ -1,3 +1,4 @@
+import { getSiteOrigin } from "~/application/seo/launch-gate";
 import { buildBreadcrumbListLd } from "~/presentation/lib/jsonld";
 import { buildMeta } from "~/presentation/lib/meta";
 import { legalPrivacyModules } from "../components/content/mdx-modules";
@@ -8,8 +9,9 @@ export const loader = async ({ context, params, request }: Route.LoaderArgs) => 
 	if (!params.app) throw new Response(null, { status: 404 });
 	const doc = await context.container.findAppDoc(params.app, "privacy");
 	if (!doc) throw new Response(null, { status: 404 });
+	const env = context.cloudflare.env as Env;
 	const url = new URL(request.url);
-	const origin = url.origin;
+	const origin = getSiteOrigin(env);
 	return {
 		doc,
 		origin,

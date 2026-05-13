@@ -1,11 +1,13 @@
+import { getSiteOrigin } from "~/application/seo/launch-gate";
 import { buildBreadcrumbListLd } from "~/presentation/lib/jsonld";
 import { buildMeta } from "~/presentation/lib/meta";
 import AppCard from "../components/legal/AppCard";
 import type { Route } from "./+types/legal._index";
 
 export const loader = async ({ context, request }: Route.LoaderArgs) => {
+	const env = context.cloudflare.env as Env;
 	const url = new URL(request.url);
-	const origin = url.origin;
+	const origin = getSiteOrigin(env);
 	const apps = await context.container.listApps();
 	return {
 		apps,
@@ -25,12 +27,12 @@ export const meta: Route.MetaFunction = ({ data }) => {
 			ogImage: data.ogImageUrl,
 		}),
 		{
-			"script:ld+json": 				buildBreadcrumbListLd({
-					items: [
-						{ name: "Home", url: `${data.origin}/` },
-						{ name: "Legal", url: data.canonicalUrl },
-					],
-				}),
+			"script:ld+json": buildBreadcrumbListLd({
+				items: [
+					{ name: "Home", url: `${data.origin}/` },
+					{ name: "Legal", url: data.canonicalUrl },
+				],
+			}),
 		},
 	];
 };

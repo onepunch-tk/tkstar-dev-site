@@ -1,3 +1,4 @@
+import { getSiteOrigin } from "~/application/seo/launch-gate";
 import { buildBreadcrumbListLd } from "~/presentation/lib/jsonld";
 import { buildMeta } from "~/presentation/lib/meta";
 import PostRow from "../components/post/PostRow";
@@ -5,8 +6,9 @@ import TagFilterChips from "../components/project/TagFilterChips";
 import type { Route } from "./+types/blog._index";
 
 export const loader = async ({ context, request }: Route.LoaderArgs) => {
+	const env = context.cloudflare.env as Env;
 	const url = new URL(request.url);
-	const origin = url.origin;
+	const origin = getSiteOrigin(env);
 	const tag = url.searchParams.get("tag") ?? undefined;
 	const [posts, all] = await Promise.all([
 		context.container.listPosts({ tag }),

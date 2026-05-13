@@ -4,6 +4,12 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { Project } from "../../../domain/project/project.entity";
 
+// ---------------------------------------------------------------------------
+// 공통 상수
+// ---------------------------------------------------------------------------
+
+const SITE_ORIGIN = "https://tkstar.dev";
+
 // build-time MDX 모듈 맵을 mock — 실제 콘텐츠 파일과 무관하게 testid 매칭 컴포넌트 반환
 vi.mock("../../components/content/mdx-modules", () => ({
 	projectModules: new Proxy(
@@ -69,7 +75,10 @@ const makeMockContext = (
 				listPosts: vi.fn(),
 				getPostDetail: vi.fn(),
 			},
-			cloudflare: { env: {}, ctx: {} },
+			cloudflare: {
+				env: { SITE_LAUNCHED: "true", SITE_ORIGIN },
+				ctx: {},
+			},
 		},
 		spies: { getProjectDetail },
 	};
@@ -186,5 +195,27 @@ describe("Group B — projects.$slug UI", () => {
 		await screen.findByTestId("mdx-content");
 		expect(screen.queryByTestId("project-meta-role")).toBeNull();
 		expect(screen.getByTestId("project-meta-sidebar")).toBeInTheDocument();
+	});
+});
+
+// ---------------------------------------------------------------------------
+// Group C — env.SITE_ORIGIN 기반 origin 고정 (Launch Gate)
+// ---------------------------------------------------------------------------
+
+describe("Group C — env.SITE_ORIGIN 기반 origin 고정", () => {
+	it("env.SITE_ORIGIN 을 canonical origin 으로 사용 — request.url 의 호스트와 무관", async () => {
+		// Arrange
+		const { context } = makeMockContext();
+
+		// Act — 다른 호스트로 요청
+		const result = await loader({
+			context,
+			params: { slug: "alpha" },
+			request: new Request("https://www.tkstar.dev/projects/alpha"),
+		} as never);
+
+		// Assert
+		expect((result as Record<string, unknown>).origin).toBe(SITE_ORIGIN);
+		expect((result as Record<string, unknown>).canonicalUrl).toBe(`${SITE_ORIGIN}/projects/alpha`);
 	});
 });
