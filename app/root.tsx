@@ -10,6 +10,7 @@ import {
 } from "react-router";
 
 import type { Route } from "./+types/root";
+import { getSiteOrigin, isLaunched } from "./application/seo/launch-gate";
 import { getAnalyticsScriptProps } from "./infrastructure/analytics/cloudflare-web-analytics";
 import ChromeFreeLayout from "./presentation/layouts/ChromeFreeLayout";
 import ChromeLayout from "./presentation/layouts/ChromeLayout";
@@ -29,6 +30,8 @@ export const loader = async ({ context }: Route.LoaderArgs) => {
 		googleVerification: env.GOOGLE_SITE_VERIFICATION ?? "",
 		naverVerification: env.NAVER_SITE_VERIFICATION ?? "",
 		analyticsToken: env.CLOUDFLARE_ANALYTICS_TOKEN ?? "",
+		siteLaunched: isLaunched(env),
+		siteOrigin: getSiteOrigin(env),
 	};
 };
 
@@ -40,12 +43,16 @@ export function Layout({ children }: { children: React.ReactNode }) {
 	const googleVerification = data?.googleVerification ?? "";
 	const naverVerification = data?.naverVerification ?? "";
 	const analyticsScript = getAnalyticsScriptProps(data?.analyticsToken);
+	// 방어적 default: data 가 undefined (ErrorBoundary) 이거나 siteLaunched=false 면 noindex.
+	// launch 상태 불명일 때 색인 노출 방지가 안전.
+	const showNoIndex = !data?.siteLaunched;
 
 	return (
 		<html lang="ko">
 			<head>
 				<meta charSet="utf-8" />
 				<meta name="viewport" content="width=device-width, initial-scale=1" />
+				{showNoIndex && <meta name="robots" content="noindex,nofollow" />}
 				{googleVerification && (
 					<meta name="google-site-verification" content={googleVerification} />
 				)}
