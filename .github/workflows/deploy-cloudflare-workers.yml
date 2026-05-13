@@ -5,6 +5,10 @@ on:
     branches:
       - main
       - development
+    paths-ignore:
+      - 'docs/**'
+      - '.claude/**'
+      - '*.md'
   workflow_dispatch:
     inputs:
       environment:
