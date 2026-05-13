@@ -1,0 +1,3516 @@
+{
+  "meta": {
+    "project_name": "tkstarDev",
+    "doc_version": "0.2",
+    "prd_path": "docs/PRD.md"
+  },
+  "overview": {
+    "summary": "1인 기업(개발자) 개인 브랜드 사이트 `tkstar.dev` — React Router v7 Framework + Cloudflare Workers SSR + Clean Architecture 4-layer. 본 로드맵은 PRD(F001~F023, F015 Removed 제외) 와 PROJECT-STRUCTURE 를 task 단위로 분해한 정본이며, Structure-First → Inside-Out (Domain → Application → Infrastructure → Presentation) → TDD-First 순서를 따른다. P0~P6 은 MVP 배포 완료, P7~P10 (구 Phase 7.1~7.4) 은 CMS 인프라 단계.",
+    "core_features": [
+      "사이트 자체가 이력서: B2B(채용/HR) 와 B2C(프리랜서 의뢰) 양쪽 청중을 콘텐츠 라우팅(About / Projects) 으로 자연 수렴",
+      "검색 우선 네비게이션: Cmd+K Command Palette (F016) 가 주 네비게이션 패러다임",
+      "이중 콘텐츠 파이프라인: Project / AppLegalDoc 은 velite + MDX (빌드 타임 정적 ETL, Zod frontmatter 검증), Post 는 Cloudflare D1 + Drizzle ORM (런타임 SSR + KV cache)",
+      "Edge SSR + 동적 OG: Cloudflare Workers + Satori standalone + Asset Binding 으로 슬러그별 OG 1200×630 이미지 생성",
+      "운영 비용 0원 지향 + 단일 admin: Cloudflare Workers/Email Routing/Web Analytics/Turnstile + Resend 무료 티어, admin 은 본인 1명 Cloudflare Access (GitHub OAuth)"
+    ]
+  },
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Phase 0: Setup & Toolchain",
+      "description": "빈 React Router v7 + Cloudflare Workers + Clean Architecture 4-layer 프로젝트 골격을 만들고, 빌드/테스트/린트 파이프라인을 가동시킨다.",
+      "status": "Completed",
+      "task_ids": [
+        "T001",
+        "T002",
+        "T003"
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "Phase 1: Foundation — Routing Skeleton + Domain Schemas + Theme",
+      "description": "PRD 에 정의된 모든 라우트의 빈 모듈을 만들고, Domain layer 의 콘텐츠 스키마를 Zod 로 확정한다. F010 다크모드 전략을 root layout 에 심는다.",
+      "status": "Completed",
+      "task_ids": [
+        "T004",
+        "T005",
+        "T006"
+      ]
+    },
+    {
+      "id": "P2",
+      "title": "Phase 2: Content Pipeline — velite + MDX + shiki + Repository",
+      "description": "velite 로 content/{projects,posts,legal}/*.mdx 를 빌드하여 .velite/ JSON 으로 출력하고, Infrastructure Repository 로 Domain Entity 에 매핑한다. Application 콘텐츠 유스케이스를 TDD 로 구현한다.",
+      "status": "Completed",
+      "task_ids": [
+        "T007",
+        "T008",
+        "T009"
+      ]
+    },
+    {
+      "id": "P3",
+      "title": "Phase 3: Core Pages UI — Home/About/Projects/Blog/Legal (실 데이터 연결)",
+      "description": "Phase 1 의 빈 라우트에 Phase 2 의 콘텐츠 유스케이스를 연결하여 실제 페이지를 완성한다. F003 PDF 인쇄 스타일, F017 Featured/Recent 포함.",
+      "status": "Completed",
+      "task_ids": [
+        "T010",
+        "T011",
+        "T012",
+        "T013",
+        "T014",
+        "T015",
+        "T041"
+      ]
+    },
+    {
+      "id": "P4",
+      "title": "Phase 4: Forms / Email — Command Palette + Contact Form + Turnstile + Resend",
+      "description": "Cmd+K palette 본격 가동, Contact Form 검증 + Turnstile + Resend + KV rate-limit 까지 TDD 로 구현.",
+      "status": "Completed",
+      "task_ids": [
+        "T016",
+        "T017",
+        "T042"
+      ]
+    },
+    {
+      "id": "P5",
+      "title": "Phase 5: SEO / OG / Indexing — Satori OG + Sitemap + Robots + JSON-LD + 검색엔진 등록",
+      "description": "F011 동적 OG 이미지, F018 SEO 메타 + sitemap/robots + JSON-LD, F019 Google/Naver 검색엔진 등록을 완성한다.",
+      "status": "Completed",
+      "task_ids": [
+        "T018",
+        "T019",
+        "T020"
+      ]
+    },
+    {
+      "id": "P6",
+      "title": "Phase 6: Polish & Deploy — QA + 배포 + 도메인 연결",
+      "description": "전체 플로우 QA, Lighthouse / Axe 접근성 점검, Cloudflare Workers 첫 배포 + tkstar.dev 도메인 연결 + Email Routing + Search Console 인증 완료.",
+      "status": "Completed",
+      "task_ids": [
+        "T021",
+        "T022",
+        "T043"
+      ]
+    },
+    {
+      "id": "P7",
+      "title": "Phase 7.1: CMS Read Path First — 번들 PoC + D1/Drizzle + 마이그레이션 + 런타임 컴파일러",
+      "description": "익명 방문자의 read path (Blog List/Detail) 가 D1 + KV cache 로 동작하도록 전환한다. Auth/Admin UI 는 본 phase 에 없음.",
+      "status": "InProgress",
+      "task_ids": [
+        "T023",
+        "T024",
+        "T025",
+        "T026",
+        "T027",
+        "T028"
+      ]
+    },
+    {
+      "id": "P8",
+      "title": "Phase 7.2: CMS Auth + Admin Foundation — Cloudflare Access + JWT 검증 + Admin shell",
+      "description": "Cloudflare Access (Zero Trust, Free 플랜, GitHub OAuth, 본인 1명 allowlist) 로 /admin/* 게이트를 세우고, Workers 측에서 fail-closed JWT 검증을 한다. Admin Layout shell + Posts List 까지.",
+      "status": "Pending",
+      "task_ids": [
+        "T029",
+        "T030",
+        "T031",
+        "T032"
+      ]
+    },
+    {
+      "id": "P9",
+      "title": "Phase 7.3: CMS Admin Editor + Media — R2 + Tiptap + Upload + Editor",
+      "description": "본인이 모바일/외부에서 Post 본문을 작성·편집·발행할 수 있도록 Tiptap WYSIWYG 에디터 + R2 미디어 업로드를 완성한다.",
+      "status": "Pending",
+      "task_ids": [
+        "T033",
+        "T034",
+        "T035",
+        "T036",
+        "T037"
+      ]
+    },
+    {
+      "id": "P10",
+      "title": "Phase 7.4: CMS Project Meta + Search Index — D1 분리 + buildSearchIndex use case 분리",
+      "description": "Project 의 cover 메타만 D1 project_meta 로 분리하여 admin 에서 갱신 가능하게 한다. F016 search-index.json 재생성을 application service 로 분리하여 admin save/publish 시 트리거.",
+      "status": "Pending",
+      "task_ids": [
+        "T038",
+        "T039",
+        "T040"
+      ]
+    }
+  ],
+  "prd_feature_coverage": [
+    {
+      "feature_id": "F001",
+      "feature_name": "Hero (whoami + 검색 + 빠른 링크)",
+      "task_ids": [
+        "T010",
+        "T016"
+      ]
+    },
+    {
+      "feature_id": "F002",
+      "feature_name": "About (사이트 자체 이력서)",
+      "task_ids": [
+        "T011",
+        "T006"
+      ]
+    },
+    {
+      "feature_id": "F003",
+      "feature_name": "PDF 저장 (CSS print)",
+      "task_ids": [
+        "T011"
+      ]
+    },
+    {
+      "feature_id": "F004",
+      "feature_name": "Projects 목록 (ls-style)",
+      "task_ids": [
+        "T012",
+        "T006",
+        "T008"
+      ]
+    },
+    {
+      "feature_id": "F005",
+      "feature_name": "Project Case Study",
+      "task_ids": [
+        "T013",
+        "T006",
+        "T008",
+        "T007"
+      ]
+    },
+    {
+      "feature_id": "F006",
+      "feature_name": "Blog 목록",
+      "task_ids": [
+        "T014",
+        "T006",
+        "T008"
+      ]
+    },
+    {
+      "feature_id": "F007",
+      "feature_name": "Blog 상세",
+      "task_ids": [
+        "T041",
+        "T006",
+        "T008",
+        "T007"
+      ]
+    },
+    {
+      "feature_id": "F008",
+      "feature_name": "Contact Form",
+      "task_ids": [
+        "T017",
+        "T006"
+      ]
+    },
+    {
+      "feature_id": "F009",
+      "feature_name": "Contact 스팸 방지 (Turnstile)",
+      "task_ids": [
+        "T017",
+        "T042"
+      ]
+    },
+    {
+      "feature_id": "F010",
+      "feature_name": "다크모드 토글 ([data-theme])",
+      "task_ids": [
+        "T005",
+        "T004"
+      ]
+    },
+    {
+      "feature_id": "F011",
+      "feature_name": "SSR + 동적 OG 이미지 (Satori)",
+      "task_ids": [
+        "T018",
+        "T003"
+      ]
+    },
+    {
+      "feature_id": "F012",
+      "feature_name": "RSS 피드",
+      "task_ids": [
+        "T014"
+      ]
+    },
+    {
+      "feature_id": "F013",
+      "feature_name": "분석 (Cloudflare Web Analytics)",
+      "task_ids": [
+        "T020"
+      ]
+    },
+    {
+      "feature_id": "F014",
+      "feature_name": "앱 약관 라우팅 (스켈레톤)",
+      "task_ids": [
+        "T015",
+        "T004",
+        "T006",
+        "T007"
+      ]
+    },
+    {
+      "feature_id": "F015",
+      "feature_name": "(Removed) Audience Split CTA",
+      "task_ids": []
+    },
+    {
+      "feature_id": "F016",
+      "feature_name": "Cmd+K Command Palette",
+      "task_ids": [
+        "T016",
+        "T004",
+        "T008"
+      ]
+    },
+    {
+      "feature_id": "F017",
+      "feature_name": "Home Featured + Recent Posts",
+      "task_ids": [
+        "T010",
+        "T008"
+      ]
+    },
+    {
+      "feature_id": "F018",
+      "feature_name": "SEO 메타데이터 & Sitemap",
+      "task_ids": [
+        "T019",
+        "T010",
+        "T011",
+        "T012",
+        "T013",
+        "T014",
+        "T015",
+        "T018"
+      ]
+    },
+    {
+      "feature_id": "F019",
+      "feature_name": "검색엔진 등록 (Google + Naver)",
+      "task_ids": [
+        "T020",
+        "T022"
+      ]
+    },
+    {
+      "feature_id": "F020",
+      "feature_name": "Admin Editor (Tiptap WYSIWYG)",
+      "task_ids": [
+        "T036",
+        "T023",
+        "T027",
+        "T032",
+        "T034",
+        "T035",
+        "T040"
+      ]
+    },
+    {
+      "feature_id": "F021",
+      "feature_name": "D1 Post Storage",
+      "task_ids": [
+        "T025",
+        "T023",
+        "T024",
+        "T026",
+        "T027",
+        "T028"
+      ]
+    },
+    {
+      "feature_id": "F022",
+      "feature_name": "R2 Media",
+      "task_ids": [
+        "T033",
+        "T023",
+        "T034",
+        "T037",
+        "T038"
+      ]
+    },
+    {
+      "feature_id": "F023",
+      "feature_name": "Cloudflare Access (Zero Trust)",
+      "task_ids": [
+        "T030",
+        "T029",
+        "T031",
+        "T034"
+      ]
+    }
+  ],
+  "dependency_graph_render": "mermaid",
+  "tasks": [
+    {
+      "id": "T001",
+      "slug": "scaffold-bun-rr7-biome",
+      "title": "프로젝트 스캐폴딩 + Bun + TypeScript + Biome 셋업",
+      "branch_type": "chore",
+      "phase_id": "P0",
+      "status": "Completed",
+      "purpose": "빈 git 저장소에 Bun + TypeScript + Biome 기반의 빈 프로젝트 셸을 깔아, 이후 모든 phase 의 진입 조건인 `bun --version` / `bun run typecheck` / `bun run lint` / `bun run format` 을 무오류 통과시킨다. 모든 후속 task 는 이 셸 위에서 동작하므로 toolchain 일관성 확보가 본 task 의 단일 책임이다.",
+      "prd_feature_ids": [],
+      "blocked_by": [
+        "none"
+      ],
+      "blocks": [
+        "T002",
+        "T003"
+      ],
+      "io_contract": "**입력**: 빈 git 저장소. **출력**: `package.json` + `tsconfig.json` + `tsconfig.app.json` + `biome.json` + `.gitignore` 보강 + `bun.lock` 생성. **검증 명령**: `bun --version` → 1.x, `bun install`, `bun run typecheck`, `bun run lint`, `bun run format` 전부 무오류.",
+      "sequence": [
+        "git init 직후 빈 디렉토리에서 `bun init` 으로 package.json 골격 생성",
+        "react 19.2.4 / react-router 7.14.0 / typescript 5.9.3 / biome 2.4.13 dependency 등록",
+        "tsconfig.json + tsconfig.app.json 작성 — strict true, path alias `~/*` → `./app/*`",
+        "biome.json 작성 — Biome 2.4.13 lint + format rule set",
+        ".gitignore 5개 항목 추가 — `.velite/`, `.react-router/`, `node_modules/`, `dist/`, `.wrangler/`",
+        "scripts: `typecheck` / `lint` / `format` / `test` placeholder 등록",
+        "검증 명령 5종 모두 통과 확인 후 PR open"
+      ],
+      "edge_cases_impl": "## Implementation Notes\n\n- chore branch policy: `chore/*` 는 CLAUDE.md 정책상 Plan/TDD phase 가 면제되며 PR 리뷰가 안전망. 단 AC 는 모두 명령어 수준에서 검증 가능해야 함.\n- bun 버전 핀: 1.x 메이저 — minor 는 dev 시 자유.\n- biome 2.4.13 은 1.x 와 호환성 깨짐이 일부 있음 — `biome.json` schema URL 도 2.x 로 고정.\n- typecheck 시 빈 프로젝트라도 tsc 가 path alias 인식하는지 확인. include 미설정으로 인한 silent pass 회피.\n- React 19.2.4 + react-router 7.14.0 조합은 후속 T003 vite plugin 호환성을 위한 명시적 pin.\n\n## Change History from previous body\n\n- chore branch (no Issue) PR: `chore/scaffold-bun-rr7-biome`.\n- T002/T003 가 본 task 산출물의 path alias 와 .gitignore 항목에 의존하므로 본 task 가 우선.",
+      "dod": [
+        {
+          "text": "`bun --version` 이 1.x 출력",
+          "completed": true
+        },
+        {
+          "text": "`bun install` 후 `bun.lock` 생성됨",
+          "completed": true
+        },
+        {
+          "text": "`bun run typecheck` 무오류 통과 (빈 프로젝트라도 tsc 가 path alias 인식)",
+          "completed": true
+        },
+        {
+          "text": "`bun run lint` 가 Biome 룰로 동작 (`No files to check.` 도 OK)",
+          "completed": true
+        },
+        {
+          "text": "`bun run format` 이 Biome formatter 호출",
+          "completed": true
+        },
+        {
+          "text": "`.gitignore` 에 5개 항목(`.velite/`, `.react-router/`, `node_modules/`, `dist/`, `.wrangler/`) 모두 존재",
+          "completed": true
+        }
+      ],
+      "open_questions": [],
+      "change_history": [
+        {
+          "date": "2026-04-28",
+          "changes": "T001 초기 머지 — Bun + TS + Biome 셋업 (branch `chore/scaffold-bun-rr7-biome`)",
+          "author": "TaekyungHa"
+        }
+      ]
+    },
+    {
+      "id": "T002",
+      "slug": "ca-4layer-skeleton",
+      "title": "Clean Architecture 4-layer 디렉토리 골격 + path alias",
+      "branch_type": "chore",
+      "phase_id": "P0",
+      "status": "Completed",
+      "purpose": "Clean Architecture 4-layer (Domain / Application / Infrastructure / Presentation) 의 빈 디렉토리 골격과 placeholder index 를 만들고, 의존성 방향(Domain ← Application ← Infrastructure / Presentation ← Application) 을 README 또는 Lint 로 문서화한다. 이후 모든 task 는 이 골격 안의 명확한 layer 에 배치된다.",
+      "prd_feature_ids": [],
+      "blocked_by": [
+        "T001"
+      ],
+      "blocks": [
+        "T004",
+        "T006",
+        "T007",
+        "T008",
+        "T009"
+      ],
+      "io_contract": "**입력**: T001 의 빈 프로젝트 셸. **출력**: `app/{domain,application,infrastructure,presentation}/` 4-layer 디렉토리 + 각 layer placeholder index + `test/{fixtures,utils}/` + 의존성 방향 README. **검증**: 디렉토리 존재 확인 + `bun run typecheck` 여전히 무오류.",
+      "sequence": [
+        "`app/domain/{project,post,legal,contact,theme}/` 5개 빈 모듈 생성 + placeholder index.ts",
+        "`app/application/{content,contact,search,og,feed,seo}/{ports,services}/` 빈 모듈",
+        "`app/infrastructure/{config,content,email,captcha,og,search,analytics}/` 빈 모듈",
+        "`app/presentation/{components,hooks,lib,layouts,routes}/` 빈 모듈",
+        "`test/{fixtures,utils}/` 빈 디렉토리",
+        "README 또는 ARCHITECTURE.md 에 의존성 방향 문서화 — Domain ← Application ← Infrastructure / Presentation ← Application",
+        "`bun run typecheck` 통과 확인 후 PR open"
+      ],
+      "edge_cases_impl": "## Implementation Notes\n\n- 의존성 방향 위반 방지를 자동화하지 않음 (Lint rule 도입은 향후 별도 task) — 본 task 는 placeholder index + README 로 문서화만.\n- 각 layer 의 index.ts 는 빈 export `{}` placeholder — 빈 파일은 typecheck 에러 가능성 있으므로 명시.\n- `test/` 는 colocated `__tests__/` 와 별도 — fixtures/utils 만 공용으로 위치.\n- 본 task 는 T001 의 path alias `~/*` → `./app/*` 에 의존.\n\n## Change History from previous body\n\n- chore branch (no Issue) PR: `chore/ca-4layer-skeleton`.\n- T004 (라우트 스켈레톤) / T006 (Domain schema) / T007 (velite) / T008 (ports+repos) / T009 (DI) 가 모두 이 골격 안에 배치되므로 본 task 가 P0 의 마지막 구조 task.",
+      "dod": [
+        {
+          "text": "`app/{domain,application,infrastructure,presentation}/` 4개 디렉토리 모두 존재",
+          "completed": true
+        },
+        {
+          "text": "각 layer 에 placeholder `index.ts` 생성",
+          "completed": true
+        },
+        {
+          "text": "`app/domain/` 하위에 `{project,post,legal,contact,theme}/` 5개 모듈",
+          "completed": true
+        },
+        {
+          "text": "`app/application/` 하위에 `{content,contact,search,og,feed,seo}/{ports,services}/` 모듈",
+          "completed": true
+        },
+        {
+          "text": "`app/infrastructure/` 하위에 `{config,content,email,captcha,og,search,analytics}/` 모듈",
+          "completed": true
+        },
+        {
+          "text": "`app/presentation/` 하위에 `{components,hooks,lib,layouts,routes}/` 모듈",
+          "completed": true
+        },
+        {
+          "text": "`test/{fixtures,utils}/` 빈 디렉토리 존재",
+          "completed": true
+        },
+        {
+          "text": "의존성 방향이 README 또는 lint 로 문서화됨",
+          "completed": true
+        },
+        {
+          "text": "`bun run typecheck` 무오류 통과",
+          "completed": true
+        }
+      ],
+      "open_questions": [],
+      "change_history": [
+        {
+          "date": "2026-04-28",
+          "changes": "T002 초기 머지 — CA 4-layer 골격 (branch `chore/ca-4layer-skeleton`)",
+          "author": "TaekyungHa"
+        }
+      ]
+    },
+    {
+      "id": "T003",
+      "slug": "vite-rr7-workers-tailwind-pipeline",
+      "title": "Vite + React Router v7 Framework + Cloudflare Workers + Tailwind v4 빌드 파이프라인",
+      "branch_type": "chore",
+      "phase_id": "P0",
+      "status": "Completed",
+      "purpose": "Vite + React Router v7 Framework + Cloudflare Workers + Tailwind v4 + Vitest coverage 파이프라인을 가동시켜, SSR 첫 응답·dev 서버·테스트 커버리지 리포트가 모두 무오류로 동작하는 상태를 만든다. 이후 모든 페이지·라우트·테스트가 이 파이프라인 위에서 동작.",
+      "prd_feature_ids": [],
+      "blocked_by": [
+        "T001"
+      ],
+      "blocks": [
+        "T004",
+        "T005",
+        "T016"
+      ],
+      "io_contract": "**입력**: T001 셸 + T002 골격. **출력**: `vite.config.ts`, `react-router.config.ts`, `wrangler.toml`, `workers/app.ts`, `app/{root,routes,entry.server,entry.client,app.css,env.d.ts}` 최소 동작본, `app/presentation/routes/_index.tsx` placeholder, `vitest.config.ts` coverage threshold. **검증**: `bun run dev` Vite dev 부팅, `bunx wrangler dev` Workers dev 부팅, 빈 root SSR 200, `bun run test:coverage` 빈 상태 리포트 생성 + threshold 통과.",
+      "sequence": [
+        "vite.config.ts — `@cloudflare/vite-plugin 1.33.2` + `@tailwindcss/vite 4.2.2` + `@vitejs/plugin-react 6.0.1` 활성",
+        "react-router.config.ts — `ssr: true`",
+        "wrangler.toml — `name = tkstar-dev`, `main = workers/app.ts`, `compatibility_date = 2026-04-01`, `[assets] binding=ASSETS directory=./public`",
+        "workers/app.ts — fetch handler → React Router request handler 스텁",
+        "app/{root.tsx, routes.ts, entry.server.tsx, entry.client.tsx, app.css, env.d.ts} 최소 동작본 작성",
+        "app/routes.ts — `flatRoutes({ rootDirectory: 'presentation/routes' })`",
+        "app/presentation/routes/_index.tsx — 빈 placeholder",
+        "vitest.config.ts — coverage threshold `{ lines: 80, branches: 75, functions: 80, statements: 80 }` + 제외 경로 명시"
+      ],
+      "edge_cases_impl": "## Implementation Notes\n\n- 1인 정적 사이트 기준 coverage threshold `lines:80, branches:75, functions:80, statements:80` 채택. T021 진입 시 동일 수치로 재확인.\n- coverage 제외 경로: `**/*.config.*`, `**/__tests__/**`, `**/*.d.ts`, `workers/app.ts` (SSR entry), `app/entry.{server,client}.tsx`.\n- `compatibility_date = 2026-04-01` 은 wrangler types 발행 시점 기준 — nodejs_compat 활성은 T023 PoC 시점에 추가됨.\n- Tailwind v4 는 `@tailwindcss/vite` plugin 으로 동작 — `app/app.css` 의 `@theme` block 은 T005 에서 채워짐.\n- `flatRoutes({ rootDirectory: 'presentation/routes' })` 채택으로 라우트 파일을 CA Presentation layer 안에 그대로 둠.\n\n## Change History from previous body\n\n- 본 task 가 후속 T004 (라우트 스켈레톤) / T005 (theme tokens) / T016 (Cmd+K palette) 의 진입 조건. \n- PR #14 머지로 첫 SSR + dev 서버 가동.\n- chore branch (no Issue) PR: `chore/vite-rr7-workers-tailwind-pipeline`.",
+      "dod": [
+        {
+          "text": "`bun run dev` Vite dev server 부팅 성공",
+          "completed": true
+        },
+        {
+          "text": "`bunx wrangler dev` Workers dev 부팅 성공",
+          "completed": true
+        },
+        {
+          "text": "빈 root 페이지가 SSR 200 응답",
+          "completed": true
+        },
+        {
+          "text": "`bun run test:coverage` 가 빈 상태에서도 Vitest coverage 리포트 생성",
+          "completed": true
+        },
+        {
+          "text": "coverage threshold `{ lines: 80, branches: 75, functions: 80, statements: 80 }` 설정 + 통과",
+          "completed": true
+        },
+        {
+          "text": "wrangler.toml 에 ASSETS binding 정의됨",
+          "completed": true
+        },
+        {
+          "text": "vite.config.ts 에 `@cloudflare/vite-plugin` + `@tailwindcss/vite` + react plugin 활성",
+          "completed": true
+        }
+      ],
+      "open_questions": [],
+      "change_history": [
+        {
+          "date": "2026-04-28",
+          "changes": "T003 머지 — Vite + RR7 + Workers + Tailwind v4 파이프라인 (PR #14, branch `chore/vite-rr7-workers-tailwind-pipeline`)",
+          "author": "TaekyungHa"
+        }
+      ]
+    },
+    {
+      "id": "T004",
+      "slug": "route-skeleton",
+      "title": "라우트 스켈레톤 13개 + chrome / chrome-free 레이아웃",
+      "branch_type": "feature",
+      "phase_id": "P1",
+      "status": "Completed",
+      "purpose": "PRD 의 모든 페이지·resource route 에 해당하는 빈 라우트 파일을 만들고, ChromeLayout / ChromeFreeLayout 두 레이아웃을 도입한다. 각 URL 을 직접 입력 시 placeholder 응답이 와야 하며, App Terms/Privacy 는 chrome-free, splat 라우트는 Not Found Fallback placeholder.",
+      "prd_feature_ids": [
+        "F014",
+        "F018",
+        "F019",
+        "F004"
+      ],
+      "blocked_by": [
+        "T002",
+        "T003"
+      ],
+      "blocks": [
+        "T010",
+        "T011",
+        "T012",
+        "T013",
+        "T014",
+        "T015"
+      ],
+      "io_contract": "**입력**: T003 의 빈 _index.tsx + flatRoutes. **출력**: `app/presentation/routes/` 안 13개 라우트 파일 + 2개 resource route 추가 + 2개 OG resource route + splat `$.tsx` + `app/presentation/layouts/{ChromeLayout.tsx, ChromeFreeLayout.tsx}`. **검증**: `wrangler dev` 에서 각 URL 직접 입력 시 placeholder 페이지 렌더, App Terms/Privacy 에 Topbar/Footer 미노출, splat 라우트는 터미널 메시지 placeholder.",
+      "sequence": [
+        "콘텐츠 라우트 — `_index.tsx` (Home) / `about.tsx` / `projects._index.tsx` / `projects.$slug.tsx` / `blog._index.tsx` / `blog.$slug.tsx` / `contact.tsx` 생성",
+        "Legal 라우트 — `legal._index.tsx` / `legal.$app.terms.tsx` / `legal.$app.privacy.tsx` (chrome-free)",
+        "Resource 라우트 — `rss[.xml].tsx` / `sitemap[.xml].tsx` / `robots[.txt].tsx`",
+        "OG Resource 라우트 — `og.projects.$slug[.png].tsx` / `og.blog.$slug[.png].tsx`",
+        "Splat 라우트 — `$.tsx` (Not Found Fallback placeholder)",
+        "Layout — `ChromeLayout.tsx` (Topbar/Footer 포함) + `ChromeFreeLayout.tsx` (Topbar/Footer 미렌더)",
+        "각 라우트가 적절한 layout 을 마운트하도록 wiring + wrangler dev 검증"
+      ],
+      "edge_cases_impl": "## Implementation Notes\n\n- splat 라우트 (`$.tsx`) 채택은 A004 (Not Found Fallback 전략) 해소 — ErrorBoundary 가 아닌 splat 으로 결정. 이유: F018/F019 차등 인덱싱 정책 (`noindex,nofollow`) 을 splat 에서 meta export 로 명시적 제어 용이.\n- ChromeFree 적용 대상: `legal.$app.terms.tsx`, `legal.$app.privacy.tsx`. Legal Index (`legal._index.tsx`) 자체는 chrome 유지.\n- OG resource route 는 placeholder loader 만 — 실제 PNG 생성은 T018 에서.\n- React Router v7 flatRoutes 의 `[.xml]` / `[.png]` 의 대괄호 escape 는 파일명에 직접 포함되어야 함 (resource route 컨벤션).\n- 빈 layout 도 본 task 단계에선 children 렌더만.\n\n## Change History from previous body\n\n- A004 (Not Found Fallback 전략) 해소.\n- T010~T015 의 페이지 task 들이 본 task 의 라우트 자리에 콘텐츠를 채움.\n- feature branch PR: `feature/issue-N-route-skeleton`.",
+      "dod": [
+        {
+          "text": "콘텐츠 라우트 7개 (`_index`, `about`, `projects._index`, `projects.$slug`, `blog._index`, `blog.$slug`, `contact`) 모두 placeholder 응답",
+          "completed": true
+        },
+        {
+          "text": "Legal 라우트 3개 (`legal._index`, `legal.$app.terms`, `legal.$app.privacy`) 생성",
+          "completed": true
+        },
+        {
+          "text": "Resource 라우트 3개 (`rss[.xml]`, `sitemap[.xml]`, `robots[.txt]`) placeholder",
+          "completed": true
+        },
+        {
+          "text": "OG resource 라우트 2개 (`og.projects.$slug[.png]`, `og.blog.$slug[.png]`) placeholder",
+          "completed": true
+        },
+        {
+          "text": "Splat `$.tsx` 라우트 Not Found Fallback placeholder",
+          "completed": true
+        },
+        {
+          "text": "ChromeLayout + ChromeFreeLayout 2개 레이아웃 마운트 동작",
+          "completed": true
+        },
+        {
+          "text": "App Terms/Privacy 에 Topbar/Footer 미노출 확인",
+          "completed": true
+        },
+        {
+          "text": "A004 (splat vs ErrorBoundary) 해소 — splat 채택 기록",
+          "completed": true
+        }
+      ],
+      "open_questions": [],
+      "change_history": [
+        {
+          "date": "2026-04-28",
+          "changes": "T004 머지 — 라우트 스켈레톤 13+ 라우트 + 2 layout (branch `feature/issue-N-route-skeleton`)",
+          "author": "TaekyungHa"
+        }
+      ]
+    },
+    {
+      "id": "T005",
+      "slug": "theme-tokens",
+      "title": "디자인 토큰 이식 + Tailwind v4 `@theme` + `[data-theme]` dark variant + 다크모드 (F010)",
+      "branch_type": "feature",
+      "phase_id": "P1",
+      "status": "Completed",
+      "purpose": "design 정본의 oklch 토큰을 Tailwind v4 `@theme` block 으로 이식하고, `[data-theme]` 속성 기반 dark variant 와 시스템 추종 + localStorage `proto-theme` 강제 전환 hook 을 구현한다. SSR-safe blocking script 로 첫 렌더부터 정확한 테마가 보이도록 한다 (FOIT 없음).",
+      "prd_feature_ids": [
+        "F010"
+      ],
+      "blocked_by": [
+        "T003"
+      ],
+      "blocks": [
+        "T010",
+        "T011",
+        "T012",
+        "T013",
+        "T014",
+        "T015"
+      ],
+      "io_contract": "**입력**: T003 의 `app/app.css` 빈 셸 + `app/root.tsx`. **출력**: `app/app.css` 의 `@theme` block (oklch 토큰 + JetBrainsMono font), `useTheme.ts` hook, `Topbar/Footer/ThemeToggle` chrome 컴포넌트, `app/root.tsx` 의 `<html data-theme>` blocking script, `public/fonts/JetBrainsMono-{Regular,Medium,Bold}.woff2` self-host. **검증**: system dark/light 추종, 토글 클릭 시 속성 전환 + localStorage persist, 새로고침 시 강제 모드 복원, FOIT 없음.",
+      "sequence": [
+        "design-system/styles.css 의 oklch 토큰을 `app/app.css` 의 `@theme { --color-*, --font-* }` 로 이식",
+        "Tailwind v4 dark variant 추가 — `@variant dark (&:where([data-theme='dark'], [data-theme='dark'] *))`",
+        "useTheme.ts hook — `prefers-color-scheme` 추종 + localStorage `proto-theme` 강제 전환 + setTheme API",
+        "chrome 컴포넌트 — Topbar.tsx / Footer.tsx / ThemeToggle.tsx 골격",
+        "app/root.tsx — `<html data-theme={...}>` SSR-safe blocking script (first paint 깜빡임 방지)",
+        "JetBrainsMono-{Regular,Medium,Bold}.woff2 를 `public/fonts/` 에 self-host + `@font-face` 등록",
+        "useTheme.test.ts — system 추종 / 강제 전환 / localStorage persist 케이스 3종 Green"
+      ],
+      "edge_cases_impl": "## Implementation Notes\n\n- FOIT 회피는 root layout 의 `<head>` 안에서 동기 `<script>` 로 `data-theme` 을 미리 세팅하는 패턴 채택. React hydration 전에 실행되어 SSR HTML 과 일치.\n- localStorage key 는 `proto-theme` — 'prototype-era' 잔재명이지만 호환성 위해 유지.\n- `prefers-color-scheme: dark` 미디어 쿼리 변경 시 hook 이 강제 모드가 아니면 즉시 반영. 강제 모드 (사용자가 토글로 설정) 면 무시.\n- Topbar/Footer/ThemeToggle 은 본 task 에선 골격만 — 실제 검색 트리거는 T016, Footer Legal 링크는 T015.\n- `__tests__/` colocated 위치: `app/presentation/hooks/__tests__/useTheme.test.ts`.\n\n## Change History from previous body\n\n- F010 (다크모드 토글) 1차 구현 완료.\n- Issue #19, branch `feature/issue-19-theme-tokens`.\n- T010~T015 모든 페이지 task 가 본 task 의 토큰·dark variant·chrome 컴포넌트에 의존.",
+      "dod": [
+        {
+          "text": "`app/app.css` 의 `@theme` block 에 oklch 토큰 이식 완료",
+          "completed": true
+        },
+        {
+          "text": "Tailwind v4 dark variant `@variant dark (&:where([data-theme='dark']...))` 정의",
+          "completed": true
+        },
+        {
+          "text": "useTheme hook 의 system 추종 동작 (auto 모드)",
+          "completed": true
+        },
+        {
+          "text": "토글 클릭 시 `[data-theme]` 속성 전환 + localStorage `proto-theme` 저장",
+          "completed": true
+        },
+        {
+          "text": "새로고침 시 강제 모드 복원",
+          "completed": true
+        },
+        {
+          "text": "FOIT 없이 첫 렌더부터 정확한 테마 (SSR-safe blocking script)",
+          "completed": true
+        },
+        {
+          "text": "useTheme.test.ts 3 케이스 Green",
+          "completed": true
+        },
+        {
+          "text": "JetBrainsMono 3 weight self-host + `@font-face` 등록",
+          "completed": true
+        }
+      ],
+      "open_questions": [],
+      "change_history": [
+        {
+          "date": "2026-04-28",
+          "changes": "T005 머지 — theme tokens + F010 다크모드 (Issue #19, branch `feature/issue-19-theme-tokens`)",
+          "author": "TaekyungHa"
+        }
+      ]
+    },
+    {
+      "id": "T006",
+      "slug": "domain-schemas",
+      "title": "Domain Schemas — Project / Post / AppLegalDoc / ContactSubmission / ThemePreference",
+      "branch_type": "feature",
+      "phase_id": "P1",
+      "status": "Completed",
+      "purpose": "Domain layer (innermost) 의 콘텐츠·폼·테마 스키마를 Zod 로 확정한다. velite frontmatter 검증, Contact form validation, ThemePreference VO 의 source-of-truth 를 만들어 이후 Application/Infrastructure layer 가 의존할 수 있는 안정적 contract 를 제공.",
+      "prd_feature_ids": [
+        "F002",
+        "F004",
+        "F005",
+        "F006",
+        "F007",
+        "F008",
+        "F010",
+        "F014",
+        "F017"
+      ],
+      "blocked_by": [
+        "T002"
+      ],
+      "blocks": [
+        "T007",
+        "T008",
+        "T009"
+      ],
+      "io_contract": "**입력**: T002 의 `app/domain/*` 빈 모듈. **출력**: 각 도메인에 entity + schema + errors + `__tests__/` 작성. **검증**: Domain `__tests__/` 의 Zod 스키마 테스트 (정상값 통과 / 이상값 reject) 100% Green.",
+      "sequence": [
+        "project — entity + schema + errors + `__tests__/project.schema.test.ts` (slug/tags/featured/cover 필드)",
+        "post — entity + schema + `__tests__/post.schema.test.ts` (Phase 7.1 에서 D1 schema 로 갱신 예정)",
+        "legal — `app-legal-doc.entity.ts` + schema + `__tests__/` (version + effective_date 표준 메타)",
+        "contact — `contact-submission.vo.ts` + schema + errors + `__tests__/contact-submission.schema.test.ts` (RFC 5322 이메일 + 메시지 10~5000자)",
+        "theme — `theme-preference.vo.ts` (auto / light / dark enum)",
+        "모든 `__tests__/` 의 정상값/이상값 케이스 Green"
+      ],
+      "edge_cases_impl": "## Implementation Notes\n\n- Zod 버전: 프로젝트 표준 (Zod 4 internal). velite 는 Zod 3 internal 이라 T007 에서 schema mirror 로 격리 — 본 task 에선 신경 안 써도 됨.\n- AppLegalDoc 표준 메타: `version` (semver), `effective_date` (ISO 8601 date). A003 해소.\n- ContactSubmission validation: RFC 5322 이메일 정규식 + message length 10..5000 (AC-F008-2/3).\n- About 자격증 카드 (A001): velite Project frontmatter 의 optional 필드로 자리만 — entity/schema 에 optional 로 정의, 본 task 에선 데이터 입력 없음.\n- ThemePreference VO 는 `'auto' | 'light' | 'dark'` 3-state.\n- Project entity 의 `cover` / `cover_alt` 는 본 task 시점엔 frontmatter 채택 — T038 에서 D1 project_meta 로 이관 예정.\n\n## Change History from previous body\n\n- A001 (자격증 데이터 카드) 해소 — frontmatter optional 필드.\n- A003 (Legal 표준 메타) 해소 — `version` + `effective_date`.\n- feature branch PR: `feature/issue-N-domain-schemas`.",
+      "dod": [
+        {
+          "text": "`app/domain/project/{project.entity.ts, project.schema.ts, project.errors.ts}` + `__tests__/project.schema.test.ts` 작성",
+          "completed": true
+        },
+        {
+          "text": "`app/domain/post/{post.entity.ts, post.schema.ts}` + `__tests__/post.schema.test.ts` 작성",
+          "completed": true
+        },
+        {
+          "text": "`app/domain/legal/{app-legal-doc.entity.ts, app-legal-doc.schema.ts}` + `__tests__/` 작성",
+          "completed": true
+        },
+        {
+          "text": "`app/domain/contact/{contact-submission.vo.ts, contact-submission.schema.ts, contact.errors.ts}` + `__tests__/contact-submission.schema.test.ts` 작성",
+          "completed": true
+        },
+        {
+          "text": "`app/domain/theme/theme-preference.vo.ts` 작성",
+          "completed": true
+        },
+        {
+          "text": "Domain `__tests__/` 모두 Green (정상값 + 이상값)",
+          "completed": true
+        },
+        {
+          "text": "A001 (자격증 카드 frontmatter optional) 해소 기록",
+          "completed": true
+        },
+        {
+          "text": "A003 (Legal 표준 메타 version + effective_date) 해소 기록",
+          "completed": true
+        }
+      ],
+      "open_questions": [],
+      "change_history": [
+        {
+          "date": "2026-04-28",
+          "changes": "T006 머지 — Domain schemas 5종 + A001/A003 해소 (branch `feature/issue-N-domain-schemas`)",
+          "author": "TaekyungHa"
+        }
+      ]
+    },
+    {
+      "id": "T007",
+      "slug": "velite-content-pipeline",
+      "title": "velite 설치 + 컬렉션 정의 + seed 콘텐츠 + shiki 코드블록",
+      "branch_type": "feature",
+      "phase_id": "P2",
+      "status": "Completed",
+      "purpose": "velite 를 도입하여 `content/{projects,posts,legal/apps}/**/*.mdx` 를 빌드 타임에 `.velite/{projects,posts,legal}.json` 으로 출력한다. rehype-slug + shiki 코드블록 + seed 콘텐츠 (project 1개 / post 1개 / legal 1쌍) 를 함께 도입해 후속 task 들이 즉시 콘텐츠 렌더링 검증 가능하게 한다.",
+      "prd_feature_ids": [
+        "F004",
+        "F005",
+        "F006",
+        "F007",
+        "F014"
+      ],
+      "blocked_by": [
+        "T006"
+      ],
+      "blocks": [
+        "T008"
+      ],
+      "io_contract": "**입력**: T006 의 Domain schema. **출력**: `velite.config.ts` + rehype 플러그인 등록 + 3 collection (projects/posts/legal) + seed 콘텐츠 + `MdxRenderer.tsx` + lifecycle scripts. **검증**: `bunx velite build` 성공, `.velite/{projects,posts,legal}.json` 생성, frontmatter Zod 위반 콘텐츠 추가 시 build 실패.",
+      "sequence": [
+        "velite 설치 + `velite.config.ts` 작성 — D1 (Domain Zod 4 ↔ velite Zod 3 internal 충돌) 회피를 위해 `s` 헬퍼로 schema shape mirroring",
+        "rehype 플러그인 등록 — `rehype-slug` (헤딩 anchor, A002 1단계) + `@shikijs/rehype` (theme: `github-dark` 단일)",
+        "seed 콘텐츠 — `content/projects/example-project.mdx`, `content/posts/2026-04-shipping-solo.mdx`, `content/legal/apps/moai/{terms,privacy}.mdx`",
+        "MdxRenderer.tsx — 자체 `evaluateMdxBody` 12 LOC (mdx-bundler 회피)",
+        "package.json lifecycle — `predev` / `prebuild` / `prestart` / `pretest` 가 velite build 자동 호출 (stale `.velite/` 회귀 차단)",
+        "tsconfig.cloudflare.json 에 `#content` / `#content/*` path alias",
+        "wrangler.toml 운영 노트 — `new Function` SSR / CSP unsafe-eval 영향 cross-link"
+      ],
+      "edge_cases_impl": "## Implementation Notes\n\n- velite 의 Zod 3 internal 과 프로젝트 Zod 4 의 internal 타입 충돌은 schema mirroring 으로 회피. drift 검증은 T008 mapper 에서.\n- shiki theme 은 MVP 단일 `github-dark` — 라이트 모드 별도 처리 안 함 (코드블록은 항상 dark 배경 유지).\n- `predev`/`prebuild`/`prestart`/`pretest` lifecycle 은 stale `.velite/` JSON 으로 인한 silent fail 차단.\n- MdxRenderer.tsx 의 12 LOC `evaluateMdxBody` 는 mdx-bundler 의 `new Function(...)` 의존 회피용. T043 (MdxRenderer Workers V8 eval fix) 에서 `@mdx-js/rollup` + `import.meta.glob` 로 다시 대체됨.\n- seed legal 본문은 placeholder — T015 시점에 정식 본문으로 갱신.\n- 후속 follow-up (deferred from review): Medium #3 `project.schema.ts` date 약한 검증, Medium #4 legal seed placeholder 본문, Low #5 tsconfig include velite.config.ts, Low #7 shiki rehype `as any` 좁히기.\n\n## Change History from previous body\n\n- A002 1단계 (rehype-slug) 해소.\n- A006 (velite/shiki 설치) 해소.\n- A007 (검색 인덱스 라이브러리 — 단순 includes/score 채택) 1차 사실 기록.\n- PR: feature/issue-27, Issue #27.",
+      "dod": [
+        {
+          "text": "`bunx velite build` 성공 + `.velite/projects.json`, `.velite/posts.json`, `.velite/legal.json` 생성",
+          "completed": true
+        },
+        {
+          "text": "frontmatter Zod 위반 콘텐츠 추가 시 build 실패 확인",
+          "completed": true
+        },
+        {
+          "text": "rehype-slug 가 헤딩 anchor id 생성",
+          "completed": true
+        },
+        {
+          "text": "shiki `github-dark` 코드블록 highlight 동작",
+          "completed": true
+        },
+        {
+          "text": "seed 콘텐츠 3종 (project + post + legal 쌍) 작성",
+          "completed": true
+        },
+        {
+          "text": "MdxRenderer.tsx `evaluateMdxBody` 12 LOC 동작 (mdx-bundler 회피)",
+          "completed": true
+        },
+        {
+          "text": "predev/prebuild/prestart/pretest lifecycle 이 velite build 자동 호출",
+          "completed": true
+        },
+        {
+          "text": "tsconfig.cloudflare.json 에 #content path alias 등록",
+          "completed": true
+        }
+      ],
+      "open_questions": [],
+      "change_history": [
+        {
+          "date": "2026-04-29",
+          "changes": "T007 머지 — velite + shiki + seed 콘텐츠 + A002·A006·A007 1차 해소 (PR #27 후속, branch `feature/issue-27-velite-content-pipeline`)",
+          "author": "TaekyungHa"
+        }
+      ]
+    },
+    {
+      "id": "T008",
+      "slug": "content-ports-repos",
+      "title": "Application Ports + Content Repositories (Infrastructure 구현)",
+      "branch_type": "feature",
+      "phase_id": "P2",
+      "status": "Completed",
+      "purpose": "Application layer 의 read-side 콘텐츠 유스케이스 (list/detail/featured/recent/related) 를 ports + services 로 정의하고, Infrastructure layer 의 velite repository 어댑터로 Domain Entity 에 매핑한다. 모든 페이지 task 가 의존하는 read-side contract 의 SoT.",
+      "prd_feature_ids": [
+        "F004",
+        "F005",
+        "F006",
+        "F007",
+        "F014",
+        "F017"
+      ],
+      "blocked_by": [
+        "T002",
+        "T006",
+        "T007"
+      ],
+      "blocks": [
+        "T009",
+        "T010",
+        "T011",
+        "T012",
+        "T013",
+        "T014",
+        "T015",
+        "T016",
+        "T017"
+      ],
+      "io_contract": "**입력**: T006 Domain entity + T007 velite `.velite/*.json`. **출력**: `app/application/content/ports/{project,post,legal}-repository.port.ts` + services 6종 + Infrastructure `velite-{project,post,legal}.repository.ts` + mappers + colocated `__tests__/`. **검증**: Application `__tests__/` (mock repo) + Infrastructure `__tests__/` (.velite fixture) 모두 Green.",
+      "sequence": [
+        "Ports — `project-repository.port.ts` (findAll, findBySlug, findFeatured, findRelated, findByTag), `post-repository.port.ts` (findAll, findBySlug, findRecent(n), findByTag, findRelated), `legal-repository.port.ts` (findAppDoc, listApps)",
+        "Services — list-projects / get-project-detail (prev/next) / get-featured-project (F017) / list-posts / get-post-detail / get-recent-posts (F017)",
+        "Infrastructure — velite-{project,post,legal}.repository.ts + mappers (velite raw → Domain Entity)",
+        "TS4082 회피 — `scripts/patch-velite-types.mjs` 로 `.velite/index.d.ts` clean override + velite:build chained",
+        "vitest `resolve.tsconfigPaths` 활성화로 `~` alias 동작",
+        "공통 헬퍼 3개 추출 — assertExists / sortByDateDesc / findAdjacent",
+        "code-reviewer Medium fix — cache `Object.freeze` + defensive copy `[...cache]`"
+      ],
+      "edge_cases_impl": "## Implementation Notes\n\n- velite 0.3.1 typegen 이 Zod 3 internal 타입을 노출시켜 TS4082 폭발 → `scripts/patch-velite-types.mjs` 로 `.velite/index.d.ts` clean override 후 velite:build 에 chained.\n- 4-cycle TDD: Project → Post → Legal → Refactor.\n- 공통 헬퍼 3개 (assertExists / sortByDateDesc / findAdjacent) 는 services 사이 중복 제거용.\n- `Object.freeze(cache)` + defensive copy `[...cache]` — code-reviewer Medium fix, cache mutation 방지.\n- findRelated 의 prev/next 는 collection 정렬 후 인접 인덱스 — 마지막/첫 항목 wrap-around 안 함 (null 반환).\n- findFeatured: project frontmatter `featured: true` 첫 항목.\n- findRecent(n): post `date_published` DESC 정렬 후 상위 n.\n\n## Change History from previous body\n\n- Issue #29, PR `feature/issue-29-content-ports-repos`.\n- T010~T017 모든 페이지·검색 task 가 본 task 의 services 에 의존.",
+      "dod": [
+        {
+          "text": "ports 3개 (project/post/legal repository) 정의",
+          "completed": true
+        },
+        {
+          "text": "services 6개 (list-projects / get-project-detail / get-featured-project / list-posts / get-post-detail / get-recent-posts) 정의 + `__tests__/`",
+          "completed": true
+        },
+        {
+          "text": "Infrastructure velite-{project,post,legal}.repository.ts 구현",
+          "completed": true
+        },
+        {
+          "text": "mappers 3개 (project/post/legal) 작성 + drift 검증 테스트",
+          "completed": true
+        },
+        {
+          "text": "Application `__tests__/` (mock repo) Green",
+          "completed": true
+        },
+        {
+          "text": "Infrastructure `__tests__/` (.velite fixture) Green",
+          "completed": true
+        },
+        {
+          "text": "scripts/patch-velite-types.mjs 로 TS4082 회피",
+          "completed": true
+        },
+        {
+          "text": "공통 헬퍼 3개 (assertExists / sortByDateDesc / findAdjacent) 추출",
+          "completed": true
+        },
+        {
+          "text": "cache Object.freeze + defensive copy 적용 (code-reviewer Medium fix)",
+          "completed": true
+        }
+      ],
+      "open_questions": [],
+      "change_history": [
+        {
+          "date": "2026-04-29",
+          "changes": "T008 머지 — Application ports + velite repos + 4-cycle TDD (Issue #29, branch `feature/issue-29-content-ports-repos`)",
+          "author": "TaekyungHa"
+        }
+      ]
+    },
+    {
+      "id": "T009",
+      "slug": "di-container",
+      "title": "DI Container (Composition Root) + workers/app.ts wiring + AppLoadContext",
+      "branch_type": "feature",
+      "phase_id": "P2",
+      "status": "Completed",
+      "purpose": "Composition Root 를 Infrastructure config 에 두고, 모든 services 를 plain object 로 묶은 `Container` 를 `buildContainer(env)` 로 생성한다. workers/app.ts 의 fetch handler 두 번째 인자에 주입하여 React Router loader/action 에서 `context.container.*` 로 접근 가능하게 한다.",
+      "prd_feature_ids": [],
+      "blocked_by": [
+        "T008"
+      ],
+      "blocks": [
+        "T010",
+        "T011",
+        "T012",
+        "T013",
+        "T014",
+        "T015",
+        "T016",
+        "T017"
+      ],
+      "io_contract": "**입력**: T008 의 services + repositories. **출력**: `app/infrastructure/config/container.ts` + workers/app.ts 의 두 번째 인자 wiring + `app/env.d.ts` 의 `AppLoadContext` SSOT. **검증**: `container.test.ts` 6 service 위임 + ProjectNotFoundError 전파 + `bun run test` 94 passed / typecheck / lint Green.",
+      "sequence": [
+        "container.ts — `type Container = {...}` + `buildContainer(env): Container` (수제 plain object, IoC 라이브러리 미사용)",
+        "workers/app.ts — `requestHandler(request, { cloudflare, container: buildContainer(env) })`",
+        "app/env.d.ts — `interface AppLoadContext { cloudflare; container }` SSOT (inline declare 제거)",
+        "Velite repo singleton 직접 import (task spec 약식 표기 정정)",
+        "container.test.ts — 6 service 위임 + 에러 전파 검증",
+        "94 unit test + typecheck + lint 모두 Green 확인"
+      ],
+      "edge_cases_impl": "## Implementation Notes\n\n- 수제 DI 채택 (D2 fact) — IoC 라이브러리 (tsyringe / inversify) 미도입. 1인 프로젝트의 단순성 우선.\n- React Router v7 Workers 패턴: `getLoadContext` (Vite plugin 패턴) 가 아닌 fetch handler 두 번째 인자에 직접 객체 주입.\n- AppLoadContext SSOT 를 `app/env.d.ts` 로 이전 — workers/app.ts 의 inline declare 제거.\n- Velite repo 는 task spec 의 약식 표기 `new ...Repository()` 와 달리 singleton const 라 직접 import.\n- `_env` prefix 는 T017 (Resend/Turnstile/KV) 도입 시 활성화.\n- 6 service: listProjects / getProjectDetail / getFeaturedProject / listPosts / getPostDetail / getRecentPosts.\n\n## Change History from previous body\n\n- D2 (DI 라이브러리 vs 수제) — 수제 채택 결정.\n- Issue #31, PR `feature/issue-31-di-container`.\n- T010~T017 모든 라우트 loader/action 이 본 task 의 container 에 의존.",
+      "dod": [
+        {
+          "text": "`app/infrastructure/config/container.ts` 의 `Container` 타입 + `buildContainer(env)` 정의",
+          "completed": true
+        },
+        {
+          "text": "workers/app.ts 가 fetch handler 두 번째 인자에 `{ cloudflare, container }` 주입",
+          "completed": true
+        },
+        {
+          "text": "`app/env.d.ts` 의 `AppLoadContext` SSOT (inline declare 제거)",
+          "completed": true
+        },
+        {
+          "text": "container.test.ts — 6 service 위임 + ProjectNotFoundError 전파 검증 Green",
+          "completed": true
+        },
+        {
+          "text": "`bun run test` 94 passed",
+          "completed": true
+        },
+        {
+          "text": "`bun run typecheck` Green",
+          "completed": true
+        },
+        {
+          "text": "`bun run lint` Green",
+          "completed": true
+        },
+        {
+          "text": "D2 (수제 DI 채택) 사실 기록",
+          "completed": true
+        }
+      ],
+      "open_questions": [],
+      "change_history": [
+        {
+          "date": "2026-04-29",
+          "changes": "T009 머지 — DI container + workers wiring + AppLoadContext SSOT (Issue #31, branch `feature/issue-31-di-container`)",
+          "author": "TaekyungHa"
+        }
+      ]
+    },
+    {
+      "id": "T010",
+      "slug": "home-page",
+      "title": "Home Page (F001 Hero + F017 Featured/Recent)",
+      "branch_type": "feature",
+      "phase_id": "P3",
+      "status": "Completed",
+      "purpose": "Home 라우트의 placeholder 를 실 콘텐츠로 채운다 — Hero (whoami + 3-버튼 클러스터), Featured Project 큰 카드 1개, Recent Posts 3개 행, '모두 보기 →' 링크. Featured 미존재 시 fallback (해당 섹션 미렌더) 처리.",
+      "prd_feature_ids": [
+        "F001",
+        "F017"
+      ],
+      "blocked_by": [
+        "T005",
+        "T008",
+        "T009"
+      ],
+      "blocks": [
+        "T016"
+      ],
+      "io_contract": "**입력**: T009 container 의 `getFeaturedProject` + `getRecentPosts(3)` services. **출력**: `app/presentation/routes/_index.tsx` loader + components (`HeroWhoami` / `FeaturedProjectCard` / `RecentPostsList`). **검증**: RTL Hero/Featured/Recent 3 섹션 + ARIA role + 3개 PostRow + Featured fallback + DOM 구조 snapshot.",
+      "sequence": [
+        "_index.tsx loader — container 에서 getFeaturedProject + getRecentPosts(3) 호출",
+        "HeroWhoami.tsx — whoami 프롬프트 + 'ship solo. ship fast.' 카피 + 3-버튼 클러스터 (검색해서 이동 / /about / /projects)",
+        "FeaturedProjectCard.tsx — Featured Project 큰 카드 (cover + title + summary + tags)",
+        "RecentPostsList.tsx — `<PostRow>` 3개 + '모두 보기 →' 링크",
+        "Featured 미존재 시 fallback — 해당 섹션 미렌더 (다른 섹션은 정상)",
+        "RTL 테스트 — loader 호출 검증 + 3 섹션 렌더 + ARIA role + Featured fallback"
+      ],
+      "edge_cases_impl": "## Implementation Notes\n\n- Featured 0건 / Recent 0건 → 해당 섹션만 미렌더. Hero 는 항상 표시.\n- 3-버튼 클러스터의 [검색해서 이동] 은 본 task 시점엔 anchor placeholder — T016 (Cmd+K) 마운트 후 palette 트리거.\n- RecentPostsList 는 정확히 3개 — getRecentPosts(3) 시그니처 강제. 발행된 post 가 2건이면 2개 행만.\n- DOM 구조 assertion: Hero → Featured → Recent 순서를 명시적 selector 로 검증 (snapshot 대신).\n- loader 가 container mock 으로 단위 테스트 가능 — vitest setup 의 `vi.mock` 활용.\n- F001 (Hero) + F017 (Featured/Recent) 동시 구현 — 두 feature 가 같은 라우트에 위치.\n\n## Change History from previous body\n\n- Page-by-Page Key Features 로 검증 (AC 별도 없음).\n- feature branch PR: `feature/issue-N-home-page`.\n- T016 (Cmd+K) 가 본 task 의 [검색해서 이동] 버튼 wiring 을 완성.",
+      "dod": [
+        {
+          "text": "_index.tsx loader 가 getFeaturedProject + getRecentPosts(3) 호출 (mock container)",
+          "completed": true
+        },
+        {
+          "text": "HeroWhoami 렌더 + 3-버튼 클러스터 ARIA role 검증",
+          "completed": true
+        },
+        {
+          "text": "RecentPostsList 가 정확히 3개의 PostRow 렌더 (RTL getAllByRole)",
+          "completed": true
+        },
+        {
+          "text": "Featured 미존재 시 fallback (섹션 미렌더) 처리",
+          "completed": true
+        },
+        {
+          "text": "Hero → Featured → Recent 3 섹션 순서 DOM assertion",
+          "completed": true
+        },
+        {
+          "text": "F001 + F017 동시 구현 검증",
+          "completed": true
+        }
+      ],
+      "open_questions": [],
+      "change_history": [
+        {
+          "date": "2026-04-29",
+          "changes": "T010 머지 — Home page F001 + F017 + RTL 보강 (branch `feature/issue-N-home-page`)",
+          "author": "TaekyungHa"
+        }
+      ]
+    },
+    {
+      "id": "T011",
+      "slug": "about-page",
+      "title": "About Page (F002 사이트 자체 이력서 + F003 PDF 인쇄 스타일)",
+      "branch_type": "feature",
+      "phase_id": "P3",
+      "status": "Completed",
+      "purpose": "About 라우트를 '사이트 자체가 이력서' 컨셉으로 채운다 — Mission / About me / Skills / Career / Education / Certifications / Awards / Languages / Tools 섹션 + 다운로드 가능한 자격증 카드. F003 의 PDF 인쇄 스타일 (CSS `@media print`) 을 도입해 Cmd+P 단축키로 깔끔한 1-3쪽 이력서가 생성되도록 한다.",
+      "prd_feature_ids": [
+        "F002",
+        "F003",
+        "F018"
+      ],
+      "blocked_by": [
+        "T005",
+        "T006",
+        "T009"
+      ],
+      "blocks": [],
+      "io_contract": "**입력**: T009 container (about 데이터는 본 task 시점에 정적 모듈 또는 frontmatter). **출력**: `app/presentation/routes/about.tsx` + `app/presentation/components/about/{MissionSection,SkillsSection,CareerTimeline,EducationList,CertificationCard,AwardList,LanguagesList,ToolsList}.tsx` + `app/app.css` 에 `@media print` block + `meta` export. **검증**: RTL 9 섹션 렌더, print 스타일 적용 시 Topbar/Footer/ThemeToggle 비표시 + 페이지 분할 자연스러움.",
+      "sequence": [
+        "about 데이터 모듈 — `app/presentation/routes/about.data.ts` (정적 TS 상수, A001 자격증 카드 포함)",
+        "9 섹션 컴포넌트 분할 작성 (Mission / About me / Skills / Career / Education / Certifications / Awards / Languages / Tools)",
+        "CertificationCard — 발행기관 + 발급일 + verify 링크 + 다운로드 버튼 (PDF 첨부 파일은 T021 QA 시점)",
+        "print 스타일 — `@media print { body { font-family: ...; } .no-print { display: none; } }` 등 chrome 비표시 + 페이지 분할 hint",
+        "meta export — title `About | tkstar.dev` + description + og:type=profile",
+        "RTL 테스트 — 9 섹션 ARIA region 검증 + print media query CSS 적용"
+      ],
+      "edge_cases_impl": "## Implementation Notes\n\n- About 데이터는 '한 사람의 이력서'라 동적 콘텐츠가 아님 — 정적 TS 상수 모듈로 충분. 향후 외부화 안 함 (1인 사이트).\n- print 스타일 검증은 RTL 의 `window.matchMedia('print').matches` mock — 실제 PDF 출력 픽셀 검증은 T021 수동 QA.\n- CertificationCard 의 verify 링크는 발급기관별 공식 URL — null safe.\n- 자격증 PDF 첨부 (S3/R2 호스팅) 은 본 task 범위 외 — placeholder anchor.\n- 'About me' 섹션의 본문은 PRD §F002 의 화자 톤 (1인칭 한국어, 짧은 단락).\n- Career timeline 은 ISO 8601 date 정렬 (DESC), '현재' 항목은 `end_date: null` 처리.\n- F018 (SEO 메타) 도 본 task 에서 처리 — page-level meta export.\n\n## Change History from previous body\n\n- F003 PDF 출력은 별도 라이브러리 없이 CSS print 만 — 결정 사실.\n- feature branch PR: `feature/issue-N-about-page`.",
+      "dod": [
+        {
+          "text": "9 섹션 모두 렌더 (RTL getByRole region 9개)",
+          "completed": true
+        },
+        {
+          "text": "print 스타일 적용 시 Topbar/Footer/ThemeToggle 비표시",
+          "completed": true
+        },
+        {
+          "text": "Cmd+P 수동 테스트 시 1-3쪽 이력서 깔끔 출력",
+          "completed": true
+        },
+        {
+          "text": "Certification 카드의 verify 링크 + 다운로드 버튼 렌더",
+          "completed": true
+        },
+        {
+          "text": "Career timeline DESC 정렬 + 현재 항목 '현재' 라벨",
+          "completed": true
+        },
+        {
+          "text": "meta export 의 title/description/og:type=profile",
+          "completed": true
+        }
+      ],
+      "open_questions": [],
+      "change_history": [
+        {
+          "date": "2026-04-29",
+          "changes": "T011 머지 — About page F002 + F003 print + 9 섹션 (branch `feature/issue-N-about-page`)",
+          "author": "TaekyungHa"
+        }
+      ]
+    },
+    {
+      "id": "T012",
+      "slug": "projects-list-page",
+      "title": "Projects List Page (F004 ls-style 그리드 + 필터)",
+      "branch_type": "feature",
+      "phase_id": "P3",
+      "status": "Completed",
+      "purpose": "Projects 목록 라우트를 ls-style 그리드 (`Name`/`Type`/`Status`/`Stack`/`Period` 열) 로 채우고, `?tag=` 쿼리 파라미터로 태그 필터를 지원한다. velite project collection → listProjects() service → ProjectCard 렌더.",
+      "prd_feature_ids": [
+        "F004",
+        "F018"
+      ],
+      "blocked_by": [
+        "T005",
+        "T008",
+        "T009"
+      ],
+      "blocks": [
+        "T013"
+      ],
+      "io_contract": "**입력**: T009 container 의 `listProjects({ tag? })`. **출력**: `app/presentation/routes/projects._index.tsx` loader + `ProjectsListGrid.tsx` + `TagFilter.tsx` + page meta. **검증**: RTL 의 grid 행수 = 데이터 수, `?tag=react` 입력 시 필터링 + 빈 결과 시 'No projects' empty state, meta title `Projects | tkstar.dev`.",
+      "sequence": [
+        "projects._index.tsx loader — `searchParams.get('tag')` 추출 → `listProjects({ tag })` 호출",
+        "ProjectsListGrid.tsx — ls-style 5 열 (Name / Type / Status / Stack / Period) 헤더 + 행 렌더",
+        "ProjectCard 행 — Name 링크 (`/projects/$slug`), Status badge, Stack chips",
+        "TagFilter.tsx — 전체 태그 union 리스트 + 활성 태그 시각적 표시 + 클릭 시 `?tag=` 쿼리 변경",
+        "empty state — 필터 결과 0건 시 'No projects matching `<tag>`' + 필터 해제 링크",
+        "RTL 테스트 — 필터 적용/해제 + empty state + 링크 href 정확성"
+      ],
+      "edge_cases_impl": "## Implementation Notes\n\n- ls-style 그리드는 모바일에선 카드형 stack 으로 fallback — Tailwind `md:grid md:grid-cols-5` + `grid grid-cols-1` 분기.\n- `?tag=foo&tag=bar` 다중 태그는 본 task 범위 외 (단일 태그 only). 향후 확장 시 union/intersection 정책 결정 필요.\n- TagFilter 의 태그 union 은 listProjects 가 반환한 collection 에서 flatMap. 본 task 에서 별도 endpoint 없이 client 측 derive.\n- 'Period' 컬럼 표기: `start_date - end_date` (현재 진행 중이면 `start_date - 현재`).\n- meta export 의 description 은 태그 적용 시 동적 — `Projects tagged: <tag>` 등.\n- empty state 의 '필터 해제' 링크 는 `/projects` 로 직접 이동 (history replace 가 아닌 push).\n\n## Change History from previous body\n\n- feature branch PR: `feature/issue-N-projects-list-page`.\n- T013 (project detail) 가 본 task 의 ProjectCard 링크 대상.",
+      "dod": [
+        {
+          "text": "loader 가 `?tag` 쿼리를 listProjects 에 전달",
+          "completed": true
+        },
+        {
+          "text": "ls-style 5 열 헤더 + 행 렌더 (desktop)",
+          "completed": true
+        },
+        {
+          "text": "모바일 stack fallback 동작",
+          "completed": true
+        },
+        {
+          "text": "TagFilter 클릭 시 URL 변경 + 필터 적용",
+          "completed": true
+        },
+        {
+          "text": "필터 결과 0건 시 empty state 렌더 + 해제 링크",
+          "completed": true
+        },
+        {
+          "text": "ProjectCard 의 Name 링크가 `/projects/$slug` 정확",
+          "completed": true
+        },
+        {
+          "text": "page meta title/description 정의",
+          "completed": true
+        }
+      ],
+      "open_questions": [],
+      "change_history": [
+        {
+          "date": "2026-04-29",
+          "changes": "T012 머지 — Projects list F004 + tag 필터 (branch `feature/issue-N-projects-list-page`)",
+          "author": "TaekyungHa"
+        }
+      ]
+    },
+    {
+      "id": "T013",
+      "slug": "project-detail-page",
+      "title": "Project Detail Page (F005 Case Study + Related + prev/next)",
+      "branch_type": "feature",
+      "phase_id": "P3",
+      "status": "Completed",
+      "purpose": "Project Case Study 라우트를 채운다 — TL;DR / Problem / Approach / Decisions / Trade-offs / Result / Stack / Links 섹션 + Related Projects 2-4개 + prev/next 인접 프로젝트 네비게이션. velite project body → MdxRenderer 로 렌더.",
+      "prd_feature_ids": [
+        "F005",
+        "F018"
+      ],
+      "blocked_by": [
+        "T007",
+        "T008",
+        "T009",
+        "T012"
+      ],
+      "blocks": [],
+      "io_contract": "**입력**: T009 container 의 `getProjectDetail({ slug })` → `{ project, prev, next, related }`. **출력**: `app/presentation/routes/projects.$slug.tsx` loader + `ProjectCaseStudy.tsx` + `RelatedProjects.tsx` + `PrevNextNav.tsx` + meta + 404 처리. **검증**: RTL 본문 + Related 카드 + prev/next 링크 정확, slug 미존재 시 404 응답, MDX body 의 heading id (rehype-slug) anchor 동작.",
+      "sequence": [
+        "projects.$slug.tsx loader — `params.slug` 로 getProjectDetail 호출, `ProjectNotFoundError` catch → `throw new Response(null, { status: 404 })`",
+        "ProjectCaseStudy.tsx — TL;DR / Problem / Approach / Decisions / Trade-offs / Result / Stack / Links 섹션 + MdxRenderer 로 body 렌더",
+        "RelatedProjects.tsx — getProjectDetail 가 반환한 related 2-4개 카드",
+        "PrevNextNav.tsx — prev/next 인접 프로젝트 링크 (null safe — 첫/마지막 항목은 비표시)",
+        "page meta — title `<Project Title> | Projects | tkstar.dev` + og image `/og/projects/$slug.png` placeholder (T018 에서 실제 생성)",
+        "RTL 테스트 — body 렌더 + related 카드수 + prev/next null safe + 404 응답"
+      ],
+      "edge_cases_impl": "## Implementation Notes\n\n- prev/next 의 wrap-around 안 함 — 첫 항목은 prev=null, 마지막은 next=null. 컴포넌트에서 null 체크 후 비표시.\n- Related 산정 로직: `findRelated` service 가 동일 tag 교집합 수로 점수 매김 → 상위 2-4개. 점수 0건이면 빈 배열.\n- 404 처리: React Router v7 의 `throw new Response(null, { status: 404 })` + 라우트 ErrorBoundary 또는 T004 splat 으로 위임. 본 task 는 throw 만.\n- MDX body 의 heading anchor 는 T007 의 rehype-slug 가 이미 처리 — 본 task 는 link prefix `#` 만 추가 (A002 1단계).\n- og:image meta 는 placeholder URL `/og/projects/$slug.png` 만 — 실제 PNG endpoint 는 T018 에서.\n- structured data (JSON-LD) 는 T019 에서.\n\n## Change History from previous body\n\n- feature branch PR: `feature/issue-N-project-detail-page`.\n- A002 1단계 (rehype-slug heading anchor) 의 소비자.",
+      "dod": [
+        {
+          "text": "loader 가 getProjectDetail 호출 + 미존재 slug 404 응답",
+          "completed": true
+        },
+        {
+          "text": "Case Study 8 섹션 (TL;DR ~ Links) 모두 렌더",
+          "completed": true
+        },
+        {
+          "text": "MdxRenderer 로 body 렌더 + heading anchor 동작",
+          "completed": true
+        },
+        {
+          "text": "RelatedProjects 2-4개 카드 렌더 + 0건 시 비표시",
+          "completed": true
+        },
+        {
+          "text": "PrevNextNav null safe (첫/마지막 항목)",
+          "completed": true
+        },
+        {
+          "text": "meta og:image placeholder `/og/projects/$slug.png` 정의",
+          "completed": true
+        }
+      ],
+      "open_questions": [],
+      "change_history": [
+        {
+          "date": "2026-04-29",
+          "changes": "T013 머지 — Project detail F005 + Related + prev/next (branch `feature/issue-N-project-detail-page`)",
+          "author": "TaekyungHa"
+        }
+      ]
+    },
+    {
+      "id": "T014",
+      "slug": "blog-list-rss",
+      "title": "Blog List Page (F006) + RSS Feed (F012)",
+      "branch_type": "feature",
+      "phase_id": "P3",
+      "status": "Completed",
+      "purpose": "Blog 목록 라우트를 채우고, 동시에 `/rss.xml` resource route 를 활성화한다. 발행된 post 만 노출 (`draft: false`), 날짜 DESC 정렬, 태그 필터 (`?tag=`), Atom 1.0 또는 RSS 2.0 피드 생성.",
+      "prd_feature_ids": [
+        "F006",
+        "F012",
+        "F018"
+      ],
+      "blocked_by": [
+        "T005",
+        "T008",
+        "T009"
+      ],
+      "blocks": [
+        "T041"
+      ],
+      "io_contract": "**입력**: T009 container 의 `listPosts({ tag?, draft: false })`. **출력**: `app/presentation/routes/blog._index.tsx` + `app/presentation/routes/rss[.xml].tsx` resource loader + `BlogPostList.tsx`. **검증**: RTL 의 post row 수 = 발행된 post 수, `?tag=` 필터 동작, `/rss.xml` 응답 Content-Type `application/xml` + RSS/Atom 스키마 valid.",
+      "sequence": [
+        "blog._index.tsx loader — `searchParams.get('tag')` + `listPosts({ tag, draft: false })`",
+        "BlogPostList.tsx — date / title / excerpt / tags row 렌더",
+        "TagFilter 재사용 (T012 의 컴포넌트)",
+        "rss[.xml].tsx loader — listPosts(draft:false) → XML 직렬화 (RSS 2.0 채택)",
+        "RSS items — title / link (absolute URL) / description (excerpt) / pubDate (RFC 822) / guid",
+        "Content-Type `application/xml; charset=utf-8` 명시 + `<?xml version=\"1.0\" encoding=\"utf-8\"?>` 헤더",
+        "RTL/Vitest — post row 수 + 필터 + RSS XML 스키마 valid (xml2js parse 후 구조 검증)"
+      ],
+      "edge_cases_impl": "## Implementation Notes\n\n- RSS vs Atom — RSS 2.0 채택 (정보원 호환성 우선, 모든 reader 지원).\n- `pubDate` 는 RFC 822 (`Mon, 06 Sep 2010 ...`) — date-fns `format(d, 'EEE, dd MMM yyyy HH:mm:ss xx')` 또는 toUTCString().\n- absolute URL 생성 — `request.url` 의 origin 또는 `env.SITE_ORIGIN` 기준. 1인 사이트라 `https://tkstar.dev` hardcode 도 OK.\n- 발행 안 된 post (`draft: true`) 는 list 와 RSS 양쪽 모두 제외 — listPosts service 의 default 동작.\n- 페이지네이션은 본 task 범위 외 — post 개수 적은 상태에서 full list 노출.\n- meta description 은 'tkstar.dev 의 글 모음' 등 정적.\n- F018 (sitemap 의 blog index 등록) 은 T019 에서.\n\n## Change History from previous body\n\n- feature branch PR: `feature/issue-N-blog-list-rss`.\n- T041 (blog detail) 가 본 task 의 row 링크 대상.",
+      "dod": [
+        {
+          "text": "BlogPostList 가 발행된 post 만 DESC 정렬 렌더",
+          "completed": true
+        },
+        {
+          "text": "TagFilter 동작 + empty state",
+          "completed": true
+        },
+        {
+          "text": "`/rss.xml` 응답 Content-Type `application/xml`",
+          "completed": true
+        },
+        {
+          "text": "RSS 2.0 스키마 valid (xml2js parse 후 channel/item 구조 확인)",
+          "completed": true
+        },
+        {
+          "text": "pubDate RFC 822 포맷",
+          "completed": true
+        },
+        {
+          "text": "draft 포스트는 list 와 RSS 양쪽 제외",
+          "completed": true
+        }
+      ],
+      "open_questions": [],
+      "change_history": [
+        {
+          "date": "2026-04-29",
+          "changes": "T014 머지 — Blog list F006 + RSS F012 (branch `feature/issue-N-blog-list-rss`)",
+          "author": "TaekyungHa"
+        }
+      ]
+    },
+    {
+      "id": "T015",
+      "slug": "legal-routes",
+      "title": "Legal Routes (F014 App Terms/Privacy + Legal Index)",
+      "branch_type": "feature",
+      "phase_id": "P3",
+      "status": "Completed",
+      "purpose": "앱별 약관/개인정보처리방침 라우팅 (`/legal/$app/terms`, `/legal/$app/privacy`) 을 활성화한다. velite legal collection → AppLegalDoc Entity → ChromeFreeLayout 으로 렌더. Legal Index (`/legal`) 는 앱 목록 + 각 앱의 terms/privacy 링크.",
+      "prd_feature_ids": [
+        "F014",
+        "F018"
+      ],
+      "blocked_by": [
+        "T004",
+        "T006",
+        "T007",
+        "T008"
+      ],
+      "blocks": [],
+      "io_contract": "**입력**: T008 container 의 `findAppDoc({ app, kind })` + `listApps()`. **출력**: `legal._index.tsx` + `legal.$app.terms.tsx` + `legal.$app.privacy.tsx` + `meta` export + ChromeFreeLayout 활성. **검증**: `/legal/moai/terms` 직접 접근 시 chrome 미노출, 미존재 app 404, version + effective_date 표시.",
+      "sequence": [
+        "legal._index.tsx — listApps() 호출 → 앱 카드 + 각 앱의 terms/privacy 링크 2개",
+        "legal.$app.terms.tsx + legal.$app.privacy.tsx loader — `findAppDoc({ app: params.app, kind })`",
+        "AppLegalDoc 렌더 — title + version badge + effective_date + MdxRenderer body",
+        "ChromeFreeLayout 적용 — Topbar/Footer 미렌더 (T004 의 layout 활용)",
+        "미존재 app 또는 kind → 404 응답",
+        "meta export — title `<App> Terms | tkstar.dev` + `noindex,follow` (legal 페이지는 인덱싱 제외 결정)",
+        "RTL — chrome 미노출 + version/date 표시 + 404 응답"
+      ],
+      "edge_cases_impl": "## Implementation Notes\n\n- legal 페이지 robots: `noindex,follow` — 검색엔진 크롤은 허용 안 함 (PRD §F014 의 '앱 약관은 앱 스토어 메타와 동기화' 정책).\n- legal._index 자체는 chrome 유지 (ChromeLayout) — 약관 본문 페이지만 ChromeFreeLayout.\n- AppLegalDoc 의 `version` (semver) 과 `effective_date` (ISO date) 는 T006 의 표준 메타 (A003 해소).\n- 본 task 시점의 seed legal 본문 (T007 의 placeholder) 을 정식 본문으로 갱신.\n- 다국어 지원은 본 task 범위 외 — 한국어 only.\n- 앱 식별자 `$app` 은 슬러그 (예: `moai`) — 한글/대문자 disallow (frontmatter schema 에서 강제).\n- F018 (sitemap 의 legal 페이지 등록 정책) 은 T019 에서 — legal 은 noindex 라 sitemap 등록 안 함.\n\n## Change History from previous body\n\n- feature branch PR: `feature/issue-N-legal-routes`.\n- A003 (Legal 표준 메타) 소비.",
+      "dod": [
+        {
+          "text": "/legal/$app/terms + /legal/$app/privacy 라우트 동작",
+          "completed": true
+        },
+        {
+          "text": "ChromeFreeLayout 적용으로 Topbar/Footer 미노출",
+          "completed": true
+        },
+        {
+          "text": "version + effective_date badge 표시",
+          "completed": true
+        },
+        {
+          "text": "/legal 인덱스가 앱 목록 + 링크 2개씩 렌더",
+          "completed": true
+        },
+        {
+          "text": "미존재 app/kind 404 응답",
+          "completed": true
+        },
+        {
+          "text": "meta robots `noindex,follow`",
+          "completed": true
+        }
+      ],
+      "open_questions": [],
+      "change_history": [
+        {
+          "date": "2026-04-29",
+          "changes": "T015 머지 — Legal F014 + ChromeFreeLayout + 표준 메타 (branch `feature/issue-N-legal-routes`)",
+          "author": "TaekyungHa"
+        }
+      ]
+    },
+    {
+      "id": "T016",
+      "slug": "command-palette",
+      "title": "Cmd+K Command Palette (F016)",
+      "branch_type": "feature",
+      "phase_id": "P4",
+      "status": "Completed",
+      "purpose": "검색 우선 네비게이션 — Cmd+K (macOS) / Ctrl+K (Win/Linux) 단축키 + Topbar 검색 버튼으로 트리거되는 모달 palette 를 구현한다. 빌드 타임 생성된 `/search-index.json` 을 fetch + client-side filter (단순 includes + 점수) 로 즉시 결과 렌더.",
+      "prd_feature_ids": [
+        "F001",
+        "F016"
+      ],
+      "blocked_by": [
+        "T003",
+        "T008",
+        "T010"
+      ],
+      "blocks": [],
+      "io_contract": "**입력**: 빌드 타임 생성된 `/search-index.json` (Project/Post entry — title, slug, type, tags, summary). **출력**: `CommandPalette.tsx` + `useCommandPalette.ts` hook + global key listener + `scripts/build-search-index.ts` + `public/search-index.json` 빌드 산출물. **검증**: RTL 키보드 단축키 + 입력 시 필터링 + Enter 시 navigate + Esc 시 닫힘 + 외부 영역 클릭 시 닫힘.",
+      "sequence": [
+        "scripts/build-search-index.ts — velite collections + posts 를 합쳐 `public/search-index.json` 생성 (title/slug/type/tags/summary)",
+        "`prebuild` lifecycle 에 build-search-index 체이닝 (velite build 이후)",
+        "useCommandPalette.ts — global keydown listener (Cmd+K / Ctrl+K) + open/close state",
+        "CommandPalette.tsx — 모달 dialog (role=dialog aria-modal=true), input + 결과 리스트, 화살표 키 navigation + Enter 로 link follow",
+        "Topbar 의 검색 버튼 (T005 의 placeholder) wiring — onClick 으로 palette open",
+        "Hero 의 [검색해서 이동] 버튼 (T010) wiring",
+        "client-side filter — 단순 `includes()` + 점수 (title match > tag > summary)",
+        "RTL — Cmd+K 트리거 / 입력 / 키보드 nav / Enter navigate / Esc 닫힘"
+      ],
+      "edge_cases_impl": "## Implementation Notes\n\n- A007 해소 — 검색 인덱스 라이브러리 미도입 (fuse.js / lunr 등). 단순 includes + 점수로 충분 (1인 사이트의 콘텐츠 규모 < 100건).\n- 단축키: macOS `Cmd+K`, Win/Linux `Ctrl+K`. SSR-safe (window 체크 후 attach).\n- 입력 토큰화 안 함 — 공백 split 후 AND 매칭. 한글 IME composition 중에는 keyEvent.isComposing 체크.\n- 결과 리스트 max 8개 표시 + '더 보기' 시 검색 페이지로 이동 (검색 페이지 미구현 시 fallback 없음 — 본 task 에선 8개 제한만).\n- ARIA — `role=combobox` 입력 + `role=listbox` 결과 + `aria-activedescendant` 로 키보드 nav.\n- 모달 trap focus 는 react-focus-lock 또는 자체 구현. body scroll lock 도 함께.\n- search-index.json 은 정적 fetch (CDN 캐시) — Phase 7.x 의 admin save 시 재생성 트리거는 T040 에서.\n- F001 의 3-버튼 클러스터 [검색해서 이동] 이 본 task 에서 실제 동작.\n\n## Change History from previous body\n\n- A007 (검색 인덱스 라이브러리) 해소 — 단순 includes 채택.\n- feature branch PR: `feature/issue-N-command-palette`.\n- T040 (buildSearchIndex use case 분리) 가 본 task 의 scripts/build-search-index.ts 를 Application service 로 리팩토링.",
+      "dod": [
+        {
+          "text": "Cmd+K (macOS) / Ctrl+K (Win/Linux) 단축키 트리거",
+          "completed": true
+        },
+        {
+          "text": "Topbar 검색 버튼 + Hero [검색해서 이동] 클릭 트리거",
+          "completed": true
+        },
+        {
+          "text": "입력 시 client-side filter 즉시 반영",
+          "completed": true
+        },
+        {
+          "text": "화살표 키 nav + Enter navigate + Esc 닫힘",
+          "completed": true
+        },
+        {
+          "text": "외부 영역 클릭 시 닫힘",
+          "completed": true
+        },
+        {
+          "text": "ARIA role=dialog + aria-modal + role=combobox + role=listbox",
+          "completed": true
+        },
+        {
+          "text": "/search-index.json 빌드 산출물 생성 + prebuild lifecycle 체이닝",
+          "completed": true
+        },
+        {
+          "text": "한글 IME composition 중 단축키/Enter 무시",
+          "completed": true
+        }
+      ],
+      "open_questions": [],
+      "change_history": [
+        {
+          "date": "2026-04-30",
+          "changes": "T016 머지 — Cmd+K palette F016 + A007 해소 (branch `feature/issue-N-command-palette`)",
+          "author": "TaekyungHa"
+        }
+      ]
+    },
+    {
+      "id": "T017",
+      "slug": "contact-form-turnstile-resend",
+      "title": "Contact Form (F008) + Turnstile (F009) + Resend + KV rate-limit",
+      "branch_type": "feature",
+      "phase_id": "P4",
+      "status": "Completed",
+      "purpose": "방문자 → 본인 이메일 contact 채널을 완성한다. ContactSubmission 검증 (Domain) + Cloudflare Turnstile 검증 (Application) + Resend 이메일 발송 (Infrastructure) + KV rate-limit (IP 당 5분 5회). 성공 시 thank-you 페이지, 실패 시 inline 에러.",
+      "prd_feature_ids": [
+        "F008",
+        "F009"
+      ],
+      "blocked_by": [
+        "T006",
+        "T009"
+      ],
+      "blocks": [
+        "T042"
+      ],
+      "io_contract": "**입력**: POST `/contact` action — `{ name, email, message, 'cf-turnstile-response' }`. **출력**: `app/presentation/routes/contact.tsx` action + `app/application/contact/services/submit-contact.ts` + `app/infrastructure/{email/resend.client.ts, captcha/turnstile.verifier.ts, kv/rate-limiter.ts}` + container wiring 확장. **검증**: 정상 입력 → Resend mock send 호출 + 303 redirect to `/contact/thanks`, Turnstile 실패 → 400, rate-limit 초과 → 429, validation 실패 → 422 + field errors.",
+      "sequence": [
+        "Application — `submit-contact.ts` (ports: TurnstileVerifier + EmailSender + RateLimiter)",
+        "Infrastructure — `turnstile.verifier.ts` (siteverify API call), `resend.client.ts` (Resend SDK), `kv/rate-limiter.ts` (KV namespace `RATE_LIMIT_KV` + 5min/5req)",
+        "wrangler.toml — `[[kv_namespaces]] binding = RATE_LIMIT_KV` + secrets `TURNSTILE_SECRET` / `RESEND_API_KEY` / `CONTACT_TO_EMAIL`",
+        "container.ts 확장 — submitContact service 추가",
+        "contact.tsx form — name/email/message + Turnstile widget (사이트 키 env)",
+        "contact.tsx action — body parse → validate → submitContact 호출 → 성공 시 redirect, 실패 시 fieldErrors",
+        "contact/thanks.tsx — 정적 감사 페이지",
+        "RTL/Vitest — validation 실패 422, Turnstile 실패 400, rate-limit 초과 429, 성공 303 + Resend mock 호출"
+      ],
+      "edge_cases_impl": "## Implementation Notes\n\n- rate-limit 키: `rl:contact:<ip>` (IP 는 `request.headers.get('cf-connecting-ip')`). 5분 TTL, count 5 초과 시 429.\n- Turnstile siteverify body: `secret`, `response`, `remoteip` — application/x-www-form-urlencoded.\n- Resend send: `from = noreply@tkstar.dev`, `to = CONTACT_TO_EMAIL`, `reply_to = <visitor email>`. Subject `[contact] <name>`.\n- ContactSubmission validation (T006): name 2..80, email RFC 5322, message 10..5000.\n- IP spoof 방지: `cf-connecting-ip` 만 신뢰, `x-forwarded-for` 무시.\n- thank-you 페이지는 same-origin redirect (303 See Other) — POST 재제출 방지.\n- Turnstile sitekey 는 env `VITE_TURNSTILE_SITEKEY` (public) + secret 은 `TURNSTILE_SECRET`.\n- Resend free tier 한도 (월 3000 통) 는 1인 사이트 contact 트래픽으론 충분.\n- 본 task 의 Email Routing 연결 (수신 측 본인 이메일) 은 T022 에서.\n\n## Change History from previous body\n\n- F008 + F009 동시 구현.\n- feature branch PR: `feature/issue-N-contact-form-turnstile-resend`.\n- T042 (Turnstile dev fallback / hardening) 가 후속.",
+      "dod": [
+        {
+          "text": "정상 입력 → submitContact 호출 + 303 redirect to /contact/thanks",
+          "completed": true
+        },
+        {
+          "text": "validation 실패 시 422 + fieldErrors inline 표시",
+          "completed": true
+        },
+        {
+          "text": "Turnstile 실패 시 400",
+          "completed": true
+        },
+        {
+          "text": "rate-limit 초과 (IP 5분 5회) 시 429",
+          "completed": true
+        },
+        {
+          "text": "Resend SDK mock 으로 send 호출 검증",
+          "completed": true
+        },
+        {
+          "text": "wrangler.toml KV namespace + 3 secrets 등록",
+          "completed": true
+        },
+        {
+          "text": "container.ts 에 submitContact service wiring",
+          "completed": true
+        }
+      ],
+      "open_questions": [],
+      "change_history": [
+        {
+          "date": "2026-04-30",
+          "changes": "T017 머지 — Contact F008 + Turnstile F009 + Resend + KV rate-limit (branch `feature/issue-N-contact-form-turnstile-resend`)",
+          "author": "TaekyungHa"
+        }
+      ]
+    },
+    {
+      "id": "T018",
+      "slug": "satori-og-images",
+      "title": "Satori OG Images (F011) — Project/Blog 슬러그별 1200×630",
+      "branch_type": "feature",
+      "phase_id": "P5",
+      "status": "Completed",
+      "purpose": "Project / Blog 슬러그별 동적 OG 이미지 (1200×630 PNG) 를 Satori standalone 런타임으로 생성하고, Cloudflare Workers Asset Binding 으로 폰트를 로드한다. KV 캐시로 hit ratio 확보, SSR meta 의 og:image 가 실제 endpoint 를 가리키게 한다.",
+      "prd_feature_ids": [
+        "F011",
+        "F018"
+      ],
+      "blocked_by": [
+        "T013",
+        "T041"
+      ],
+      "blocks": [
+        "T019"
+      ],
+      "io_contract": "**입력**: GET `/og/projects/$slug.png` or `/og/blog/$slug.png`. **출력**: `app/presentation/routes/og.projects.$slug[.png].tsx` + `og.blog.$slug[.png].tsx` resource route + `app/application/og/services/render-og.ts` + `app/infrastructure/og/satori.renderer.ts`. **검증**: HEAD/GET 응답 200 + Content-Type `image/png` + PNG magic bytes + 첫 응답 < 1s, KV cache hit 두 번째 응답 < 100ms.",
+      "sequence": [
+        "Satori standalone + resvg-js (또는 satori-html) wasm 도입 — Workers runtime 호환 확인",
+        "Asset Binding — `public/fonts/JetBrainsMono-Bold.woff2` 를 Workers 에서 fetch (T003 의 ASSETS binding 활용)",
+        "Application — `render-og.ts` (ports: OgRenderer + KvCache)",
+        "Infrastructure — `satori.renderer.ts` (1200×630 layout: 로고 + title + tags + brand bar)",
+        "og.projects.$slug[.png].tsx + og.blog.$slug[.png].tsx loader — cache key `og:projects:<slug>:<updated_at>` lookup → miss 시 render + cache put (TTL 7d)",
+        "Project/Blog meta export 갱신 — og:image absolute URL 정확",
+        "RTL/Vitest — PNG magic bytes, Content-Type, cache hit ratio (mock KV)"
+      ],
+      "edge_cases_impl": "## Implementation Notes\n\n- Satori 의 fontWeight 400/700 두 weight 만 로드 — 폰트 다운로드 비용 최소화.\n- 캐시 key 에 `updated_at` 포함 → 콘텐츠 수정 시 자동 invalidation.\n- KV TTL 7d + stale-while-revalidate 안 함 (1인 사이트 트래픽 낮음).\n- 미존재 slug → 404 응답 (생성 안 함).\n- og:image 절대 URL: `https://tkstar.dev/og/projects/<slug>.png` — Twitter/LinkedIn 크롤러가 follow 가능해야.\n- twitter:card = summary_large_image 도 함께 (T019 와 분담 — 본 task 는 endpoint 만, twitter:card meta 는 T019).\n- Asset Binding fetch: `await env.ASSETS.fetch(new Request('http://placeholder/fonts/JetBrainsMono-Bold.woff2'))` 패턴.\n- 폰트 fetch 결과 ArrayBuffer 캐시 (Workers V8 isolate scope) — cold start 1회만.\n- 빌드 산출물 `public/og/static/*.png` (T018) 또는 동적 — 본 task 는 동적 채택.\n- F011 + F018 (og:image) 동시 진행.\n\n## Change History from previous body\n\n- A010 (OG renderer 라이브러리 선정) 해소 — Satori + resvg-js.\n- feature branch PR: `feature/issue-N-satori-og-images`.",
+      "dod": [
+        {
+          "text": "/og/projects/$slug.png 응답 200 + Content-Type image/png",
+          "completed": true
+        },
+        {
+          "text": "/og/blog/$slug.png 응답 200 + Content-Type image/png",
+          "completed": true
+        },
+        {
+          "text": "PNG magic bytes 검증 (`\\x89PNG`)",
+          "completed": true
+        },
+        {
+          "text": "1200×630 dimension 확인",
+          "completed": true
+        },
+        {
+          "text": "KV cache hit 두 번째 응답 < 100ms",
+          "completed": true
+        },
+        {
+          "text": "미존재 slug → 404",
+          "completed": true
+        },
+        {
+          "text": "Project/Blog meta og:image absolute URL 정확",
+          "completed": true
+        },
+        {
+          "text": "Asset Binding 으로 폰트 fetch 동작",
+          "completed": true
+        }
+      ],
+      "open_questions": [],
+      "change_history": [
+        {
+          "date": "2026-04-30",
+          "changes": "T018 머지 — Satori OG F011 + A010 해소 (branch `feature/issue-N-satori-og-images`)",
+          "author": "TaekyungHa"
+        }
+      ]
+    },
+    {
+      "id": "T019",
+      "slug": "seo-sitemap-robots-jsonld",
+      "title": "SEO Meta + Sitemap + Robots + JSON-LD (F018)",
+      "branch_type": "feature",
+      "phase_id": "P5",
+      "status": "Completed",
+      "purpose": "전체 페이지의 SEO 메타 (title/description/canonical/og:*/twitter:*) 표준화 + `/sitemap.xml` + `/robots.txt` 활성화 + JSON-LD (Person / WebSite / BreadcrumbList / Article / SoftwareApplication) 임베드. F018 의 모든 AC 충족.",
+      "prd_feature_ids": [
+        "F018"
+      ],
+      "blocked_by": [
+        "T010",
+        "T011",
+        "T012",
+        "T013",
+        "T014",
+        "T015",
+        "T018",
+        "T041"
+      ],
+      "blocks": [
+        "T020"
+      ],
+      "io_contract": "**입력**: 모든 페이지 라우트. **출력**: `app/application/seo/services/build-meta.ts` + 페이지별 `meta` export 갱신 + `sitemap[.xml].tsx` loader + `robots[.txt].tsx` loader + JSON-LD `<script type=application/ld+json>` 임베드. **검증**: 모든 페이지 meta title/description/canonical/og/twitter 4종 세트, `/sitemap.xml` 응답 Content-Type `application/xml` + XML Sitemap 0.9 schema valid, `/robots.txt` 응답 Content-Type `text/plain`, 각 페이지 JSON-LD schema valid.",
+      "sequence": [
+        "Application — `build-meta.ts` (title/description/canonical/og/twitter/jsonld 통합 빌더)",
+        "각 페이지 (T010~T015, T041) 의 meta export 를 buildMeta 호출로 통일",
+        "sitemap[.xml].tsx loader — Home/About/Projects/Blog/legal 등 모든 indexable URL 수집 → XML Sitemap 0.9",
+        "robots[.txt].tsx loader — `User-agent: * \\nAllow: / \\nDisallow: /admin/ \\nSitemap: https://tkstar.dev/sitemap.xml` (Launch Gate 미운영 시 disallow all)",
+        "JSON-LD — Home (Person + WebSite + WebSite Search Action), About (Person), Project (SoftwareApplication + BreadcrumbList), Post (Article + BreadcrumbList)",
+        "canonical 자동 — `request.url` 기반 절대 URL + query strip",
+        "twitter:card = summary_large_image, twitter:site = @<handle>",
+        "RTL/Vitest — sitemap XML schema, robots Content-Type, JSON-LD JSON parse + schema.org validator (오프라인 schema fixture)"
+      ],
+      "edge_cases_impl": "## Implementation Notes\n\n- legal 페이지는 sitemap 등록 안 함 (T015 의 noindex 정책 일치).\n- canonical 은 query string 제거 — Projects 의 `?tag=` filter 페이지도 base canonical `/projects` 만 표시.\n- og:locale = ko_KR (전체 페이지 한국어).\n- og:image fallback (Home/About 등 slug 없는 페이지) — `/og/static/default.png` 빌드 산출물 또는 정적 자산.\n- JSON-LD Person — name / url / sameAs (GitHub, LinkedIn) / jobTitle.\n- Article schema — headline / datePublished / dateModified / author (Person) / image (og:image).\n- SoftwareApplication — name / applicationCategory / operatingSystem / softwareVersion (project frontmatter).\n- robots.txt 는 Launch Gate (`SITE_LAUNCHED='false'`) 시 전체 disallow — CLAUDE.md 의 Launch Gate 정책 일치.\n- `/sitemap.xml` 도 Launch Gate 시 빈 `<urlset/>` — 본 task 에서 이 분기 처리.\n- twitter:creator handle 은 본인 X 계정.\n\n## Change History from previous body\n\n- F018 (모든 SEO AC) 충족.\n- Launch Gate 정책 통합.\n- feature branch PR: `feature/issue-N-seo-sitemap-robots-jsonld`.",
+      "dod": [
+        {
+          "text": "모든 페이지 meta title/description/canonical 정의",
+          "completed": true
+        },
+        {
+          "text": "모든 페이지 og:title/og:description/og:image/og:type 정의",
+          "completed": true
+        },
+        {
+          "text": "twitter:card=summary_large_image + twitter:site/creator 정의",
+          "completed": true
+        },
+        {
+          "text": "/sitemap.xml XML Sitemap 0.9 schema valid",
+          "completed": true
+        },
+        {
+          "text": "/robots.txt Content-Type text/plain + Launch Gate 분기 처리",
+          "completed": true
+        },
+        {
+          "text": "Home/Project/Post JSON-LD schema.org 통과 (오프라인 validator)",
+          "completed": true
+        },
+        {
+          "text": "legal 페이지 sitemap 등록 제외",
+          "completed": true
+        },
+        {
+          "text": "canonical 의 query string strip",
+          "completed": true
+        }
+      ],
+      "open_questions": [],
+      "change_history": [
+        {
+          "date": "2026-04-30",
+          "changes": "T019 머지 — F018 SEO + sitemap + robots + JSON-LD + Launch Gate 통합 (branch `feature/issue-N-seo-sitemap-robots-jsonld`)",
+          "author": "TaekyungHa"
+        }
+      ]
+    },
+    {
+      "id": "T020",
+      "slug": "search-engine-registration-analytics",
+      "title": "검색엔진 등록 (F019) + Cloudflare Web Analytics (F013)",
+      "branch_type": "feature",
+      "phase_id": "P5",
+      "status": "Completed",
+      "purpose": "Google Search Console + Naver Search Advisor 소유권 인증 메타/파일을 도입하고, Cloudflare Web Analytics 비콘을 root layout 에 임베드한다. 검색엔진 색인 요청은 T022 (배포 후) 수행.",
+      "prd_feature_ids": [
+        "F013",
+        "F019"
+      ],
+      "blocked_by": [
+        "T019"
+      ],
+      "blocks": [
+        "T022"
+      ],
+      "io_contract": "**입력**: T019 의 sitemap.xml + robots.txt + Launch Gate 분기. **출력**: `public/google<hash>.html` (Search Console 파일 인증) + Naver `<meta name='naver-site-verification' content='<hash>'>` (root layout) + Cloudflare Web Analytics 비콘 (`<script src='https://static.cloudflareinsights.com/...' data-cf-beacon=...>`) + `.env`/wrangler secrets 정의. **검증**: `/google<hash>.html` 200 응답, root layout 의 naver meta + cloudflareinsights script 렌더, Launch Gate ON 후 Search Console 인증 통과 (수동).",
+      "sequence": [
+        "Google Search Console — '도메인 속성' 대신 'URL 접두어 속성' 채택 시 파일 인증 / 도메인 속성 채택 시 DNS TXT (T022 에서 처리)",
+        "Naver Search Advisor — `<meta name='naver-site-verification' content='<hash>'>` 를 `app/root.tsx` 의 `<head>` 에 조건부 (production env) 렌더",
+        "Cloudflare Web Analytics — beacon token 발급 후 `data-cf-beacon='{\"token\":\"<token>\"}'` script 임베드",
+        "wrangler.toml — `[vars]` 에 public 식별자 `NAVER_VERIFICATION_HASH` / `CF_ANALYTICS_TOKEN` 등록 (또는 hardcode — 식별자는 public)",
+        "Launch Gate 검사 — `SITE_LAUNCHED='false'` 시 검색엔진 인증 메타도 생략 (인덱싱 자체가 차단되어 무의미)",
+        "DNT (Do Not Track) 대응 — Cloudflare Web Analytics 는 쿠키리스라 본 task 에선 추가 처리 불필요",
+        "RTL — root meta naver-site-verification 렌더 + cloudflareinsights script tag 존재"
+      ],
+      "edge_cases_impl": "## Implementation Notes\n\n- Cloudflare Web Analytics 는 자사 도메인 + Workers 사용 시 자동 등록 가능 — 본 task 의 manual script 임베드는 보강용.\n- Naver Search Advisor 의 meta 는 `https://searchadvisor.naver.com/` 콘솔에서 sitemap 제출 시 함께 등록.\n- 'URL 접두어 속성' vs '도메인 속성' — T022 에서 DNS 설정 시 최종 결정. 본 task 는 두 방법 모두 지원하도록 파일 + 메타 양쪽 준비.\n- Launch Gate ON 전엔 검색엔진 인증 요청 자체 안 함 — 본 task 는 코드/메타만 준비.\n- A005 (Cloudflare Web Analytics) 의 토큰 발급 절차 사실 기록 — CLAUDE.md 의 secret 원칙 (commit 금지) 일치.\n- Naver/Google verification hash 는 public (HTML 에 노출됨) — secret 아님, wrangler `[vars]` 또는 hardcode 둘 다 가능.\n- F013 (Analytics) + F019 (검색엔진 등록) 동시 구현.\n\n## Change History from previous body\n\n- A005 (Web Analytics 토큰 발급 절차) 사실 기록.\n- feature branch PR: `feature/issue-N-search-engine-registration-analytics`.\n- T022 (배포 후) 가 본 task 의 인증을 실제 활성화.",
+      "dod": [
+        {
+          "text": "Naver naver-site-verification meta 가 production env 에서 root layout 에 렌더",
+          "completed": true
+        },
+        {
+          "text": "Google 파일 인증용 `public/google<hash>.html` 200 응답",
+          "completed": true
+        },
+        {
+          "text": "Cloudflare Web Analytics beacon script 임베드",
+          "completed": true
+        },
+        {
+          "text": "Launch Gate OFF 시 인증 메타 생략 분기",
+          "completed": true
+        },
+        {
+          "text": "wrangler.toml `[vars]` 에 NAVER_VERIFICATION_HASH + CF_ANALYTICS_TOKEN 등록 (public 식별자)",
+          "completed": true
+        },
+        {
+          "text": "RTL — root meta + analytics script 렌더 확인",
+          "completed": true
+        },
+        {
+          "text": "A005 토큰 발급 절차 사실 기록",
+          "completed": true
+        }
+      ],
+      "open_questions": [],
+      "change_history": [
+        {
+          "date": "2026-04-30",
+          "changes": "T020 머지 — F013 Analytics + F019 검색엔진 등록 메타 + Launch Gate 일치 (branch `feature/issue-N-search-engine-registration-analytics`)",
+          "author": "TaekyungHa"
+        }
+      ]
+    },
+    {
+      "id": "T021",
+      "slug": "qa-lighthouse-axe",
+      "title": "전체 플로우 QA + Lighthouse + Axe 접근성 점검 + 커버리지 게이트",
+      "branch_type": "chore",
+      "phase_id": "P6",
+      "status": "Completed",
+      "purpose": "MVP 배포 직전, 모든 페이지·라우트·폼·OG·SEO 경로를 수동/자동으로 검증한다. Lighthouse 4 카테고리 (Performance / Accessibility / Best Practices / SEO) 모두 90 이상, Axe critical/serious 0건, Vitest coverage threshold 통과를 게이트로 한다.",
+      "prd_feature_ids": [
+        "F001",
+        "F002",
+        "F003",
+        "F004",
+        "F005",
+        "F006",
+        "F008",
+        "F010",
+        "F011",
+        "F012",
+        "F014",
+        "F016",
+        "F017",
+        "F018"
+      ],
+      "blocked_by": [
+        "T010",
+        "T011",
+        "T012",
+        "T013",
+        "T014",
+        "T015",
+        "T016",
+        "T017",
+        "T018",
+        "T019",
+        "T020",
+        "T041"
+      ],
+      "blocks": [
+        "T022",
+        "T043"
+      ],
+      "io_contract": "**입력**: 모든 P3~P5 페이지·resource route 완성본. **출력**: `docs/qa/` 하위 Lighthouse 리포트 (Home/About/Project Detail/Blog Detail) + Axe 리포트 + Vitest coverage 리포트 + 발견 이슈는 별도 issue 로 분리. **검증**: Lighthouse 4 카테고리 ≥ 90, Axe critical/serious 0, coverage threshold (lines 80 / branches 75 / functions 80 / statements 80) 통과.",
+      "sequence": [
+        "전체 페이지 수동 클릭스루 — Home → About (Cmd+P print 확인) → Projects → Project Detail → Blog → Blog Detail → Contact (form submit 시 Turnstile + Resend 무인쇄 검증) → Legal",
+        "Cmd+K palette — 빈 입력 / 한글 IME / 키보드 nav / 다양한 검색어 시나리오",
+        "다크모드 토글 — 시스템 추종 / 강제 라이트 / 강제 다크 + 새로고침 persist + FOIT 없음",
+        "Lighthouse — `bunx lighthouse https://<preview-url>/...` 4페이지 (Home/About/Project Detail/Blog Detail) 각각 desktop + mobile",
+        "Axe — `@axe-core/playwright` 또는 dev tools 확장으로 4페이지 critical/serious 0건",
+        "Vitest — `bun run test:coverage` threshold 통과 + 미커버 모듈 식별",
+        "OG endpoint 수동 호출 — `/og/projects/<slug>.png`, `/og/blog/<slug>.png` 둘 다 PNG 200",
+        "발견 이슈는 별도 GitHub issue 분리 — 본 task 는 게이트 통과까지만 책임"
+      ],
+      "edge_cases_impl": "## Implementation Notes\n\n- Lighthouse 90 미만 항목은 별도 issue 분리 후 본 task 통과 가능 — 단 SEO/Accessibility 는 90 이상 필수 (PRD §F018 정렬).\n- Axe critical/serious 0건 강제 — moderate/minor 는 issue 분리 허용.\n- coverage threshold 는 T003 의 설정 그대로 — lines 80 / branches 75 / functions 80 / statements 80.\n- 본 task 의 산출물 (Lighthouse / Axe 리포트) 은 `docs/qa/<date>/` 에 저장 — git ignore 안 함, 추적 보존.\n- preview-url 은 `bunx wrangler deploy --env preview` 산출물 또는 dev tunnel.\n- iOS Safari + Android Chrome 모바일 실기기 점검은 옵션 — 본 task 는 desktop + Chrome devtools mobile 에뮬레이션까지 의무.\n- F003 (PDF 인쇄) 은 Cmd+P 수동 시 1-3쪽 깔끔 출력 확인.\n- 발견된 결함 중 critical 한 것은 별도 fix/* task 로 분리하여 머지 후 본 task 재실행.\n\n## Change History from previous body\n\n- chore branch PR: `chore/qa-lighthouse-axe`.\n- T022 (배포) 진입 전 마지막 게이트.",
+      "dod": [
+        {
+          "text": "Home/About/Project Detail/Blog Detail 4페이지 Lighthouse desktop ≥ 90 (4 카테고리)",
+          "completed": true
+        },
+        {
+          "text": "Home/About/Project Detail/Blog Detail 4페이지 Lighthouse mobile ≥ 90 (4 카테고리)",
+          "completed": true
+        },
+        {
+          "text": "Axe critical/serious 0건 (4페이지)",
+          "completed": true
+        },
+        {
+          "text": "Vitest coverage threshold 통과 (lines 80 / branches 75 / functions 80 / statements 80)",
+          "completed": true
+        },
+        {
+          "text": "전체 페이지 수동 클릭스루 무결함",
+          "completed": true
+        },
+        {
+          "text": "Cmd+K palette 한글 IME + 키보드 nav 무결함",
+          "completed": true
+        },
+        {
+          "text": "다크모드 토글 3 상태 + FOIT 없음",
+          "completed": true
+        },
+        {
+          "text": "Contact form 정상/실패/rate-limit 3 경로 검증",
+          "completed": true
+        },
+        {
+          "text": "OG endpoint 2종 PNG 200",
+          "completed": true
+        },
+        {
+          "text": "발견 이슈 분리 (별도 GitHub issue)",
+          "completed": true
+        }
+      ],
+      "open_questions": [],
+      "change_history": [
+        {
+          "date": "2026-05-01",
+          "changes": "T021 머지 — QA + Lighthouse + Axe + coverage 게이트 통과 (branch `chore/qa-lighthouse-axe`)",
+          "author": "TaekyungHa"
+        }
+      ]
+    },
+    {
+      "id": "T022",
+      "slug": "deploy-domain-search-console",
+      "title": "Cloudflare Workers 첫 배포 + tkstar.dev 도메인 연결 + Email Routing + Search Console 인증",
+      "branch_type": "chore",
+      "phase_id": "P6",
+      "status": "Completed",
+      "purpose": "검증 통과한 빌드를 Cloudflare Workers production env 에 처음으로 배포하고, `tkstar.dev` 커스텀 도메인을 연결한다. Email Routing 으로 `contact@tkstar.dev` → 본인 inbox, Search Console (Google + Naver) 소유권 인증을 완료한다.",
+      "prd_feature_ids": [
+        "F008",
+        "F019"
+      ],
+      "blocked_by": [
+        "T021",
+        "T043"
+      ],
+      "blocks": [],
+      "io_contract": "**입력**: T021 통과한 빌드 + tkstar.dev 도메인 (DNS Cloudflare 위임). **출력**: production worker 배포 + custom domain bind + Email Routing rule + Google Search Console 도메인 속성 인증 + Naver Search Advisor 인증 + sitemap 제출. **검증**: `https://tkstar.dev` 200, `https://www.tkstar.dev` 301 → apex, `contact@tkstar.dev` 메일 수신, Search Console 색인 요청 제출.",
+      "sequence": [
+        "wrangler.toml `[env.production]` 확인 — vars / kv_namespaces / Asset Binding 모두 production 값",
+        "secrets — `bunx wrangler secret put TURNSTILE_SECRET --env production` 등 4종 (TURNSTILE_SECRET / RESEND_API_KEY / CONTACT_TO_EMAIL / CF_ANALYTICS_TOKEN — public 식별자는 vars)",
+        "`bunx wrangler deploy --env production` — 첫 배포",
+        "Cloudflare dashboard — Workers Routes 에 `tkstar.dev/*` + `www.tkstar.dev/*` 등록",
+        "DNS — Cloudflare DNS 에 apex A/AAAA proxied + www CNAME proxied (workers.dev 미사용)",
+        "workers/app.ts 의 host normalize (apex 301) — Launch Gate 정책과 무관 항상 동작 확인",
+        "Email Routing — `contact@tkstar.dev` → 본인 inbox 수신 rule 등록 + verification",
+        "Google Search Console — 도메인 속성 추가 + DNS TXT 인증 + sitemap.xml 제출",
+        "Naver Search Advisor — 사이트 등록 + 메타 인증 확인 + sitemap 제출",
+        "Launch Gate ON — wrangler.toml `[env.production.vars] SITE_LAUNCHED='true'` 변경 → redeploy → Search Console 'URL 검사' 색인 요청"
+      ],
+      "edge_cases_impl": "## Implementation Notes\n\n- 첫 배포 직후 Launch Gate 는 `'false'` 유지 — robots.txt 가 전체 disallow, meta `noindex`. 색인 요청 전에 모든 페이지 production 실측 끝낸 후 Launch Gate ON.\n- Cloudflare Workers Free 플랜은 100k req/day 한도 — 1인 사이트엔 충분. 본 task 시점에 Paid 플랜 (Workers Paid $5/mo) 으로 사전 전환 — CLAUDE.md 의 'Workers Paid plan' 사실 일치.\n- Email Routing 은 Cloudflare 무료. SPF/DMARC 자동 세팅.\n- DNS Cloudflare 위임이 안 되어 있으면 본 task 진입 불가 — pre-condition.\n- www → apex 301 은 workers/app.ts 의 host normalize (Launch Gate 와 독립) 가 처리.\n- Search Console 도메인 속성은 DNS TXT 인증 — 'URL 접두어 속성' 보다 모든 protocol/subdomain 커버.\n- CLAUDE.md 의 Launch 절차 4단계 (vars 변경 → typecheck → deploy → 색인 요청) 와 정확히 일치.\n- Resend 의 발신 도메인 인증 (DKIM/SPF/Return-Path) 도 본 task 에서 함께 — `noreply@tkstar.dev` 송신용.\n\n## Change History from previous body\n\n- A005 (Web Analytics 토큰) 실제 활성화.\n- chore branch PR: `chore/deploy-domain-search-console`.\n- MVP launch 시점 task.",
+      "dod": [
+        {
+          "text": "`bunx wrangler deploy --env production` 성공",
+          "completed": true
+        },
+        {
+          "text": "https://tkstar.dev 200 응답 (production)",
+          "completed": true
+        },
+        {
+          "text": "https://www.tkstar.dev 301 → apex",
+          "completed": true
+        },
+        {
+          "text": "production secrets 4종 등록 (wrangler secret put)",
+          "completed": true
+        },
+        {
+          "text": "Email Routing 으로 contact@tkstar.dev 수신 검증",
+          "completed": true
+        },
+        {
+          "text": "Resend 발신 도메인 DKIM/SPF/Return-Path 인증",
+          "completed": true
+        },
+        {
+          "text": "Google Search Console 도메인 속성 인증 + sitemap 제출",
+          "completed": true
+        },
+        {
+          "text": "Naver Search Advisor 인증 + sitemap 제출",
+          "completed": true
+        },
+        {
+          "text": "Launch Gate ON 후 색인 요청 제출 (4 페이지: Home/About/Projects/Blog)",
+          "completed": true
+        },
+        {
+          "text": "Cloudflare Web Analytics dashboard 에 production traffic 수신",
+          "completed": true
+        }
+      ],
+      "open_questions": [],
+      "change_history": [
+        {
+          "date": "2026-05-02",
+          "changes": "T022 머지 — production 첫 배포 + 도메인 + Email Routing + Search Console (branch `chore/deploy-domain-search-console`)",
+          "author": "TaekyungHa"
+        }
+      ]
+    },
+    {
+      "id": "T023",
+      "slug": "cms-bundling-poc",
+      "title": "CMS 번들링 PoC — `nodejs_compat` + 종속성 호환성 검증",
+      "branch_type": "chore",
+      "phase_id": "P7",
+      "status": "Completed",
+      "purpose": "Phase 7.x CMS 인프라 도입 전, Workers runtime 에서 D1 (Drizzle) + R2 + Tiptap (admin) + MDX 런타임 컴파일 (`@mdx-js/mdx`) 등 신규 의존성이 함께 번들·실행 가능한지 PoC 한다. `nodejs_compat` flag 활성, AsyncLocalStorage 충돌 점검, bundle size 측정, cold start 영향 평가까지가 단일 책임.",
+      "prd_feature_ids": [
+        "F020",
+        "F021",
+        "F022"
+      ],
+      "blocked_by": [
+        "T022"
+      ],
+      "blocks": [
+        "T024",
+        "T025",
+        "T026",
+        "T027",
+        "T033"
+      ],
+      "io_contract": "**입력**: T022 production 배포본 + Drizzle / Tiptap / @mdx-js/mdx PoC 모듈. **출력**: wrangler.toml `compatibility_flags = ['nodejs_compat']` + `compatibility_date` 갱신 + PoC report (`docs/notes/cms-bundling-poc.md`) 포함 bundle size before/after, cold start ms, 호환성 결론. **검증**: PoC worker 배포 200, bundle size < Workers 한도 (1MB compressed), cold start < 50ms 증가.",
+      "sequence": [
+        "wrangler.toml — `compatibility_date = '2026-04-15'` (또는 nodejs_compat 안정 날짜), `compatibility_flags = ['nodejs_compat']`",
+        "임시 PoC 라우트 `/__poc/db.ts` — drizzle-orm + drizzle-orm/d1 import + dummy select",
+        "임시 PoC 라우트 `/__poc/mdx.ts` — `@mdx-js/mdx` compile + evaluate 1회 실행",
+        "임시 PoC 라우트 `/__poc/tiptap.ts` — Tiptap core (서버측은 schema 만) import",
+        "임시 PoC 라우트 `/__poc/r2.ts` — `env.R2_MEDIA.list({ limit: 1 })`",
+        "`bunx wrangler deploy --env preview` 로 PoC 배포 + bundle size 계측",
+        "cold start 측정 — preview URL 의 첫 요청 latency (5회 평균)",
+        "결과 → `docs/notes/cms-bundling-poc.md` 작성 (Go/No-Go 결론 포함)",
+        "PoC 라우트 4개는 본 task 머지 직전 제거 — 임시 코드 영속화 금지"
+      ],
+      "edge_cases_impl": "## Implementation Notes\n\n- nodejs_compat 활성으로 `process`, `Buffer` 일부 사용 가능 — 단 'partial' compat 이라 모든 Node API 동작 보장 안 됨. Drizzle/Tiptap/MDX 셋이 실제 사용하는 API 만 검증.\n- Cloudflare Workers bundle 한도는 Paid 플랜 기준 압축 후 10MB / 비압축 100MB. 본 task 의 budget 은 압축 1MB (cold start 보수적 목표).\n- AsyncLocalStorage 는 nodejs_compat 에서 부분 지원 — Drizzle 내부 트랜잭션 핸들링 시 문제 가능. select 만 검증하면 충분.\n- Tiptap 서버측은 schema (`@tiptap/core`, `@tiptap/starter-kit`) 만 사용 — 에디터 UI 는 client-only. 본 task 는 import 가능성만.\n- MDX 런타임 컴파일: `compile(source, { jsx: true, format: 'mdx' })` 의 evaluate 가 V8 isolate 에서 동작하는지 확인. T043 의 V8 eval fix 와 별개 (T027 의 post body 컴파일이 진짜 소비자).\n- bundle size before/after diff 측정 — `wrangler deploy --dry-run --outdir=dist` 의 `bundle.js.gz` 크기.\n- PoC 코드는 본 task 머지 직전 git rm — `docs/notes/cms-bundling-poc.md` 만 영속화.\n- Go/No-Go 결론: '모든 의존성이 호환' → Phase 7.1 본격 시작. '일부 부적합' → 대안 (예: Cloudflare D1 Drizzle 대체 또는 자체 SQL) 결정 후 ROADMAP 갱신.\n\n## Change History from previous body\n\n- chore branch PR: `chore/cms-bundling-poc`.\n- Phase 7.x 의 첫 task — 인프라 의존성 검증 게이트.\n- D2 (수제 DI) 결정과는 별개 — 본 task 는 외부 라이브러리 호환성 게이트.",
+      "dod": [
+        {
+          "text": "wrangler.toml 에 `nodejs_compat` flag + 갱신된 compatibility_date",
+          "completed": true
+        },
+        {
+          "text": "PoC 라우트 4종 preview 배포 200 응답",
+          "completed": true
+        },
+        {
+          "text": "bundle size 압축 후 < 1MB (목표) / < 10MB (한도)",
+          "completed": true
+        },
+        {
+          "text": "cold start 5회 평균 < 50ms 증가 (T022 baseline 대비)",
+          "completed": true
+        },
+        {
+          "text": "Drizzle d1 select 동작 (dummy 테이블)",
+          "completed": true
+        },
+        {
+          "text": "@mdx-js/mdx compile + evaluate 1회 실행 성공",
+          "completed": true
+        },
+        {
+          "text": "Tiptap core schema import 성공",
+          "completed": true
+        },
+        {
+          "text": "R2 list({ limit:1 }) 동작",
+          "completed": true
+        },
+        {
+          "text": "docs/notes/cms-bundling-poc.md 작성 + Go/No-Go 결론",
+          "completed": true
+        },
+        {
+          "text": "PoC 라우트 4개 머지 직전 제거",
+          "completed": true
+        }
+      ],
+      "open_questions": [],
+      "change_history": [
+        {
+          "date": "2026-05-03",
+          "changes": "T023 머지 — nodejs_compat + Drizzle/Tiptap/MDX/R2 PoC + Go 결론 (branch `chore/cms-bundling-poc`)",
+          "author": "TaekyungHa"
+        }
+      ]
+    },
+    {
+      "id": "T024",
+      "slug": "drizzle-d1-setup",
+      "title": "Drizzle ORM + D1 binding + schema 모듈 + migration 환경 셋업",
+      "branch_type": "feature",
+      "phase_id": "P7",
+      "status": "Completed",
+      "purpose": "Phase 7.x 의 데이터 백본인 Cloudflare D1 + Drizzle ORM 을 도입하고, 마이그레이션 파이프라인을 가동시킨다. 본 task 자체엔 테이블이 1개도 정의되어 있지 않아도 무방 — D1 binding + drizzle.config.ts + migration script + dev/preview/production 3-env 가 동작하면 통과.",
+      "prd_feature_ids": [
+        "F021"
+      ],
+      "blocked_by": [
+        "T023"
+      ],
+      "blocks": [
+        "T025",
+        "T038"
+      ],
+      "io_contract": "**입력**: T023 의 nodejs_compat + Drizzle 호환성 확인본. **출력**: `wrangler.toml [[d1_databases]] binding=DB database_name=tkstar-dev` + `drizzle.config.ts` + `app/infrastructure/db/{client.ts, schema.ts}` + `migrations/` 디렉토리 + bun scripts (`db:generate`, `db:migrate:local`, `db:migrate:preview`, `db:migrate:production`). **검증**: `bun run db:migrate:local` 성공, drizzle-kit generate 가 빈 마이그레이션 파일 생성 (테이블 없음), Workers fetch handler 에서 `env.DB` binding 접근 가능.",
+      "sequence": [
+        "Cloudflare dashboard 또는 wrangler 로 D1 database 3개 생성 — `tkstar-dev-local`, `tkstar-dev-preview`, `tkstar-dev-production` (또는 단일 DB + env 분기)",
+        "wrangler.toml 의 dev / preview / production 각각 `[[d1_databases]] binding=DB database_id=...` 등록",
+        "drizzle.config.ts — `dialect: 'sqlite'`, `driver: 'd1-http'` (production) 또는 `better-sqlite' (local)`, schema path `app/infrastructure/db/schema.ts`",
+        "app/infrastructure/db/client.ts — `drizzle(env.DB, { schema })` factory + container 에 주입 준비 (실제 wiring 은 T025 에서)",
+        "app/infrastructure/db/schema.ts — 빈 placeholder export (테이블은 T025/T038 에서 추가)",
+        "package.json scripts — `db:generate` / `db:migrate:local` / `db:migrate:preview` / `db:migrate:production` 4종",
+        "migrations/ 디렉토리 생성 (drizzle-kit 자동 관리)",
+        "bun run db:migrate:local 실행 → 빈 마이그레이션 적용 확인",
+        "MEMORY.md 의 wrangler d1 OAuth 회귀 워크어라운드 (`--command=$(cat)`) 검토 — 본 task 단계에선 미해당 (테이블 없음)"
+      ],
+      "edge_cases_impl": "## Implementation Notes\n\n- D1 dev/preview/production 분리 전략: 단일 DB + env vars 분기 vs 3개 분리 DB. 1인 사이트 + 데이터 양 적음 → 3개 분리 채택 (실수로 dev 가 production 덮어쓰기 방지).\n- drizzle-kit 의 `--driver d1-http` 는 Cloudflare API 키 필요 — secret 으로 관리, CI 에서만 production migration 실행.\n- local migration 은 `wrangler d1 migrations apply --local` 또는 drizzle-kit `push:sqlite` — wrangler 권장.\n- MEMORY.md 의 `wrangler d1 --remote --file=` OAuth 회귀 (4.85 확인 / 4.88 changelog 패치) — 본 task 시점의 wrangler 버전 확인 후 `--command=\"$(cat seed.sql)\"` 우회 필요 여부 판단.\n- D1 binding 명은 `DB` (default) — 본 task 외부에서 `env.DB.prepare(...)` 직접 접근 가능.\n- schema.ts 의 빈 export — 테이블은 T025 (posts) / T038 (project_meta) 에서 추가됨.\n- container 의 PostRepository 주입은 T025 에서. 본 task 는 client factory 만.\n- migration 파일은 git tracked — drizzle-kit 자동 생성 후 PR 에 포함.\n\n## Change History from previous body\n\n- F021 (D1 Post Storage) 인프라 셋업 완료.\n- feature branch PR: `feature/issue-N-drizzle-d1-setup`.",
+      "dod": [
+        {
+          "text": "wrangler.toml dev/preview/production 각 env 의 D1 binding 등록",
+          "completed": true
+        },
+        {
+          "text": "drizzle.config.ts 작성 + schema path 정의",
+          "completed": true
+        },
+        {
+          "text": "app/infrastructure/db/{client,schema}.ts 작성 (빈 schema OK)",
+          "completed": true
+        },
+        {
+          "text": "package.json 의 db:generate / db:migrate:{local,preview,production} 4 scripts",
+          "completed": true
+        },
+        {
+          "text": "`bun run db:migrate:local` 성공",
+          "completed": true
+        },
+        {
+          "text": "Workers fetch handler 에서 env.DB 접근 가능 (typecheck Green)",
+          "completed": true
+        },
+        {
+          "text": "wrangler d1 OAuth 회귀 워크어라운드 (필요 시) 적용 확인",
+          "completed": true
+        }
+      ],
+      "open_questions": [],
+      "change_history": [
+        {
+          "date": "2026-05-04",
+          "changes": "T024 머지 — Drizzle + D1 셋업 + 3-env 분리 (branch `feature/issue-N-drizzle-d1-setup`)",
+          "author": "TaekyungHa"
+        }
+      ]
+    },
+    {
+      "id": "T025",
+      "slug": "post-d1-schema-migration",
+      "title": "Post D1 스키마 + 첫 마이그레이션 + Domain entity 재정렬",
+      "branch_type": "feature",
+      "phase_id": "P7",
+      "status": "Completed",
+      "purpose": "Phase 7.1 의 핵심 — Blog Post 를 velite collection 에서 D1 테이블로 옮긴다. Drizzle schema 정의 + 첫 migration + Domain Post entity 재정렬 (slug / title / excerpt / body_mdx / tags / status / cover / published_at / updated_at / id 등) + post.schema.ts 의 Zod 갱신.",
+      "prd_feature_ids": [
+        "F021",
+        "F007"
+      ],
+      "blocked_by": [
+        "T024"
+      ],
+      "blocks": [
+        "T026",
+        "T027",
+        "T028",
+        "T030",
+        "T032",
+        "T036"
+      ],
+      "io_contract": "**입력**: T024 의 Drizzle/D1 셋업 + T006 의 기존 Post entity. **출력**: `app/infrastructure/db/schema.ts` 의 `posts` 테이블 + `migrations/<timestamp>_init_posts.sql` + 갱신된 `app/domain/post/{post.entity.ts, post.schema.ts}` + `__tests__/` 갱신. **검증**: `bun run db:migrate:local` 성공 + posts 테이블 생성 확인, Domain `__tests__/` Green, 기존 velite post collection 은 시드 변환 전까지 read 호환.",
+      "sequence": [
+        "schema.ts — `posts` 테이블 정의 (id PK, slug UNIQUE, title, excerpt, body_mdx TEXT, tags JSON, status ENUM 'draft'|'published', cover TEXT NULL, cover_alt TEXT NULL, published_at INTEGER NULL, created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL)",
+        "`bun run db:generate` → `migrations/<timestamp>_init_posts.sql` 생성",
+        "`bun run db:migrate:local` 적용 + sqlite shell 로 테이블 조회 검증",
+        "Domain — `post.entity.ts` 의 필드 재정렬 (cover/cover_alt 추가, status enum 도입)",
+        "post.schema.ts — Zod 갱신 (status enum, optional cover/cover_alt, ISO date)",
+        "`__tests__/post.schema.test.ts` 갱신 — status enum, optional cover 케이스 추가",
+        "기존 velite posts collection 은 본 task 단계에선 유지 (T026 에서 read path 전환)"
+      ],
+      "edge_cases_impl": "## Implementation Notes\n\n- status enum 채택 ('draft'|'published') — SQLite 는 enum 미지원, Drizzle `text({ enum: [...] })` 로 표현.\n- timestamp 컬럼은 SQLite `INTEGER` (epoch ms) + Drizzle `integer({ mode: 'timestamp_ms' })`.\n- tags 는 JSON 컬럼 (`text({ mode: 'json' })`) — D1 의 SQLite JSON1 extension 활용.\n- `published_at NULL` ↔ status 'draft' 일관성은 application service 가 보장 (DB constraint 가 아닌).\n- `id` 는 UUIDv7 (timestamp ordered) — 본 task 에선 application 측 생성, DB autogen 안 함.\n- 기존 velite post collection 은 본 task 단계에선 read path 유지 — T026 (Repository) 와 T028 (seed migration) 까지 병존.\n- 후속 T027 (MDX 런타임 컴파일) 의 input 이 본 task 의 `body_mdx` 컬럼.\n- F007 (Blog 상세) 의 데이터 소스가 본 task 부터 D1 으로 전환 — T041 의 detail 페이지가 의존.\n\n## Change History from previous body\n\n- velite post → D1 전환의 schema 정점.\n- feature branch PR: `feature/issue-N-post-d1-schema-migration`.",
+      "dod": [
+        {
+          "text": "schema.ts 의 posts 테이블 정의 (10+ 컬럼)",
+          "completed": true
+        },
+        {
+          "text": "migrations/<timestamp>_init_posts.sql 생성",
+          "completed": true
+        },
+        {
+          "text": "`bun run db:migrate:local` 적용 성공",
+          "completed": true
+        },
+        {
+          "text": "sqlite shell 또는 D1 query 로 posts 테이블 schema 확인",
+          "completed": true
+        },
+        {
+          "text": "Domain Post entity 의 status enum + cover/cover_alt 필드 반영",
+          "completed": true
+        },
+        {
+          "text": "post.schema.ts Zod 갱신 + `__tests__/` Green",
+          "completed": true
+        },
+        {
+          "text": "기존 velite collection 병존 동작 (read path 미전환)",
+          "completed": true
+        }
+      ],
+      "open_questions": [],
+      "change_history": [
+        {
+          "date": "2026-05-05",
+          "changes": "T025 머지 — Post D1 schema + init migration + Domain 재정렬 (branch `feature/issue-N-post-d1-schema-migration`)",
+          "author": "TaekyungHa"
+        }
+      ]
+    },
+    {
+      "id": "T026",
+      "slug": "post-d1-repository",
+      "title": "PostRepository D1 어댑터 + Application service 전환",
+      "branch_type": "feature",
+      "phase_id": "P7",
+      "status": "Completed",
+      "purpose": "T025 의 D1 schema 위에 PostRepository 의 D1 어댑터를 작성하고, 기존 velite repository 를 교체한다. Application services (listPosts / getPostDetail / getRecentPosts) 는 port 만 의존하므로 변경 없음 — DI container 에서 어댑터 swap.",
+      "prd_feature_ids": [
+        "F021",
+        "F006",
+        "F007",
+        "F017"
+      ],
+      "blocked_by": [
+        "T025"
+      ],
+      "blocks": [
+        "T027",
+        "T028"
+      ],
+      "io_contract": "**입력**: T025 의 posts 테이블 + T008 의 PostRepository port. **출력**: `app/infrastructure/db/post.repository.ts` (D1 Drizzle 구현) + `container.ts` 에서 velite → D1 어댑터 swap + `__tests__/post.repository.integration.test.ts` (Miniflare D1). **검증**: 통합 테스트 Green (findAll / findBySlug / findRecent / findByTag / findRelated 5 메서드), 기존 services `__tests__/` (mock repo) 도 여전히 Green.",
+      "sequence": [
+        "app/infrastructure/db/post.repository.ts — Drizzle query 로 PostRepository port 구현",
+        "findAll({ tag?, status='published', draft?: false }) — status filter + tag JSON contains",
+        "findBySlug(slug) — slug = ? AND status = 'published' (admin 은 별도 port 분리는 T032 에서)",
+        "findRecent(n) — published_at DESC LIMIT n",
+        "findByTag(tag) — tags JSON1 contains",
+        "findRelated(slug) — 동일 tag 교집합 수 점수, 자기 자신 제외",
+        "container.ts — velite-post.repository 대신 d1-post.repository 주입",
+        "`__tests__/post.repository.integration.test.ts` — Miniflare D1 fixture + seed → 5 메서드 검증",
+        "기존 services `__tests__/` (mock repo) 변화 없음 확인",
+        "T014 (Blog list) / T041 (Blog detail) 의 SSR 응답이 D1 데이터로 동작하는지 dev 환경에서 수동 확인"
+      ],
+      "edge_cases_impl": "## Implementation Notes\n\n- Drizzle 의 JSON contains 쿼리: SQLite JSON1 의 `json_each` 활용 또는 LIKE 로 fallback. D1 의 JSON1 사용 가능성 확인 — 1인 사이트라 LIKE fallback 도 허용.\n- findBySlug 가 draft 도 반환할지 — 본 task 는 published 만. admin preview 는 별도 port (`AdminPostRepository`) 로 T032 에서 분리.\n- findRelated 의 점수 알고리즘 — T008 의 velite 구현과 동일 (tag 교집합 수). N+1 회피를 위해 단일 query 로 처리.\n- Miniflare D1 fixture — `vitest-pool-workers` 또는 `wrangler` 의 local SQLite + drizzle migrations apply.\n- T028 (seed migration) 이 완료될 때까지 D1 에 실제 데이터는 없을 수 있음 — 본 task 의 통합 테스트는 자체 seed fixture 사용.\n- velite posts collection 코드는 T028 까지 제거 보류 — read path 검증 후 일괄 제거.\n- F006 / F007 / F017 데이터 소스가 본 task 부터 D1.\n\n## Change History from previous body\n\n- feature branch PR: `feature/issue-N-post-d1-repository`.\n- T027 (MDX 런타임) 가 본 task 의 `findBySlug` 결과 `body_mdx` 를 컴파일.",
+      "dod": [
+        {
+          "text": "post.repository.ts 의 5 메서드 (findAll / findBySlug / findRecent / findByTag / findRelated) 구현",
+          "completed": true
+        },
+        {
+          "text": "container.ts 에서 velite → D1 어댑터 swap",
+          "completed": true
+        },
+        {
+          "text": "Miniflare D1 통합 테스트 5 메서드 Green",
+          "completed": true
+        },
+        {
+          "text": "기존 services `__tests__/` (mock repo) 여전히 Green",
+          "completed": true
+        },
+        {
+          "text": "dev 환경 수동 검증 — Blog list/detail 이 D1 데이터로 응답",
+          "completed": true
+        },
+        {
+          "text": "findBySlug 가 published 만 반환 (draft 제외)",
+          "completed": true
+        }
+      ],
+      "open_questions": [],
+      "change_history": [
+        {
+          "date": "2026-05-06",
+          "changes": "T026 머지 — D1 PostRepository + container swap + 통합 테스트 (branch `feature/issue-N-post-d1-repository`)",
+          "author": "TaekyungHa"
+        }
+      ]
+    },
+    {
+      "id": "T027",
+      "slug": "mdx-runtime-compiler-kv-cache",
+      "title": "MDX 런타임 컴파일러 + KV 캐시 (Post body)",
+      "branch_type": "feature",
+      "phase_id": "P7",
+      "status": "Completed",
+      "purpose": "D1 의 `body_mdx` 컬럼을 SSR 요청 시 `@mdx-js/mdx` 로 compile + evaluate 하여 React Element 로 렌더한다. compile 비용 보호를 위해 KV 캐시 (`mdx:post:<id>:<updated_at>` → compiled JS module string) 도입. cache miss 시만 compile 실행.",
+      "prd_feature_ids": [
+        "F020",
+        "F021",
+        "F007"
+      ],
+      "blocked_by": [
+        "T026"
+      ],
+      "blocks": [
+        "T040"
+      ],
+      "io_contract": "**입력**: T026 의 `body_mdx` + Workers KV namespace `MDX_CACHE_KV`. **출력**: `app/application/content/services/render-mdx.ts` (port: MdxCompiler + KvCache) + `app/infrastructure/mdx/{mdx-compiler.ts, kv-cache.ts}` + wrangler.toml KV namespace 추가 + container wiring + `__tests__/`. **검증**: 첫 응답 compile + cache put, 두 번째 응답 cache hit (compile 미실행), cache miss latency < 200ms, cache hit < 20ms.",
+      "sequence": [
+        "wrangler.toml — `[[kv_namespaces]] binding = MDX_CACHE_KV`",
+        "Application — `render-mdx.ts` (input: { id, body_mdx, updated_at } → output: React Element)",
+        "Infrastructure — `mdx-compiler.ts` (`compile(source, { jsx:false, format:'mdx', outputFormat:'function-body' })` + evaluate via `new Function`)",
+        "Infrastructure — `kv-cache.ts` (get/put + TTL 30d)",
+        "cache key — `mdx:post:<id>:<updated_at>` (updated_at 변경 시 자동 invalidation)",
+        "container wiring — renderMdx service 추가",
+        "T041 (Blog detail) loader 가 renderMdx 사용 — 본 task 와 함께 wiring",
+        "Vitest — compile 호출 횟수 검증 (첫 호출 = 1, 두 번째 = 0), Miniflare KV fixture"
+      ],
+      "edge_cases_impl": "## Implementation Notes\n\n- `new Function(compiled)` 의 V8 isolate 호환성은 T023 PoC 에서 확인 — 단 nodejs_compat 의 partial 지원으로 일부 케이스에서 실패 → T043 에서 `@mdx-js/rollup` + `import.meta.glob` 패턴으로 재대체. 본 task 시점엔 런타임 compile 채택.\n- Cache key 의 `updated_at` 은 epoch ms — admin save 시 자동 갱신되어 캐시 무효화.\n- TTL 30d — Workers KV 의 hot key 동작 보장. 한도 무료 1GB / Paid 무제한.\n- compile output: `jsx: false` + `outputFormat: 'function-body'` → 순수 JS 함수 본문, `new Function('arguments', body)` 로 실행.\n- shiki rehype 는 본 task 시점엔 런타임 동작 — bundle size 증가 우려 → T040 또는 별도 task 에서 highlight 결과 캐싱.\n- 보안: `body_mdx` 의 입력자 = admin (본인 1명) 이므로 XSS 신뢰. 외부 입력 (Contact) 와 격리.\n- cache hit miss 비율 모니터링은 Workers Analytics tail.\n- F007 detail 페이지의 본문 렌더 경로가 본 task 에서 D1+런타임 컴파일로 전환.\n\n## Change History from previous body\n\n- T043 (V8 eval fix) 가 본 task 의 런타임 compile 결함을 대체 — 본 task 머지 시점엔 동작.\n- feature branch PR: `feature/issue-N-mdx-runtime-compiler-kv-cache` (PR #97 머지).\n- recent commit `3ee2f22` 와 일치.",
+      "dod": [
+        {
+          "text": "wrangler.toml MDX_CACHE_KV namespace 등록",
+          "completed": true
+        },
+        {
+          "text": "render-mdx.ts service + MdxCompiler + KvCache ports",
+          "completed": true
+        },
+        {
+          "text": "Infrastructure mdx-compiler.ts + kv-cache.ts 구현",
+          "completed": true
+        },
+        {
+          "text": "container 에 renderMdx wiring",
+          "completed": true
+        },
+        {
+          "text": "T041 Blog detail loader 가 renderMdx 사용",
+          "completed": true
+        },
+        {
+          "text": "Vitest — 첫 호출 compile 1회, 두 번째 호출 cache hit (compile 0회)",
+          "completed": true
+        },
+        {
+          "text": "cache miss latency < 200ms, cache hit < 20ms",
+          "completed": true
+        },
+        {
+          "text": "cache key 의 updated_at 변경 시 자동 invalidation",
+          "completed": true
+        }
+      ],
+      "open_questions": [],
+      "change_history": [
+        {
+          "date": "2026-05-12",
+          "changes": "T027 머지 — MDX runtime compiler + KV cache (PR #97, commit `3ee2f22`)",
+          "author": "TaekyungHa"
+        }
+      ]
+    },
+    {
+      "id": "T041",
+      "slug": "blog-detail-page",
+      "title": "Blog Detail Page (F007) — D1 데이터 + MDX 런타임 + Related/PrevNext",
+      "branch_type": "feature",
+      "phase_id": "P3",
+      "status": "Completed",
+      "purpose": "Blog 상세 라우트 (`/blog/$slug`) 를 채운다 — D1 의 post 본문을 MdxRenderer (또는 T027 의 런타임 컴파일러) 로 렌더, 발행일/태그/cover/excerpt 헤더, Related 2-3개, prev/next 인접 포스트 네비게이션. F007 의 모든 AC 충족.",
+      "prd_feature_ids": [
+        "F007",
+        "F018"
+      ],
+      "blocked_by": [
+        "T007",
+        "T008",
+        "T009",
+        "T014"
+      ],
+      "blocks": [
+        "T019",
+        "T021"
+      ],
+      "io_contract": "**입력**: T009 container 의 `getPostDetail({ slug })` → `{ post, prev, next, related }`. **출력**: `app/presentation/routes/blog.$slug.tsx` loader + `BlogPostArticle.tsx` + `RelatedPosts.tsx` + `PrevNextNav.tsx` 재사용 (T013) + meta + 404. **검증**: RTL — body 렌더, related 카드, prev/next null safe, slug 미존재 404, MDX heading anchor 동작, og:image 절대 URL 정확.",
+      "sequence": [
+        "blog.$slug.tsx loader — `params.slug` 로 getPostDetail 호출, draft 제외, 미존재 → 404",
+        "BlogPostArticle.tsx — title / published date / tags / cover (선택) / body MdxRenderer + 본문 내 heading anchor",
+        "RelatedPosts.tsx — 동일 tag 점수 상위 2-3개",
+        "PrevNextNav.tsx 재사용 — published_at DESC 순으로 prev/next 결정, 첫/마지막 null safe",
+        "page meta — title `<Post Title> | Blog | tkstar.dev`, og:image `/og/blog/$slug.png` (T018 endpoint)",
+        "JSON-LD Article — headline / datePublished / dateModified / author / image (T019 에서 통합)",
+        "RTL — 본문 + related + prev/next + 404 + meta og:image"
+      ],
+      "edge_cases_impl": "## Implementation Notes\n\n- 본 task 는 ROADMAP order 상 P3 (Phase 3) 에 속함 — 다만 P7.1 의 T026 이후 데이터 소스가 D1 으로 바뀜. 본 task 자체는 service port (`getPostDetail`) 의존이므로 변경 없음.\n- 기존 docs/tasks/T014b 와 동일한 책임 — Blog Detail 페이지 분리.\n- post 의 `cover` 가 null 이면 헤더에 cover 비표시 — null safe.\n- draft post 는 미존재 취급 (404) — admin preview 는 별도 라우트 (`/admin/posts/<id>/preview`) 로 T032 에서.\n- MdxRenderer 의 한글 typography — Tailwind `prose prose-neutral` + 한국어 행간 보정 (line-height 1.8).\n- Related 점수 0건 시 RelatedPosts 섹션 비표시.\n- prev/next 정렬 기준은 `published_at DESC` (Project 의 sort 와 다름).\n- F018 (sitemap / JSON-LD) 는 T019 에서 본 task 의 slug 들을 수집.\n- T021 QA 단계에서 본 task 의 Lighthouse Accessibility 검증.\n\n## Change History from previous body\n\n- feature branch PR: `feature/issue-N-blog-detail-page` (구 docs/tasks/T014b).\n- T014 (Blog list) 와 T013 (Project detail) 의 페어 task.",
+      "dod": [
+        {
+          "text": "/blog/$slug 직접 접근 시 본문 SSR 렌더",
+          "completed": true
+        },
+        {
+          "text": "draft post 는 404 응답",
+          "completed": true
+        },
+        {
+          "text": "MdxRenderer 로 body 렌더 + heading anchor 동작",
+          "completed": true
+        },
+        {
+          "text": "RelatedPosts 2-3개 + 0건 시 비표시",
+          "completed": true
+        },
+        {
+          "text": "PrevNextNav null safe (첫/마지막)",
+          "completed": true
+        },
+        {
+          "text": "meta og:image absolute `/og/blog/$slug.png`",
+          "completed": true
+        },
+        {
+          "text": "title / date / tags / cover 헤더 정확",
+          "completed": true
+        },
+        {
+          "text": "RTL 5 케이스 (본문/related/prev-next/404/meta) Green",
+          "completed": true
+        }
+      ],
+      "open_questions": [],
+      "change_history": [
+        {
+          "date": "2026-04-30",
+          "changes": "T041 머지 — Blog detail F007 (branch `feature/issue-N-blog-detail-page`, 구 docs/tasks/T014b)",
+          "author": "TaekyungHa"
+        }
+      ]
+    },
+    {
+      "id": "T042",
+      "slug": "contact-rate-limit-structure-update",
+      "title": "PROJECT-STRUCTURE 갱신 — Contact rate-limit + KV binding 문서화 (T017 후속)",
+      "branch_type": "docs",
+      "phase_id": "P4",
+      "status": "Completed",
+      "purpose": "T017 (Contact Form + Turnstile + Resend + KV rate-limit) 머지 후, `docs/PROJECT-STRUCTURE.md` 가 KV 바인딩 / rate-limiter 모듈 / Turnstile verifier 위치를 반영하지 못한 채로 남아 후속 task 의 layer 배치 판단이 흐려진 문제를 해소한다. 코드 변경 없음 — 문서만 갱신.",
+      "prd_feature_ids": [
+        "F008",
+        "F009"
+      ],
+      "blocked_by": [
+        "T017"
+      ],
+      "blocks": [
+        "T021"
+      ],
+      "io_contract": "**입력**: T017 머지본 + 현행 `docs/PROJECT-STRUCTURE.md`. **출력**: `docs/PROJECT-STRUCTURE.md` 갱신본 — `app/infrastructure/{captcha/turnstile.verifier.ts, kv/rate-limiter.ts, email/resend.client.ts}` 명시, wrangler.toml 의 `RATE_LIMIT_KV` 바인딩 정의, container 의 submitContact wiring 다이어그램. **검증**: docs lint (markdown link check), PR review 에서 layer 배치/바인딩 명세 일관성.",
+      "sequence": [
+        "PROJECT-STRUCTURE.md 의 Infrastructure section 에 captcha/kv/email 3 모듈 추가",
+        "wrangler.toml 바인딩 표에 RATE_LIMIT_KV (KV) + TURNSTILE_SECRET / RESEND_API_KEY / CONTACT_TO_EMAIL (secret) 명시",
+        "container 다이어그램 갱신 — submitContact service 의 ports 3개 (TurnstileVerifier / EmailSender / RateLimiter) 시각화",
+        "rate-limit 정책 (IP 당 5분 5회, cf-connecting-ip 신뢰) 문서화",
+        "Contact 흐름 sequence — request → action → submitContact → (verifyTurnstile → rateLimit → sendEmail) → redirect",
+        "기존 docs/tasks/T017-pre 의 내용 통합 — 본 task 가 정식 task ID 부여",
+        "markdown link check + spell check"
+      ],
+      "edge_cases_impl": "## Implementation Notes\n\n- 본 task 는 코드 0 byte 변경 — 순수 docs.\n- branch_type=docs 라 chore 와 별도 — CLAUDE.md 의 doc-only 정책상 Issue 면제, PR 만.\n- 기존 docs/tasks/T017-pre 의 정보 (KV binding / rate-limiter / Turnstile verifier 위치) 를 정식 task ID (T042) 로 옮긴 케이스 — interstitial task.\n- PROJECT-STRUCTURE.md 는 PRD/ROADMAP 과 함께 MANDATORY 문서 — 코드와 drift 방지가 본 task 의 핵심.\n- T021 QA 진입 전 본 task 머지 필수 — 리뷰어가 layer 배치 판단 시 PROJECT-STRUCTURE 를 SoT 로 사용.\n- 다이어그램은 mermaid sequence — repo의 다른 mermaid block 과 스타일 일치.\n- F008 / F009 cover 는 이미 T017 의 task 본문에 있으므로 본 task 의 prd_feature_ids 는 참조만.\n\n## Change History from previous body\n\n- docs branch PR: `docs/contact-rate-limit-structure-update`.\n- 구 docs/tasks/T017-pre 통합.",
+      "dod": [
+        {
+          "text": "PROJECT-STRUCTURE.md Infrastructure section 에 captcha/kv/email 3 모듈 추가",
+          "completed": true
+        },
+        {
+          "text": "wrangler 바인딩 표 갱신 (RATE_LIMIT_KV + 3 secrets)",
+          "completed": true
+        },
+        {
+          "text": "container 다이어그램에 submitContact + 3 ports 시각화",
+          "completed": true
+        },
+        {
+          "text": "Contact 흐름 sequence 다이어그램 추가",
+          "completed": true
+        },
+        {
+          "text": "rate-limit 정책 (5분 5회 / cf-connecting-ip) 명시",
+          "completed": true
+        },
+        {
+          "text": "markdown link check Green",
+          "completed": true
+        },
+        {
+          "text": "구 docs/tasks/T017-pre 내용 통합 + 폐기",
+          "completed": true
+        }
+      ],
+      "open_questions": [],
+      "change_history": [
+        {
+          "date": "2026-04-30",
+          "changes": "T042 머지 — PROJECT-STRUCTURE Contact rate-limit/KV 문서화 (branch `docs/contact-rate-limit-structure-update`, 구 docs/tasks/T017-pre 통합)",
+          "author": "TaekyungHa"
+        }
+      ]
+    },
+    {
+      "id": "T043",
+      "slug": "mdx-renderer-workers-v8-eval-fix",
+      "title": "MdxRenderer Workers V8 eval fix — `@mdx-js/rollup` + `import.meta.glob` 패턴",
+      "branch_type": "fix",
+      "phase_id": "P6",
+      "status": "Completed",
+      "purpose": "T007 의 자체 `evaluateMdxBody` (12 LOC, `new Function` 기반) 가 Cloudflare Workers V8 isolate 에서 일부 MDX 콘텐츠에 대해 `EvalError: Code generation from strings disallowed` 또는 `SyntaxError` 로 실패하는 회귀를 해소한다. 빌드 타임 컴파일 (`@mdx-js/rollup`) + `import.meta.glob` 정적 import 패턴으로 대체.",
+      "prd_feature_ids": [
+        "F005",
+        "F007",
+        "F014"
+      ],
+      "blocked_by": [
+        "T007",
+        "T013",
+        "T015",
+        "T021",
+        "T041"
+      ],
+      "blocks": [
+        "T022"
+      ],
+      "io_contract": "**입력**: T007 의 `MdxRenderer.tsx` + 모든 velite-backed MDX 콘텐츠 (project / legal). **출력**: `vite.config.ts` 의 `@mdx-js/rollup` plugin 추가 + `app/presentation/components/MdxRenderer.tsx` 의 `evaluateMdxBody` 제거 → `import.meta.glob('/content/**/*.mdx', { eager: true })` 기반 컴포넌트 lookup, frontmatter 는 velite 가 계속 처리. **검증**: project / legal MDX 페이지 Workers production env 200 + body 렌더, V8 eval 에러 0건, bundle size 영향 측정.",
+      "sequence": [
+        "vite.config.ts — `@mdx-js/rollup` plugin + rehype/remark 옵션 (rehype-slug + shiki) 등록",
+        "MdxRenderer.tsx — `import.meta.glob('/content/**/*.mdx', { eager: true, import: 'default' })` 로 컴포넌트 map 구성",
+        "기존 `evaluateMdxBody` 12 LOC 제거 + `new Function` 호출 삭제",
+        "velite config — body 컴파일 부분 비활성화 (frontmatter 만 검증), 본문은 vite 가 처리",
+        "T013 (Project detail) / T015 (Legal) / T041 (Blog detail) 의 MdxRenderer 호출 시그니처 일치",
+        "Workers production env preview 배포 → 모든 MDX 페이지 수동 클릭스루",
+        "Vitest — MdxRenderer 가 컴포넌트 lookup 으로 동작 (mock import.meta.glob)",
+        "bundle size before/after 측정 — `@mdx-js/rollup` 추가가 cold start 에 미치는 영향"
+      ],
+      "edge_cases_impl": "## Implementation Notes\n\n- 근본 원인: Cloudflare Workers 의 V8 isolate 는 기본적으로 `eval` / `new Function` 차단 — nodejs_compat 도 이 정책 해소 안 함. T007 시점엔 dev 환경 (vite ssr) 에서만 동작, production worker 에선 실패.\n- 해결 패턴: 빌드 타임에 모든 MDX 를 JS 모듈로 컴파일 (`@mdx-js/rollup`) + `import.meta.glob` 으로 정적 import → 런타임 eval 0회.\n- T027 (Post body 런타임 컴파일) 와 충돌 안 함 — Post 는 D1 의 동적 body, 런타임 compile 후 `new Function` 사용. 그러나 Post 역시 동일 V8 정책 영향 → T027 도 후속에서 `wasm-mdx` 또는 sandboxed runtime 으로 재대체 검토. 본 task 는 정적 콘텐츠 (project/legal) 만.\n- import.meta.glob 의 키는 절대 경로 — 슬러그 매칭 헬퍼로 `/content/projects/<slug>.mdx` → `<slug>` 추출.\n- frontmatter 는 velite 가 빌드 타임에 추출 → Domain entity 매핑은 변경 없음. 본 task 는 본문 컴파일 경로만 교체.\n- Post 의 D1 body 는 런타임 동적이라 본 task 의 import.meta.glob 패턴 적용 불가 — Phase 7.x 의 별도 후속.\n- 본 task 는 fix branch — Issue 발급 후 PR.\n- T021 QA 의 production preview 환경에서 발견된 회귀를 해결 → T022 production 배포 전 필수.\n- T007 의 follow-up Low #7 (shiki rehype `as any`) 도 본 task 에서 함께 정리.\n\n## Change History from previous body\n\n- 구 docs/tasks/T021.5 통합.\n- fix branch PR: `fix/issue-N-mdx-renderer-workers-v8-eval-fix`.\n- T022 production 배포 전 필수 게이트.",
+      "dod": [
+        {
+          "text": "vite.config.ts 에 @mdx-js/rollup plugin 등록",
+          "completed": true
+        },
+        {
+          "text": "MdxRenderer 의 `new Function` / `evaluateMdxBody` 12 LOC 제거",
+          "completed": true
+        },
+        {
+          "text": "import.meta.glob 기반 컴포넌트 lookup 동작",
+          "completed": true
+        },
+        {
+          "text": "Workers production preview 에서 project / legal / blog MDX 페이지 200",
+          "completed": true
+        },
+        {
+          "text": "V8 eval 에러 0건 (Workers tail logs 확인)",
+          "completed": true
+        },
+        {
+          "text": "MDX heading anchor (rehype-slug) 정상 동작",
+          "completed": true
+        },
+        {
+          "text": "shiki 코드블록 정상 highlight",
+          "completed": true
+        },
+        {
+          "text": "bundle size 영향 측정 + cold start 50ms 미만 증가",
+          "completed": true
+        },
+        {
+          "text": "T007 follow-up Low #7 (`as any`) 함께 정리",
+          "completed": true
+        }
+      ],
+      "open_questions": [],
+      "change_history": [
+        {
+          "date": "2026-05-01",
+          "changes": "T043 머지 — MdxRenderer Workers V8 eval fix + import.meta.glob 전환 (branch `fix/issue-N-mdx-renderer-workers-v8-eval-fix`, 구 docs/tasks/T021.5 통합)",
+          "author": "TaekyungHa"
+        }
+      ]
+    },
+    {
+      "id": "T028",
+      "slug": "post-seed-migration",
+      "title": "Post seed migration — velite → D1 데이터 이관 + velite collection 폐기",
+      "branch_type": "chore",
+      "phase_id": "P7",
+      "status": "Pending",
+      "purpose": "T025/T026 으로 D1 schema + Repository 가 완성된 상태에서, 기존 `content/posts/*.mdx` (velite collection) 의 실제 데이터를 D1 `posts` 테이블로 이관하고 velite posts collection 을 삭제한다. 본 task 머지 시점부터 Blog read path 의 SoT 는 D1 단일.",
+      "prd_feature_ids": [
+        "F021",
+        "F006",
+        "F007",
+        "F017"
+      ],
+      "blocked_by": [
+        "T026",
+        "T027"
+      ],
+      "blocks": [
+        "T032"
+      ],
+      "io_contract": "**입력**: 기존 `content/posts/*.mdx` velite collection + D1 posts 테이블 (T025/T026 완성). **출력**: `scripts/seed-posts.ts` (frontmatter + body_mdx → D1 INSERT) + 실행본 + velite.config.ts 의 posts collection 제거 + `content/posts/` 디렉토리 삭제 + `.velite/posts.json` 의존성 제거. **검증**: `bun run seed:posts:local` / `:preview` / `:production` 실행 후 D1 `SELECT count(*) FROM posts` = velite 시절 카운트, Blog list/detail SSR 응답이 velite 의존 없이 200, 빌드 산출물에 `.velite/posts.json` 미포함.",
+      "sequence": [
+        "scripts/seed-posts.ts — velite raw read (또는 `content/posts/*.mdx` 직접 frontmatter parse) → posts 테이블 INSERT (id UUIDv7, slug, body_mdx, tags JSON, status 'published', published_at, created_at, updated_at)",
+        "seed 멱등성 — slug UNIQUE constraint 활용, ON CONFLICT DO UPDATE (upsert) 채택",
+        "MEMORY.md 의 `wrangler d1 OAuth 회귀 워크어라운드` (`--command=\"$(cat seed.sql)\"`) 적용 여부 확인 (wrangler 버전 4.85~4.87 시 필수)",
+        "package.json scripts — `seed:posts:local` / `:preview` / `:production` 3종",
+        "velite.config.ts — posts collection 정의 삭제",
+        "container.ts / Application services — velite-post.repository import 0건 확인 (T026 에서 이미 swap 완료, 본 task 는 코드 제거)",
+        "content/posts/ 디렉토리 삭제 + `.velite/posts.json` lifecycle 영향 점검",
+        "Vitest — Blog list/detail 통합 테스트가 velite fixture 없이 D1 fixture 만으로 Green"
+      ],
+      "edge_cases_impl": "## Implementation Notes\n\n- 본 task 가 머지되어야 Blog read path 가 단일 SoT 로 정리됨 — T026 만 머지된 상태에선 velite + D1 이중 코드가 잔존.\n- seed 멱등성: upsert 채택. seed 스크립트는 CI 가 아닌 1회 수동 실행 + 운영 중엔 admin (T032+) 이 직접 작성.\n- velite posts collection 제거 시 `.velite/posts.json` 도 더 이상 빌드되지 않음 — vitest/typecheck 의 stale 참조 점검.\n- legacy markdown body 가 MDX 문법 위반 시 seed 실패 → 콘텐츠 측 정리 필요. seed log 에 slug 별 결과 표시.\n- production 시드는 한 번만 — 이후 admin 으로 직접 작성.\n- `wrangler d1 execute --remote --file=` OAuth 회귀 (MEMORY.md) — wrangler 버전 확인 후 `--command=\"$(cat ...)\"` 우회 적용 여부 결정.\n- 본 task 머지 후 T032 (Admin Posts List) 가 D1 의 실제 데이터를 표시 가능.\n\n## Change History from previous body\n\n- chore branch PR: `chore/post-seed-migration`.\n- T026 (Repository swap) + T027 (런타임 컴파일) 머지 후 진입.",
+      "dod": [
+        {
+          "text": "scripts/seed-posts.ts 작성 + 멱등 upsert",
+          "completed": false
+        },
+        {
+          "text": "package.json 의 seed:posts:{local,preview,production} 3 scripts",
+          "completed": false
+        },
+        {
+          "text": "`bun run seed:posts:local` 실행 후 D1 posts count = 기존 velite count",
+          "completed": false
+        },
+        {
+          "text": "velite.config.ts 의 posts collection 제거",
+          "completed": false
+        },
+        {
+          "text": "content/posts/ 디렉토리 삭제",
+          "completed": false
+        },
+        {
+          "text": "velite-post.repository import 0건 (grep 검증)",
+          "completed": false
+        },
+        {
+          "text": "Blog list/detail SSR 응답 200 (velite 의존 없음)",
+          "completed": false
+        },
+        {
+          "text": "Vitest 통합 테스트 D1 fixture only Green",
+          "completed": false
+        },
+        {
+          "text": "production seed 1회 실행 + 색인 페이지 일치 확인",
+          "completed": false
+        }
+      ],
+      "open_questions": [],
+      "change_history": []
+    },
+    {
+      "id": "T029",
+      "slug": "cloudflare-access-zero-trust-setup",
+      "title": "Cloudflare Access (Zero Trust) GitHub OAuth + admin allowlist 셋업",
+      "branch_type": "chore",
+      "phase_id": "P8",
+      "status": "Pending",
+      "purpose": "Phase 7.2 의 첫 task — Cloudflare Zero Trust (Free 플랜) 에 team 을 생성하고, GitHub OAuth identity provider 등록 + `/admin/*` 경로에 Access Application + 본인 GitHub 계정 단일 allowlist 정책을 등록한다. Workers 측 JWT 검증 (T030) 은 다음 task, 본 task 는 Cloudflare 측 정책만.",
+      "prd_feature_ids": [
+        "F023"
+      ],
+      "blocked_by": [
+        "T022"
+      ],
+      "blocks": [
+        "T030"
+      ],
+      "io_contract": "**입력**: T022 production 도메인 + Cloudflare 계정 + 본인 GitHub 계정. **출력**: Zero Trust team 생성 + GitHub OAuth IdP 등록 + Access Application (path `/admin/*`) + policy (이메일 또는 GitHub login = 본인) + AUD claim 식별자 발급 + `docs/notes/cloudflare-access-setup.md` (재현 절차 + AUD 식별자 기록). **검증**: `/admin` 직접 접근 시 Cloudflare Access 로그인 화면 → GitHub OAuth → 본인 계정 통과 시 빈 admin 페이지 (T031 placeholder), 비본인 계정 reject.",
+      "sequence": [
+        "Cloudflare dashboard → Zero Trust → team 생성 (Free 플랜)",
+        "Authentication → Login methods → GitHub OAuth IdP 등록 (Client ID / Secret 발급은 GitHub Settings → OAuth Apps)",
+        "Access → Applications → Self-hosted application 생성, hostname `tkstar.dev`, path `/admin/*`",
+        "Policy — Action=Allow, Selector=Emails(본인 이메일) OR GitHub login = `TaekyungHa`",
+        "Application 의 AUD (Audience) claim 식별자 복사 → wrangler.toml `[vars] ACCESS_AUD` 등록 (public 식별자)",
+        "Cookie 도메인 / session duration 24h / Cloudflare Access JWT 발행 도메인 (`<team>.cloudflareaccess.com`) 확인",
+        "임시 `app/presentation/routes/admin.tsx` placeholder 라우트 생성 (T031 에서 정식)",
+        "수동 검증 — 본인 계정 / 비본인 계정 / 미인증 3 케이스",
+        "docs/notes/cloudflare-access-setup.md — 재현 가능한 단계 + AUD / Team 도메인 / IdP slug 기록"
+      ],
+      "edge_cases_impl": "## Implementation Notes\n\n- Cloudflare Zero Trust Free 플랜: 50 user 무료 — 본인 1명이라 충분.\n- GitHub OAuth App 의 Authorization callback URL: `https://<team>.cloudflareaccess.com/cdn-cgi/access/callback`.\n- AUD claim 식별자는 Workers JWT 검증 (T030) 의 필수 input — public 식별자라 vars 로 등록 가능.\n- 본 task 는 인프라 설정 task — 코드 변경은 placeholder 라우트 1개 + wrangler.toml + docs.\n- Cloudflare Access 의 JWT 는 `cf-access-jwt-assertion` header + `CF_Authorization` cookie 양쪽으로 전달됨 — T030 에서 둘 다 처리.\n- 본 task 의 Access Application 정책은 `/admin/*` path matcher — Workers 의 라우트 분기와 일치.\n- Cookie domain — apex `tkstar.dev` 로 설정 (subdomain 미사용).\n- session duration 24h — 본인용이라 길게.\n- F023 의 모든 AC 가 본 task + T030 으로 분담 — 본 task 는 Cloudflare 측, T030 은 Workers 측.\n\n## Change History from previous body\n\n- chore branch PR: `chore/cloudflare-access-zero-trust-setup`.\n- Phase 7.2 의 진입 task.",
+      "dod": [
+        {
+          "text": "Zero Trust team 생성",
+          "completed": false
+        },
+        {
+          "text": "GitHub OAuth IdP 등록 + GitHub OAuth App callback URL 설정",
+          "completed": false
+        },
+        {
+          "text": "Access Application path=/admin/* + policy=본인 단일 등록",
+          "completed": false
+        },
+        {
+          "text": "AUD 식별자 발급 + wrangler.toml [vars] ACCESS_AUD 등록",
+          "completed": false
+        },
+        {
+          "text": "임시 /admin placeholder 라우트 생성 (T031 에서 정식)",
+          "completed": false
+        },
+        {
+          "text": "본인 계정 로그인 통과 → /admin 200",
+          "completed": false
+        },
+        {
+          "text": "비본인 계정 reject",
+          "completed": false
+        },
+        {
+          "text": "미인증 접근 시 Cloudflare Access 로그인 화면",
+          "completed": false
+        },
+        {
+          "text": "docs/notes/cloudflare-access-setup.md 작성 (재현 절차)",
+          "completed": false
+        }
+      ],
+      "open_questions": [],
+      "change_history": []
+    },
+    {
+      "id": "T030",
+      "slug": "access-jwt-verifier",
+      "title": "Workers Access JWT 검증 미들웨어 — fail-closed + JWKS 캐시",
+      "branch_type": "feature",
+      "phase_id": "P8",
+      "status": "Pending",
+      "purpose": "T029 의 Cloudflare Access 를 신뢰 베이스로, Workers 측에서 `/admin/*` 로 들어오는 모든 요청의 `cf-access-jwt-assertion` 또는 `CF_Authorization` 쿠키 JWT 를 검증한다. JWKS lazy fetch + KV 캐시 + RS256 signature 검증 + iss/aud/exp 클레임 검증 + 실패 시 fail-closed (403).",
+      "prd_feature_ids": [
+        "F023"
+      ],
+      "blocked_by": [
+        "T029"
+      ],
+      "blocks": [
+        "T031",
+        "T032",
+        "T034",
+        "T036"
+      ],
+      "io_contract": "**입력**: T029 의 ACCESS_AUD + team 도메인. **출력**: `app/application/auth/services/verify-access-jwt.ts` + `app/infrastructure/auth/{jwks-cache.ts, jwt-verifier.ts}` + workers/app.ts 의 `/admin/*` path 가드 + KV namespace `JWKS_CACHE_KV` + container wiring + `__tests__/` + `app/presentation/routes/admin.tsx` 의 loader 진입 가드. **검증**: 유효 JWT → 200 + `request.context.admin = { sub, email }`, 잘못된 signature → 403, 만료 JWT → 403, JWT 없음 → 403, JWKS 캐시 hit ratio 측정.",
+      "sequence": [
+        "Application — `verify-access-jwt.ts` (port: JwksFetcher + JwtVerifier)",
+        "Infrastructure — `jwks-cache.ts` (KV TTL 6h, key `jwks:<team-domain>`)",
+        "Infrastructure — `jwt-verifier.ts` (RS256 signature 검증 via WebCrypto SubtleCrypto, iss = `https://<team>.cloudflareaccess.com`, aud = ACCESS_AUD, exp 검증)",
+        "wrangler.toml — `[[kv_namespaces]] binding = JWKS_CACHE_KV`",
+        "workers/app.ts — fetch handler 초입에 `/admin/*` 분기, JWT 검증 실패 시 403 fail-closed (loader 미진입)",
+        "container.ts — verifyAccessJwt service wiring + admin context (`{ sub, email }`) 주입",
+        "T031 의 admin.tsx loader 가 `context.admin` 사용 — 본 task 에서 타입 정의 SoT",
+        "Vitest — 정상 JWT / wrong signature / expired / missing / wrong aud / wrong iss 6 케이스 Green",
+        "Miniflare KV fixture 로 JWKS 캐시 hit 검증"
+      ],
+      "edge_cases_impl": "## Implementation Notes\n\n- fail-closed 원칙: JWKS fetch 실패, 캐시 miss + 네트워크 오류, 클레임 missing 모든 경우 403. fail-open (skip verification) 절대 금지.\n- JWKS endpoint: `https://<team>.cloudflareaccess.com/cdn-cgi/access/certs` — 공개 JSON Web Key Set.\n- KV TTL 6h 채택 — Cloudflare 권장. 키 rotation 빈도 고려.\n- iss / aud / exp 외에 nbf (not before) 도 검증 — clock skew 30s 허용.\n- RS256 검증: WebCrypto SubtleCrypto `importKey({kty:'RSA', alg:'RS256'})` + `verify('RSASSA-PKCS1-v1_5', ...)`.\n- email claim 추출 — IdP 가 제공하는 `email` 또는 `identity_nonce` 활용.\n- workers/app.ts 의 가드는 React Router request handler 호출 전에 위치 — loader/action 진입 자체 차단.\n- JWT 두 채널 (header + cookie) — header 우선, 없으면 cookie 파싱.\n- T032 의 Admin Posts API 가 본 task 의 `context.admin` 의존.\n- F023 의 'Cloudflare Workers 가 모든 admin 요청에서 JWT 를 검증' AC 가 본 task 의 책임.\n\n## Change History from previous body\n\n- feature branch PR: `feature/issue-N-access-jwt-verifier`.\n- Phase 7.2 의 핵심 보안 task.",
+      "dod": [
+        {
+          "text": "verify-access-jwt.ts service + ports 2개",
+          "completed": false
+        },
+        {
+          "text": "Infrastructure jwks-cache.ts + jwt-verifier.ts 구현",
+          "completed": false
+        },
+        {
+          "text": "wrangler.toml JWKS_CACHE_KV namespace 등록",
+          "completed": false
+        },
+        {
+          "text": "workers/app.ts 의 /admin/* path 가드 (loader 진입 전)",
+          "completed": false
+        },
+        {
+          "text": "유효 JWT → 200 + context.admin 주입",
+          "completed": false
+        },
+        {
+          "text": "잘못된 signature / 만료 / missing / wrong aud / wrong iss 5 케이스 → 403",
+          "completed": false
+        },
+        {
+          "text": "JWKS KV 캐시 hit 검증",
+          "completed": false
+        },
+        {
+          "text": "Vitest 6 케이스 Green",
+          "completed": false
+        },
+        {
+          "text": "fail-closed 원칙 — fail-open 분기 0건 (코드 리뷰 확인)",
+          "completed": false
+        }
+      ],
+      "open_questions": [],
+      "change_history": []
+    },
+    {
+      "id": "T031",
+      "slug": "admin-layout-shell",
+      "title": "Admin Layout shell — /admin 라우트 + 사이드바 + 빈 dashboard",
+      "branch_type": "feature",
+      "phase_id": "P8",
+      "status": "Pending",
+      "purpose": "T030 의 JWT 검증 통과 후 도달하는 `/admin` 라우트 + AdminLayout (사이드바 + 본문 영역) shell 을 구현한다. Posts / Media / Settings 메뉴 placeholder, 본인 이메일 표시, 로그아웃 링크 (`/cdn-cgi/access/logout`). 본 task 의 dashboard 자체는 빈 카드 — 실데이터 위젯은 후속 task 들.",
+      "prd_feature_ids": [
+        "F020",
+        "F023"
+      ],
+      "blocked_by": [
+        "T030"
+      ],
+      "blocks": [
+        "T032",
+        "T035",
+        "T036"
+      ],
+      "io_contract": "**입력**: T030 의 `context.admin = { sub, email }`. **출력**: `app/presentation/routes/admin.tsx` (layout route) + `app/presentation/routes/admin._index.tsx` (dashboard) + `AdminLayout.tsx` + `AdminSidebar.tsx` + `AdminTopbar.tsx` + 빈 dashboard 카드. **검증**: 인증 통과 후 `/admin` 200 + 사이드바 + 본인 이메일 + 메뉴 4개 (Dashboard / Posts / Media / Settings), 로그아웃 링크 클릭 시 Cloudflare logout URL 이동, ChromeFreeLayout 미사용 (admin 자체 chrome 사용).",
+      "sequence": [
+        "admin.tsx layout route — loader 에서 `context.admin` 추출 → children 에 prop 전달",
+        "AdminLayout.tsx — 좌측 사이드바 (240px) + 본문 영역, 다크모드 토큰 적용 (T005 와 호환)",
+        "AdminSidebar.tsx — 메뉴 4개 (Dashboard / Posts / Media / Settings), 활성 항목 highlight",
+        "AdminTopbar.tsx — 본인 이메일 + 로그아웃 링크 `/cdn-cgi/access/logout`",
+        "admin._index.tsx — 빈 dashboard (총 post 수 / 발행/draft 분포 카드는 후속)",
+        "Posts / Media / Settings placeholder 라우트 (`admin.posts._index.tsx` 등) — T032 에서 본격 구현",
+        "RTL — 사이드바 메뉴 4개 렌더, 활성 highlight, 로그아웃 href 정확, 본인 이메일 표시",
+        "F010 다크모드 토글이 admin 영역에서도 동작 (전역 상태 일치)"
+      ],
+      "edge_cases_impl": "## Implementation Notes\n\n- admin layout 은 ChromeLayout / ChromeFreeLayout 과 다른 별도 레이아웃 — `/admin/*` 만 마운트.\n- 로그아웃: `/cdn-cgi/access/logout` GET 후 Cloudflare Access cookie 무효화 → redirect to `/`.\n- 사이드바 메뉴 활성 매칭: `useLocation()` 의 pathname startsWith.\n- 본인 이메일은 context.admin.email — JWT claim 에서 추출 (T030 의 SoT).\n- F023 의 'admin UI 가 본인 1명에게만 노출' AC 가 본 task 에서 가시화 (사이드바 노출 자체가 검증).\n- 빈 dashboard 의 카드는 후속 task (T032: 총 post 수, T037: 미디어 용량 등) 가 채움.\n- RTL 테스트 시 `context.admin` mock 필요 — vitest setup 또는 fixture helper.\n- Admin 영역도 다크모드 토큰 그대로 — 별도 토큰 시스템 도입 안 함.\n\n## Change History from previous body\n\n- feature branch PR: `feature/issue-N-admin-layout-shell`.",
+      "dod": [
+        {
+          "text": "/admin 인증 통과 후 200",
+          "completed": false
+        },
+        {
+          "text": "AdminLayout 사이드바 (240px) + 본문 영역 렌더",
+          "completed": false
+        },
+        {
+          "text": "AdminSidebar 메뉴 4개 (Dashboard/Posts/Media/Settings)",
+          "completed": false
+        },
+        {
+          "text": "활성 메뉴 highlight 동작",
+          "completed": false
+        },
+        {
+          "text": "AdminTopbar 에 본인 이메일 표시",
+          "completed": false
+        },
+        {
+          "text": "로그아웃 링크 href = /cdn-cgi/access/logout",
+          "completed": false
+        },
+        {
+          "text": "다크모드 토글이 admin 영역에서도 동작",
+          "completed": false
+        },
+        {
+          "text": "RTL 5 케이스 Green",
+          "completed": false
+        }
+      ],
+      "open_questions": [],
+      "change_history": []
+    },
+    {
+      "id": "T032",
+      "slug": "admin-posts-list",
+      "title": "Admin Posts List — /admin/posts + draft 포함 전체 목록 + 필터 + bulk action",
+      "branch_type": "feature",
+      "phase_id": "P8",
+      "status": "Pending",
+      "purpose": "`/admin/posts` 라우트를 채워 본인이 발행 + draft 양쪽 모두 볼 수 있게 한다. status 필터 (all / published / draft), 검색 (title/slug like), 정렬 (updated_at DESC default), bulk delete / publish 액션. AdminPostRepository port 를 신설하여 draft 포함 read 분리.",
+      "prd_feature_ids": [
+        "F020",
+        "F021"
+      ],
+      "blocked_by": [
+        "T028",
+        "T030",
+        "T031"
+      ],
+      "blocks": [
+        "T036"
+      ],
+      "io_contract": "**입력**: T030 의 context.admin + D1 posts 테이블. **출력**: `app/presentation/routes/admin.posts._index.tsx` loader + action + `AdminPostsList.tsx` + `app/application/admin-content/ports/admin-post-repository.port.ts` + `app/infrastructure/db/admin-post.repository.ts` + container wiring + `__tests__/`. **검증**: draft 포함 전체 post 표시, status filter, search, bulk publish/delete 작동 (action POST), CSRF 보호 (origin 검증), pagination (page size 25).",
+      "sequence": [
+        "Application — `admin-post-repository.port.ts` (findAllIncludingDraft({ status?, q?, sort?, page?, pageSize? }), updateStatus(id, status), deleteMany(ids[]))",
+        "Infrastructure — `admin-post.repository.ts` (Drizzle 구현, draft 포함, LIKE 검색)",
+        "container.ts — adminPostRepo 추가, admin-only context 에서만 접근 가능하도록 wiring",
+        "admin.posts._index.tsx loader — searchParams (`status` / `q` / `sort` / `page`) → findAllIncludingDraft",
+        "admin.posts._index.tsx action — bulk publish (status='published', published_at=now), bulk delete (DELETE)",
+        "AdminPostsList.tsx — table (체크박스 / slug / title / status badge / tags / updated_at / 액션 버튼), 페이지네이션 컨트롤",
+        "CSRF — action 진입 시 `request.headers.get('origin')` 검증 (same-origin only)",
+        "RTL/Vitest — filter / search / pagination / bulk publish action / bulk delete action / origin spoofing 차단"
+      ],
+      "edge_cases_impl": "## Implementation Notes\n\n- AdminPostRepository 와 PostRepository 분리: read path (외부 노출) 는 published 만, admin 은 draft 포함. 두 port 분리로 권한 경계 명확.\n- bulk publish 시 `published_at` 이 null 이었으면 `now()`, 이미 published 였으면 변경 안 함.\n- bulk delete 는 hard delete — 1인 사이트라 soft delete 도입 안 함. 실수 복구는 git history 또는 D1 백업.\n- CSRF: Cloudflare Access cookie 가 있으면 CSRF 가능성 있음 — origin 검증 + action method POST only.\n- pagination — offset/limit. 25/페이지.\n- search 는 title LIKE %q% OR slug LIKE %q% (case insensitive).\n- updated_at DESC default — admin 의 작업 흐름 친화.\n- action 의 redirect 는 POST-redirect-GET 패턴.\n- T036 (admin post editor) 가 본 task 의 row 클릭 시 진입.\n- F020 의 Admin UI AC 가 본 task 에서 첫 실데이터 화면.\n\n## Change History from previous body\n\n- feature branch PR: `feature/issue-N-admin-posts-list`.",
+      "dod": [
+        {
+          "text": "admin-post-repository.port + impl + container wiring",
+          "completed": false
+        },
+        {
+          "text": "/admin/posts 가 draft 포함 전체 post 표시",
+          "completed": false
+        },
+        {
+          "text": "status 필터 (all/published/draft) 동작",
+          "completed": false
+        },
+        {
+          "text": "search (title/slug LIKE) 동작",
+          "completed": false
+        },
+        {
+          "text": "pagination (25/page) 동작",
+          "completed": false
+        },
+        {
+          "text": "bulk publish action 동작 (체크박스 + 버튼)",
+          "completed": false
+        },
+        {
+          "text": "bulk delete action 동작 + 확인 dialog",
+          "completed": false
+        },
+        {
+          "text": "CSRF — wrong origin 시 403",
+          "completed": false
+        },
+        {
+          "text": "RTL/Vitest 6 케이스 Green",
+          "completed": false
+        }
+      ],
+      "open_questions": [],
+      "change_history": []
+    },
+    {
+      "id": "T033",
+      "slug": "r2-bucket-setup",
+      "title": "R2 bucket 셋업 + media 메타 D1 테이블 + binding",
+      "branch_type": "chore",
+      "phase_id": "P9",
+      "status": "Pending",
+      "purpose": "Phase 7.3 의 미디어 백본 — Cloudflare R2 bucket (`tkstar-media`) 을 생성하고, Workers 에 binding 한다. 동시에 D1 `media` 테이블 (id / key / filename / mime / size / uploaded_at / alt) 을 추가하여 R2 객체 메타를 추적한다. 본 task 는 인프라만 — upload UI / endpoint 는 T034.",
+      "prd_feature_ids": [
+        "F022"
+      ],
+      "blocked_by": [
+        "T023",
+        "T024"
+      ],
+      "blocks": [
+        "T034",
+        "T038"
+      ],
+      "io_contract": "**입력**: T023 PoC 통과 + T024 D1 셋업. **출력**: R2 bucket 생성 + wrangler.toml `[[r2_buckets]] binding = R2_MEDIA bucket_name = tkstar-media` + D1 `media` 테이블 + migration + custom domain (`media.tkstar.dev`) 또는 worker route 라우팅 결정 + `docs/notes/r2-setup.md`. **검증**: `bun run db:migrate:local` 의 media 테이블 생성, `env.R2_MEDIA.list({ limit: 1 })` 동작, 수동 업로드한 객체가 custom domain 으로 GET 200.",
+      "sequence": [
+        "Cloudflare dashboard 에서 R2 bucket `tkstar-media` 생성 (dev/preview/production 분리 또는 prefix 분리 — 1인 사이트는 단일 bucket + prefix 채택 권장)",
+        "wrangler.toml — `[[r2_buckets]] binding = R2_MEDIA bucket_name = tkstar-media`",
+        "schema.ts — `media` 테이블 (id TEXT PK, key TEXT UNIQUE, filename TEXT, mime TEXT, size INTEGER, alt TEXT NULL, uploaded_at INTEGER)",
+        "`bun run db:generate` + `bun run db:migrate:local`",
+        "media 노출 경로 결정 — custom domain `media.tkstar.dev` (Cloudflare R2 → Settings → Custom Domain) vs Worker route `/media/*` 프록시. 본 task 는 custom domain 채택 (CDN 직접 + signed URL 미사용).",
+        "DNS — media.tkstar.dev CNAME → R2 endpoint, proxied",
+        "수동 업로드 테스트 — `bunx wrangler r2 object put tkstar-media/test.png --file=...` → GET https://media.tkstar.dev/test.png 200",
+        "docs/notes/r2-setup.md — 재현 절차 + custom domain 설정 + CORS 정책"
+      ],
+      "edge_cases_impl": "## Implementation Notes\n\n- bucket 분리 vs prefix 분리: 1인 사이트 + 무료 한도 (10GB) 충분 → 단일 bucket + prefix `posts/`, `projects/cover/` 등.\n- custom domain 채택 — Signed URL 안 씀. 모든 객체 public (콘텐츠가 본인 발행물이라 공개 가능).\n- CORS — 본인 도메인 only `Access-Control-Allow-Origin: https://tkstar.dev`. T034 upload 가 same-origin 이라 사실상 필요 없으나 future-proof.\n- media 테이블의 `key` = R2 object key (예: `posts/2026-05/foo.png`).\n- migration 파일은 git tracked.\n- T034 (upload endpoint) 가 본 task 의 binding + 테이블에 의존.\n- T038 (Project cover) 의 cover_url 도 media.tkstar.dev 가 호스트.\n- A011 (R2 노출 경로) 해소 — custom domain.\n\n## Change History from previous body\n\n- chore branch PR: `chore/r2-bucket-setup`.\n- Phase 7.3 의 진입 task.",
+      "dod": [
+        {
+          "text": "R2 bucket tkstar-media 생성",
+          "completed": false
+        },
+        {
+          "text": "wrangler.toml R2_MEDIA binding 등록",
+          "completed": false
+        },
+        {
+          "text": "D1 media 테이블 + migration 적용",
+          "completed": false
+        },
+        {
+          "text": "custom domain media.tkstar.dev 설정 (DNS + R2 binding)",
+          "completed": false
+        },
+        {
+          "text": "수동 업로드 + GET 200 검증",
+          "completed": false
+        },
+        {
+          "text": "CORS 정책 (Allow-Origin 본인 도메인)",
+          "completed": false
+        },
+        {
+          "text": "docs/notes/r2-setup.md 작성",
+          "completed": false
+        },
+        {
+          "text": "A011 R2 노출 경로 결정 사실 기록",
+          "completed": false
+        }
+      ],
+      "open_questions": [],
+      "change_history": []
+    },
+    {
+      "id": "T034",
+      "slug": "admin-media-upload-api",
+      "title": "Admin Media Upload API — POST /admin/api/media + multipart + R2 put + 메타 INSERT",
+      "branch_type": "feature",
+      "phase_id": "P9",
+      "status": "Pending",
+      "purpose": "admin 이 이미지 (PNG/JPEG/WEBP/AVIF) + 짧은 mp4 를 업로드할 수 있는 endpoint 를 구현한다. multipart parse → MIME 검증 (allowlist) → key 생성 (`<date>/<uuid>.<ext>`) → R2 put → D1 media INSERT → 응답에 url 반환. JWT 가드 + size limit (이미지 5MB / mp4 20MB) + 변환은 본 task 범위 외.",
+      "prd_feature_ids": [
+        "F022",
+        "F020",
+        "F023"
+      ],
+      "blocked_by": [
+        "T030",
+        "T033"
+      ],
+      "blocks": [
+        "T035",
+        "T036",
+        "T037"
+      ],
+      "io_contract": "**입력**: POST `/admin/api/media` multipart (`file`, `alt?`). **출력**: `app/presentation/routes/admin.api.media.tsx` action + `app/application/media/services/upload-media.ts` + `app/infrastructure/media/{r2.client.ts, media.repository.ts}` + container wiring + `__tests__/`. **검증**: 정상 업로드 → 201 + `{ id, key, url, alt }`, MIME disallow → 415, size 초과 → 413, JWT 없음 → 403, R2 put 실패 → 500 + D1 INSERT rollback (또는 미수행).",
+      "sequence": [
+        "Application — `upload-media.ts` (ports: R2Client + MediaRepository, input: { stream, mime, size, alt? }, MIME allowlist 검증)",
+        "Infrastructure — `r2.client.ts` (env.R2_MEDIA wrapper), `media.repository.ts` (D1 INSERT)",
+        "MIME allowlist — `image/png`, `image/jpeg`, `image/webp`, `image/avif`, `video/mp4`",
+        "size limit — image 5MB, mp4 20MB (mime 기반 분기)",
+        "key 생성 — `<yyyy-mm>/<uuidv7>.<ext>` (prefix 로 콘텐츠 유형 별도 구분 안 함, 본 task 는 단일 prefix)",
+        "admin.api.media.tsx action — JWT 가드 (T030 의 context.admin), multipart parse, upload-media 호출, JSON 응답",
+        "transactional 보장 — R2 put 성공 후 D1 INSERT. INSERT 실패 시 R2 객체 삭제 (cleanup)",
+        "Vitest — 정상 / wrong mime / oversized / missing JWT / R2 fail rollback 5 케이스"
+      ],
+      "edge_cases_impl": "## Implementation Notes\n\n- multipart parse: Workers 의 `request.formData()` 사용 — 대용량 파일은 stream 처리 권장이지만 size limit 20MB 라 in-memory 허용.\n- mime sniffing 안 함 — client 가 보낸 Content-Type 신뢰 (admin 본인 1명).\n- key 의 UUIDv7 — timestamp 정렬 + 충돌 방지.\n- R2 put 의 `httpMetadata` 에 cacheControl `public, max-age=31536000, immutable` (1년) — content-addressed 라 안전.\n- 변환 (resize / format conversion) 본 task 범위 외 — Cloudflare Images 또는 T037 의 후속 task.\n- D1 INSERT rollback 안 함 (D1 트랜잭션 미지원 가능) — R2 put 후 INSERT 실패 시 cleanup (R2 delete).\n- 응답 url = `https://media.tkstar.dev/<key>`.\n- alt 텍스트는 optional — admin 이 안 넘기면 빈 문자열.\n- F022 / F020 / F023 3 feature 가 본 task 의 직접 cover.\n\n## Change History from previous body\n\n- feature branch PR: `feature/issue-N-admin-media-upload-api`.\n- T035 (Media library UI) 가 본 task 의 endpoint 를 호출.",
+      "dod": [
+        {
+          "text": "POST /admin/api/media JWT 가드 통과 시 201",
+          "completed": false
+        },
+        {
+          "text": "응답 body { id, key, url, alt }",
+          "completed": false
+        },
+        {
+          "text": "MIME allowlist 5종 통과, 외 415",
+          "completed": false
+        },
+        {
+          "text": "size limit (image 5MB / mp4 20MB) 초과 시 413",
+          "completed": false
+        },
+        {
+          "text": "JWT 없음 → 403",
+          "completed": false
+        },
+        {
+          "text": "R2 put 실패 시 D1 INSERT 미수행 + cleanup",
+          "completed": false
+        },
+        {
+          "text": "R2 객체에 cacheControl 1년 immutable",
+          "completed": false
+        },
+        {
+          "text": "Vitest 5 케이스 Green",
+          "completed": false
+        }
+      ],
+      "open_questions": [],
+      "change_history": []
+    },
+    {
+      "id": "T035",
+      "slug": "admin-media-library",
+      "title": "Admin Media Library — /admin/media 그리드 + 검색 + alt 편집 + 삭제",
+      "branch_type": "feature",
+      "phase_id": "P9",
+      "status": "Pending",
+      "purpose": "admin 이 업로드한 미디어 자산을 한 화면에서 보고 관리할 수 있는 라이브러리 UI 를 구현한다. 그리드 뷰 (썸네일) + 필터 (mime) + 검색 (filename / alt) + alt 편집 inline + 삭제 (R2 + D1 cascade). Tiptap (T036) 에서 'image insert' 시 본 라이브러리 모달 호출.",
+      "prd_feature_ids": [
+        "F022",
+        "F020"
+      ],
+      "blocked_by": [
+        "T031",
+        "T034"
+      ],
+      "blocks": [
+        "T036"
+      ],
+      "io_contract": "**입력**: T034 의 upload endpoint + 미디어 메타 D1. **출력**: `app/presentation/routes/admin.media._index.tsx` loader + action + `MediaGrid.tsx` + `MediaCard.tsx` + `MediaPickerModal.tsx` (T036 에서 재사용) + `__tests__/`. **검증**: 그리드 24/page, mime filter, filename/alt search, inline alt 편집 PATCH, 삭제 시 R2 + D1 cascade, 모달 mode (선택 → onSelect 콜백).",
+      "sequence": [
+        "admin.media._index.tsx loader — mediaRepo.findAll({ mime?, q?, page }), 24/page pagination",
+        "action — PATCH (alt 편집) / DELETE (R2 + D1)",
+        "MediaGrid.tsx — 6 cols (desktop) / 3 cols (tablet) / 2 cols (mobile)",
+        "MediaCard.tsx — 썸네일 + filename + size + mime badge + alt inline edit + 액션 (copy URL / delete)",
+        "MediaPickerModal.tsx — 동일 그리드 + onSelect prop, T036 에서 호출",
+        "삭제 처리 — R2 delete 성공 후 D1 delete (cleanup 순서 본 task 에선 best-effort)",
+        "Vitest — list / filter / search / alt edit / delete / picker onSelect 6 케이스"
+      ],
+      "edge_cases_impl": "## Implementation Notes\n\n- 썸네일은 원본 그대로 (작은 이미지 가정) — Cloudflare Images 변환 미도입.\n- copy URL 액션 — clipboard API `navigator.clipboard.writeText(url)`.\n- 삭제 confirmation dialog 필수.\n- R2 delete 실패 + D1 delete 성공 시 orphan 객체 가능 — 1인 사이트 허용. 주기적 cleanup script (별도 task) 향후 필요 시.\n- MediaPickerModal 의 onSelect 는 `{ id, url, alt }` 반환 — Tiptap image extension 의 attrs 와 매핑.\n- mime filter — image / video 두 그룹만 (전체 mime 노출 안 함).\n- pagination 24/page (그리드 4행 × 6열).\n- 본 task 의 컴포넌트는 admin 영역 — 다크모드 토큰 그대로 적용.\n\n## Change History from previous body\n\n- feature branch PR: `feature/issue-N-admin-media-library`.\n- T036 의 image picker 의존성.",
+      "dod": [
+        {
+          "text": "/admin/media 그리드 렌더 (24/page)",
+          "completed": false
+        },
+        {
+          "text": "mime filter (image/video) 동작",
+          "completed": false
+        },
+        {
+          "text": "filename/alt search 동작",
+          "completed": false
+        },
+        {
+          "text": "alt inline 편집 PATCH 200",
+          "completed": false
+        },
+        {
+          "text": "삭제 시 R2 + D1 cascade",
+          "completed": false
+        },
+        {
+          "text": "MediaPickerModal onSelect prop 동작 (T036 호출 대비)",
+          "completed": false
+        },
+        {
+          "text": "copy URL clipboard 동작",
+          "completed": false
+        },
+        {
+          "text": "Vitest 6 케이스 Green",
+          "completed": false
+        }
+      ],
+      "open_questions": [],
+      "change_history": []
+    },
+    {
+      "id": "T036",
+      "slug": "admin-post-editor-tiptap",
+      "title": "Admin Post Editor — Tiptap WYSIWYG + MDX serialize + draft/publish + autosave",
+      "branch_type": "feature",
+      "phase_id": "P9",
+      "status": "Pending",
+      "purpose": "Phase 7.3 의 핵심 — admin 이 모바일/외부에서 본문을 작성·편집·발행할 수 있는 WYSIWYG 에디터. Tiptap (client-only) + MDX serialize (Tiptap doc → MDX text) + 이미지 삽입 (MediaPickerModal 호출) + draft / publish 토글 + autosave (debounce 3s). T027 의 런타임 컴파일러가 본 task 의 본문을 SSR 렌더.",
+      "prd_feature_ids": [
+        "F020",
+        "F021",
+        "F022"
+      ],
+      "blocked_by": [
+        "T025",
+        "T032",
+        "T035"
+      ],
+      "blocks": [
+        "T040"
+      ],
+      "io_contract": "**입력**: GET `/admin/posts/$id/edit` + POST/PATCH 액션. **출력**: `app/presentation/routes/admin.posts.$id.edit.tsx` + `app/presentation/routes/admin.posts.new.tsx` + `TiptapEditor.tsx` (client) + `app/application/admin-content/services/{save-post.ts, publish-post.ts}` + `app/infrastructure/mdx/tiptap-to-mdx.ts` + autosave hook + `__tests__/`. **검증**: 신규/편집 흐름, draft save, publish 토글 (published_at 세팅), autosave 3s debounce, 이미지 삽입 흐름, MDX serialize 라운드트립 (load → edit → save → reload 동일 결과).",
+      "sequence": [
+        "TiptapEditor.tsx (client only) — StarterKit + Image (custom node) + CodeBlockShiki + Link + Heading id (auto slug)",
+        "Application — `save-post.ts` (input: postId? + tiptap JSON + frontmatter, output: { id, slug, body_mdx, updated_at })",
+        "Application — `publish-post.ts` (input: id, output: { published_at })",
+        "Infrastructure — `tiptap-to-mdx.ts` (Tiptap doc → MDX serialize, prosemirror-markdown 변형 또는 자체 visitor)",
+        "admin.posts.$id.edit.tsx — loader (post fetch by id, body_mdx → tiptap doc 역직렬화), action (save / publish / delete)",
+        "admin.posts.new.tsx — 빈 에디터, save 시 INSERT",
+        "autosave hook — `useDebouncedEffect(state, 3000, save)` + 'Saved' 토스트",
+        "이미지 삽입 — Tiptap Image extension 의 toolbar 버튼 → MediaPickerModal (T035) onSelect → image node 삽입 with url/alt",
+        "draft/publish 토글 UI — published_at NULL ↔ now()",
+        "Vitest — save round-trip (Tiptap → MDX → Tiptap 동일), publish 시 published_at 세팅, autosave debounce, image insert"
+      ],
+      "edge_cases_impl": "## Implementation Notes\n\n- Tiptap 은 client only — SSR safe wrapper 또는 dynamic import. admin 페이지라 SSR 의 첫 paint 가 짧아도 OK.\n- MDX serialize: 모든 Tiptap 노드 → MDX 라운드트립 보장이 핵심. 미지원 노드 (예: 표) 는 본 task 에선 제외 (Heading / Paragraph / List / Code / Image / Link 만).\n- CodeBlockShiki — T007 의 shiki highlighting 과 별도 (에디터 내부의 미리보기용). 저장 시엔 일반 ```lang 코드블록 으로 serialize.\n- frontmatter 입력 폼 — 별도 form (title, slug, tags, cover, excerpt) + tiptap 본문 분리.\n- slug autogen — title → slugify (한국어는 transliteration 또는 timestamp fallback).\n- autosave 는 dirty 상태일 때만 — 'Saved' 토스트로 사용자에게 알림.\n- publish 시 KV mdx cache (T027) invalidation — `updated_at` 변경으로 자동.\n- search-index 재생성 트리거는 T040 에서 — 본 task 의 save 후 hook.\n- 권한: T030 JWT 가드 통과한 admin 만 — action 진입 시 재확인.\n- 모바일 UX — toolbar collapse, virtual keyboard 영향 고려.\n\n## Change History from previous body\n\n- feature branch PR: `feature/issue-N-admin-post-editor-tiptap`.\n- F020 (Admin Editor) 의 최대 task — 모든 작성 흐름이 본 task 위에서 동작.",
+      "dod": [
+        {
+          "text": "/admin/posts/new 빈 에디터 + frontmatter 폼",
+          "completed": false
+        },
+        {
+          "text": "/admin/posts/$id/edit 의 기존 post 로드 + Tiptap 역직렬화",
+          "completed": false
+        },
+        {
+          "text": "save action draft 저장 + 200 + updated_at 갱신",
+          "completed": false
+        },
+        {
+          "text": "publish 토글 시 published_at 세팅",
+          "completed": false
+        },
+        {
+          "text": "autosave 3s debounce + 'Saved' 토스트",
+          "completed": false
+        },
+        {
+          "text": "이미지 삽입 → MediaPickerModal → Tiptap image node 삽입",
+          "completed": false
+        },
+        {
+          "text": "MDX serialize 라운드트립 검증 (load → edit → save → reload 동일)",
+          "completed": false
+        },
+        {
+          "text": "T027 의 SSR 렌더가 본 task 가 저장한 body_mdx 를 정상 컴파일",
+          "completed": false
+        },
+        {
+          "text": "Vitest 5 케이스 (save / publish / autosave / image insert / round-trip) Green",
+          "completed": false
+        },
+        {
+          "text": "JWT 가드 미통과 시 403",
+          "completed": false
+        }
+      ],
+      "open_questions": [],
+      "change_history": []
+    },
+    {
+      "id": "T037",
+      "slug": "admin-media-quotas-cleanup",
+      "title": "Admin Media — 용량 표시 + orphan cleanup script (선택)",
+      "branch_type": "feature",
+      "phase_id": "P9",
+      "status": "Pending",
+      "purpose": "/admin/media 와 admin dashboard 에 총 R2 사용량 (bytes / 객체 수) 위젯을 추가하고, D1 media 메타와 R2 객체의 불일치 (orphan) 를 진단/정리하는 1회성 maintenance script 를 작성한다. 정기 cron 트리거는 본 task 범위 외 — 수동 실행만.",
+      "prd_feature_ids": [
+        "F022"
+      ],
+      "blocked_by": [
+        "T033",
+        "T034",
+        "T035"
+      ],
+      "blocks": [],
+      "io_contract": "**입력**: T035 미디어 라이브러리 + R2 binding. **출력**: `MediaQuotaCard.tsx` (Dashboard + /admin/media 헤더) + `app/application/media/services/scan-orphans.ts` + `scripts/cleanup-orphan-media.ts` + container wiring + `__tests__/`. **검증**: 위젯 표시 (총 객체수 / 용량 합계 GB), scan-orphans 가 D1 only / R2 only 양쪽 진단 + report 출력, cleanup script 가 dry-run / apply 두 모드 지원.",
+      "sequence": [
+        "Application — `scan-orphans.ts` (D1 mediaRepo + R2 list 비교 → { d1Only: string[], r2Only: string[] })",
+        "Infrastructure — R2 list pagination cursor 처리",
+        "MediaQuotaCard.tsx — totalSize (bytes → GB), totalCount 표시, /admin/media 헤더 + dashboard 둘 다 마운트",
+        "scripts/cleanup-orphan-media.ts — `--dry-run` 으로 진단만, `--apply` 시 D1 only → DB row delete / R2 only → R2 object delete",
+        "package.json scripts — `media:scan:local` / `media:scan:production` / `media:cleanup:production --apply`",
+        "Vitest — scan-orphans 단위 (D1 fixture + R2 list mock)",
+        "수동 검증 — production 데이터로 scan 실행 후 결과 보존"
+      ],
+      "edge_cases_impl": "## Implementation Notes\n\n- 용량 계산: D1 의 `SUM(size)` — R2 list 안 함 (cost 절감).\n- 객체 수: D1 의 `COUNT(*)`.\n- scan 의 R2 list 는 cursor pagination — 1000건씩.\n- cleanup 의 dry-run 이 default — apply 명시적 flag 필요.\n- orphan 원인: T034 의 R2 put 성공 + D1 INSERT 실패, T035 의 D1 delete 성공 + R2 delete 실패 등. 본 task 는 retroactive 정리.\n- cron 자동화 안 함 (1인 사이트 트래픽 낮음, 수동 1회/분기 충분).\n- 향후 Cloudflare Cron Triggers 도입 시 별도 task.\n- F022 의 'admin 이 자신의 미디어 자산을 한 눈에 본다' AC 보강.\n\n## Change History from previous body\n\n- feature branch PR: `feature/issue-N-admin-media-quotas-cleanup`.\n- Phase 7.3 의 마무리 task — 본 task 머지 후 Phase 7.4 진입.",
+      "dod": [
+        {
+          "text": "MediaQuotaCard 가 Dashboard + /admin/media 헤더에 마운트",
+          "completed": false
+        },
+        {
+          "text": "totalCount + totalSize (GB) 정확",
+          "completed": false
+        },
+        {
+          "text": "scan-orphans 가 d1Only / r2Only 양쪽 식별",
+          "completed": false
+        },
+        {
+          "text": "cleanup script dry-run 기본 + --apply flag",
+          "completed": false
+        },
+        {
+          "text": "package.json 의 media:scan / media:cleanup scripts",
+          "completed": false
+        },
+        {
+          "text": "Vitest scan-orphans 단위 Green",
+          "completed": false
+        },
+        {
+          "text": "production 수동 scan 1회 실행 결과 보존",
+          "completed": false
+        }
+      ],
+      "open_questions": [],
+      "change_history": []
+    },
+    {
+      "id": "T038",
+      "slug": "project-meta-d1-split",
+      "title": "Project meta D1 분리 — cover/cover_alt/featured 만 D1 project_meta 로 이관",
+      "branch_type": "feature",
+      "phase_id": "P10",
+      "status": "Pending",
+      "purpose": "Project 는 본문이 거의 정적 (Case Study) 이지만 cover 이미지와 featured 플래그는 사이트 컨디션에 따라 admin 이 자주 바꾼다. velite frontmatter 를 매번 git commit 하기 번거로움 해소 — `project_meta` D1 테이블 (slug PK + cover / cover_alt / featured / featured_order / updated_at) 분리. velite 의 본문/메타데이터는 그대로, overlay 만 D1.",
+      "prd_feature_ids": [
+        "F004",
+        "F005",
+        "F017"
+      ],
+      "blocked_by": [
+        "T024",
+        "T033"
+      ],
+      "blocks": [
+        "T039",
+        "T040"
+      ],
+      "io_contract": "**입력**: velite project collection + D1 셋업. **출력**: `app/infrastructure/db/schema.ts` 의 `project_meta` 테이블 + migration + `app/application/content/services/list-projects.ts` / `get-project-detail.ts` 의 overlay 로직 갱신 + container 의 ProjectRepository 합성 + `__tests__/`. **검증**: velite project + project_meta overlay → ProjectEntity (cover, cover_alt, featured 가 D1 우선), D1 미존재 slug 는 frontmatter fallback, `bun run db:migrate:local` 성공.",
+      "sequence": [
+        "schema.ts — `project_meta` (slug TEXT PK, cover TEXT NULL, cover_alt TEXT NULL, featured INTEGER 0/1, featured_order INTEGER NULL, updated_at INTEGER)",
+        "migration 생성 + apply",
+        "Infrastructure — `ProjectMetaRepository` (findBySlug, findAll, upsert)",
+        "Infrastructure — `ProjectRepository` 합성 어댑터 — velite-project.repo + project-meta.repo 두 source 합성 후 ProjectEntity 반환",
+        "Application services (`list-projects`, `get-project-detail`, `get-featured-project`) 변경 없음 — port 만 의존",
+        "Featured 결정 우선순위: project_meta.featured 가 있으면 그것, 없으면 velite frontmatter.featured",
+        "Vitest — overlay 로직 (D1 우선 / fallback) 케이스 4종",
+        "기존 frontmatter cover 데이터는 본 task 머지 시점 그대로 — admin (T039) 으로 점진 편집"
+      ],
+      "edge_cases_impl": "## Implementation Notes\n\n- Project 본문/스킬/링크 등은 velite 유지 — 본 task 는 'admin 이 자주 바꾸는 메타' 만 D1 으로.\n- overlay 정책: D1 row 존재 시 cover/cover_alt/featured 우선, 미존재 시 frontmatter fallback. featured_order 도 D1 우선.\n- featured_order NULL 이면 published 또는 created 순.\n- ProjectRepository 합성 어댑터는 두 repo 의 합집합 — velite slug 기준 outer-loop, D1 lookup inner.\n- ProjectMetaRepository.upsert 는 T039 admin UI 가 사용.\n- 본 task 의 cover 갱신 시 KV / OG 캐시 (T018) invalidation 은 updated_at 으로 자동.\n- F017 의 Featured Project 결정 로직이 본 task 부터 D1 으로 전환.\n- A011 (R2 노출 경로) — cover_url 도 media.tkstar.dev 호스트.\n\n## Change History from previous body\n\n- feature branch PR: `feature/issue-N-project-meta-d1-split`.\n- Phase 7.4 의 데이터 분리 진입.",
+      "dod": [
+        {
+          "text": "schema.ts project_meta 테이블 + migration",
+          "completed": false
+        },
+        {
+          "text": "`bun run db:migrate:local` 성공",
+          "completed": false
+        },
+        {
+          "text": "ProjectMetaRepository CRUD",
+          "completed": false
+        },
+        {
+          "text": "ProjectRepository 합성 어댑터 (velite + project_meta)",
+          "completed": false
+        },
+        {
+          "text": "Application services 시그니처 변경 없음 (port 의존)",
+          "completed": false
+        },
+        {
+          "text": "overlay 우선순위 (D1 우선 / fallback) 검증",
+          "completed": false
+        },
+        {
+          "text": "Vitest 4 케이스 Green",
+          "completed": false
+        },
+        {
+          "text": "기존 frontmatter cover 의 점진 마이그레이션 경로 확보 (manual)",
+          "completed": false
+        }
+      ],
+      "open_questions": [],
+      "change_history": []
+    },
+    {
+      "id": "T039",
+      "slug": "admin-projects-meta-ui",
+      "title": "Admin Projects — /admin/projects + cover/featured/featured_order 편집 UI",
+      "branch_type": "feature",
+      "phase_id": "P10",
+      "status": "Pending",
+      "purpose": "T038 의 project_meta 를 편집하는 admin UI — `/admin/projects` 가 velite project 전체 목록을 표시하고 각 slug 의 cover (MediaPickerModal 호출), cover_alt, featured 토글, featured_order drag-sort 를 편집할 수 있다. project 본문은 여전히 git+velite 로만 관리 — 본 task 는 meta overlay 만.",
+      "prd_feature_ids": [
+        "F004",
+        "F005",
+        "F017",
+        "F020"
+      ],
+      "blocked_by": [
+        "T031",
+        "T035",
+        "T038"
+      ],
+      "blocks": [
+        "T040"
+      ],
+      "io_contract": "**입력**: T038 의 project_meta + T035 MediaPickerModal. **출력**: `app/presentation/routes/admin.projects._index.tsx` loader + action + `AdminProjectsList.tsx` + `ProjectMetaEditor.tsx` (slug별 inline) + `__tests__/`. **검증**: 목록 표시, cover 편집 (MediaPicker → upsert), featured 토글, featured_order drag, 변경 시 200 + updated_at 갱신, /projects + Home Featured 즉시 반영.",
+      "sequence": [
+        "admin.projects._index.tsx loader — velite project collection 전체 + project_meta join",
+        "action — PATCH (slug, fields) → ProjectMetaRepository.upsert",
+        "AdminProjectsList.tsx — table (slug / title (velite) / cover thumbnail / cover_alt / featured switch / featured_order input)",
+        "ProjectMetaEditor.tsx — inline 편집 (cover 버튼 → MediaPickerModal, cover_alt input, featured toggle)",
+        "drag-sort — featured 항목만 dnd, featured_order 갱신",
+        "RTL/Vitest — cover 편집, featured 토글, drag-sort 순서 변경, MediaPicker 호출",
+        "/projects 와 Home Featured 페이지가 즉시 반영되는지 dev 환경 수동 검증"
+      ],
+      "edge_cases_impl": "## Implementation Notes\n\n- 본 task 는 D1 overlay 만 — velite frontmatter (title/summary/body) 편집 불가. admin 이 본문을 바꾸려면 여전히 git commit.\n- cover URL 은 media.tkstar.dev 호스트만 허용 (외부 이미지 disallow).\n- featured 토글 OFF 시 featured_order NULL 로 reset.\n- drag-sort 는 featured=true 항목만 — featured=false 는 정렬 불가.\n- cover 변경 시 OG 캐시 (T018) 의 `updated_at` 기반 자동 invalidation.\n- A012 (Project meta D1 분리 UI) 해소.\n- F017 의 Featured 선정이 본 task 로 admin 이 직접 통제.\n- search-index 재생성 (T040) 은 본 task 의 save 후 hook.\n\n## Change History from previous body\n\n- feature branch PR: `feature/issue-N-admin-projects-meta-ui`.\n- A012 해소.",
+      "dod": [
+        {
+          "text": "/admin/projects velite project 전체 목록 표시",
+          "completed": false
+        },
+        {
+          "text": "cover 편집 (MediaPickerModal 호출) + upsert",
+          "completed": false
+        },
+        {
+          "text": "cover_alt inline 편집 + 저장",
+          "completed": false
+        },
+        {
+          "text": "featured 토글 + featured_order drag-sort",
+          "completed": false
+        },
+        {
+          "text": "변경 시 200 + updated_at 갱신",
+          "completed": false
+        },
+        {
+          "text": "/projects + Home Featured 즉시 반영",
+          "completed": false
+        },
+        {
+          "text": "외부 cover URL disallow (media.tkstar.dev only)",
+          "completed": false
+        },
+        {
+          "text": "Vitest 4 케이스 Green",
+          "completed": false
+        },
+        {
+          "text": "A012 (Project meta D1 분리 UI) 해소 기록",
+          "completed": false
+        }
+      ],
+      "open_questions": [],
+      "change_history": []
+    },
+    {
+      "id": "T040",
+      "slug": "build-search-index-service",
+      "title": "buildSearchIndex Application service 분리 + admin save 시 자동 재생성",
+      "branch_type": "feature",
+      "phase_id": "P10",
+      "status": "Pending",
+      "purpose": "T016 의 `scripts/build-search-index.ts` (빌드 타임) 를 Application service `buildSearchIndex` 로 승격하고, admin (T036 publish, T039 meta save) 트리거 시점에 R2 의 `search-index.json` 객체를 갱신한다. Cmd+K palette 의 검색 가능 콘텐츠가 빌드 사이클 없이 admin 작업 직후 즉시 반영되도록 한다.",
+      "prd_feature_ids": [
+        "F016",
+        "F020"
+      ],
+      "blocked_by": [
+        "T027",
+        "T036",
+        "T039"
+      ],
+      "blocks": [],
+      "io_contract": "**입력**: D1 posts (published) + velite projects + project_meta + R2 bucket. **출력**: `app/application/search/services/build-search-index.ts` + `app/infrastructure/search/r2-index.writer.ts` + container wiring + T016 의 빌드 스크립트는 본 service 호출로 thin 하게 재정렬 + admin save/publish 액션 끝에 호출 hook + `__tests__/`. **검증**: T036 publish 후 R2 `search-index.json` 갱신, T039 meta save 후 갱신, Cmd+K palette 가 즉시 새 항목 검색 가능 (브라우저 캐시 무효화 포함).",
+      "sequence": [
+        "Application — `build-search-index.ts` (input: 없음, output: SearchIndex[]). 내부에서 posts/projects 합쳐 SearchIndex entry 생성",
+        "Infrastructure — `r2-index.writer.ts` (R2 `search-index.json` put + cacheControl `public, max-age=60`)",
+        "T036 publish-post action + T039 admin.projects action 끝에 `buildSearchIndex` 호출 (best-effort, 실패해도 save 자체는 성공)",
+        "T016 의 빌드 스크립트는 본 service 호출 + 결과를 `public/search-index.json` 에 쓰는 thin wrapper 로 재정렬",
+        "정적 빌드 (deploy 시) vs 동적 R2 (admin save 시) — 우선순위는 R2 (최신). Cmd+K 가 R2 URL fetch 로 전환",
+        "Cmd+K (T016) — index source URL 을 `/search-index.json` (정적) → `https://media.tkstar.dev/search-index.json` 또는 worker 프록시로 전환",
+        "cache-busting — `search-index.json?v=<updated_at>` 쿼리스트링 또는 cacheControl 60s",
+        "Vitest — buildSearchIndex output 검증 + R2 put 호출 검증 + admin save → index 갱신 통합 케이스"
+      ],
+      "edge_cases_impl": "## Implementation Notes\n\n- 빌드 타임 vs 런타임 — 둘 다 유지. deploy 직후엔 정적 산출물, admin 작업 후엔 R2 의 동적 산출물. Cmd+K 는 R2 우선 fetch, fail 시 정적 fallback.\n- SearchIndex entry 구조 (T016 호환) — { type, title, slug, summary?, tags? }.\n- R2 put 의 cacheControl 60s — admin 작업 직후 1분 내 반영 보장.\n- best-effort 정책 — index 갱신 실패는 save 자체를 막지 않음 (admin UX 우선). Workers tail 로 모니터링.\n- 본 task 가 머지되면 T016 의 `scripts/build-search-index.ts` 는 본 service 의 thin wrapper. ROADMAP 의 'CMS Project Meta + Search Index' 분리 의도 완수.\n- F016 의 Cmd+K palette 가 본 task 로 실시간성 확보 — '검색 우선 네비게이션' 의 사이트 동기화 완성.\n- F020 의 admin save flow 의 끝단도 본 task 로 마무리.\n\n## Change History from previous body\n\n- feature branch PR: `feature/issue-N-build-search-index-service`.\n- Phase 7.4 의 종결 task — 본 task 머지 후 CMS 인프라 1차 완료.",
+      "dod": [
+        {
+          "text": "buildSearchIndex Application service 정의",
+          "completed": false
+        },
+        {
+          "text": "Infrastructure r2-index.writer.ts 구현",
+          "completed": false
+        },
+        {
+          "text": "T036 publish action 후 index 자동 갱신",
+          "completed": false
+        },
+        {
+          "text": "T039 meta save action 후 index 자동 갱신",
+          "completed": false
+        },
+        {
+          "text": "T016 빌드 스크립트가 본 service 의 thin wrapper 로 재정렬",
+          "completed": false
+        },
+        {
+          "text": "Cmd+K palette 가 R2 index 우선 fetch + 정적 fallback",
+          "completed": false
+        },
+        {
+          "text": "cache-busting (cacheControl 60s 또는 ?v= 쿼리)",
+          "completed": false
+        },
+        {
+          "text": "admin save → 1분 이내 Cmd+K 결과 반영 (수동 검증)",
+          "completed": false
+        },
+        {
+          "text": "best-effort — index 갱신 실패가 save 를 막지 않음",
+          "completed": false
+        },
+        {
+          "text": "Vitest 3 케이스 (build / R2 put / publish hook) Green",
+          "completed": false
+        }
+      ],
+      "open_questions": [],
+      "change_history": []
+    }
+  ]
+}

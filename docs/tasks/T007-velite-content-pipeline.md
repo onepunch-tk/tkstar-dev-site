@@ -1,139 +1,75 @@
-# Task 007 — velite 설치 + 컬렉션 정의 + seed 콘텐츠 + shiki 코드블록
+# T007 — feature: velite 설치 + 컬렉션 정의 + seed 콘텐츠 + shiki 코드블록
 
-| Field | Value |
-|-------|-------|
-| **Task ID** | T007 |
-| **Phase** | Phase 2 — Content Pipeline |
-| **Layer** | Infrastructure (build-time ETL) + `content/` |
-| **Branch** | `feature/issue-27-velite-content-pipeline` |
-| **GitHub Issue** | #27 |
-| **Depends on** | T006 |
-| **Blocks** | T008 |
-| **PRD Features** | F004, F005, F006, F007, F014 (콘텐츠 정본) |
-| **PRD AC** | — (빌드 산출물 정상 build로 검증) |
-| **예상 작업 시간** | 1d |
-| **Status** | ✅ Done |
+> **상위 ROADMAP**: [`../ROADMAP.md`](../ROADMAP.md)
+> **branch type**: `feature/`
+> **선행**: [T006](T006-domain-schemas.md)
+> **후행**: [T008](T008-content-ports-repos.md)
 
-## Goal
-velite를 도입하여 `content/{projects,posts,legal/apps}/**/*.mdx`를 빌드 타임에 Zod 검증 → `.velite/` JSON 출력하는 ETL 파이프라인을 가동시키고, shiki + rehype-slug 플러그인으로 코드블록 highlight + 헤딩 anchor를 동시에 갖춘다. seed 콘텐츠 3종을 작성한다 (가정 A002 1단계, A006 해소).
+---
 
-## Context
-- **Why**: Domain 스키마(T006)가 정의되었으므로 velite가 같은 스키마를 import하여 frontmatter 검증을 빌드 타임에 적용하면 "정본 1개"가 유지된다. shiki는 코드블록 디자인의 정본이고, rehype-slug는 후속 T013(Project Detail TOC)에서 헤딩 anchor 추출에 필수.
-- **Phase 진입/완료 연결**: Phase 1 종료 후 Phase 2 시작점. T007 Done이면 `.velite/projects.json` 등 정적 산출물이 존재 → T008 repository가 이를 import 가능.
-- **관련 PRD 섹션**: PRD `Tech Stack — Content Pipeline`, `Data Model`, `Page-by-Page` Project Detail / Blog Detail Key Features (shiki)
-- **관련 PROJECT-STRUCTURE 디렉토리**: `velite.config.ts` (루트), `content/{projects,posts,legal/apps/[slug]}/`, `.velite/` (gitignore), `app/presentation/components/content/`
+## 목적
 
-## Scope
+velite 를 도입하여 `content/{projects,posts,legal/apps}/**/*.mdx` 를 빌드 타임에 `.velite/{projects,posts,legal}.json` 으로 출력한다. rehype-slug + shiki 코드블록 + seed 콘텐츠 (project 1개 / post 1개 / legal 1쌍) 를 함께 도입해 후속 task 들이 즉시 콘텐츠 렌더링 검증 가능하게 한다.
 
-### In Scope
-- `bun add -D velite shiki rehype-slug` 설치
-- `velite.config.ts` — 3개 컬렉션 정의 + Domain `*.schema.ts` import + rehype 플러그인 (`rehype-slug`, shiki via `@shikijs/rehype` 또는 velite의 mdx options)
-- seed 콘텐츠: `content/projects/example-project.mdx`, `content/posts/2026-04-shipping-solo.mdx`, `content/legal/apps/moai/{terms,privacy}.mdx`
-- `MdxRenderer`, `CodeBlock` 컴포넌트 골격 (velite body → React 트리, shiki 출력 외곽 컨테이너)
-- `bunx velite build` 명령이 성공하고 `.velite/projects.json`, `posts.json`, `legal.json` 생성
-- `package.json`에 `prebuild: "velite build"` 또는 `dev: "velite dev"` 등 hook 추가
+## PRD Feature ID 매핑
 
-### Out of Scope
-- Application Ports + Repository 구현 (T008)
-- velite afterBuild 훅으로 TOC 추출 / search-index 빌드 (T013 / T016)
-- Satori OG 이미지 (T018)
+- F004
+- F005
+- F006
+- F007
+- F014
 
-## Acceptance Criteria
-- [x] `bunx velite build` 성공 → `.velite/{projects,posts,legal}.json` 생성 (3+1+2 entries)
-- [x] `.velite/projects.json`에 seed `example-project`가 포함되고 frontmatter 필드(slug/title/summary/date/tags/stack/metrics)가 모두 매핑됨
-- [x] frontmatter Zod 위반 콘텐츠(`tags: "not-an-array"`)를 추가하면 `velite build`가 "Expected array, received string"으로 실패
-- [x] seed MDX의 코드블록이 shiki로 highlight되어 body function-body에 13개 color token (`color:"#...."`) 포함
-- [x] seed MDX의 `## ...` 헤딩에 rehype-slug가 `id` 속성을 자동 부여 (한국어 anchor `id:"제1조-수집-항목"` 검증)
-- [x] `MdxRenderer` 컴포넌트가 velite body function-body를 React로 렌더 (`evaluateMdxBody`로 평가)
-- [x] `bun run typecheck` + `bun run lint` + `bun run test` (44/44 Green) 통과
+## 입력·출력 계약
 
-## Implementation Plan (TDD Cycle)
+**입력**: T006 의 Domain schema. **출력**: `velite.config.ts` + rehype 플러그인 등록 + 3 collection (projects/posts/legal) + seed 콘텐츠 + `MdxRenderer.tsx` + lifecycle scripts. **검증**: `bunx velite build` 성공, `.velite/{projects,posts,legal}.json` 생성, frontmatter Zod 위반 콘텐츠 추가 시 build 실패.
 
-### Red
-- `app/presentation/components/content/__tests__/MdxRenderer.test.tsx`
-  - velite 빌드 산출물 형태(html string 또는 MDX component)를 mock하여 `<MdxRenderer body={mock} />`이 정상 마운트
-  - 코드블록 mock에 shiki style이 보존됨 (innerHTML에 `<span style="color:`)
-- `velite.config.ts` 자체는 직접 테스트보다 `velite build` 명령 실행으로 e2e 검증 (script test로 대체):
-  - `test/integration/velite-build.test.ts` (선택) — `execSync("bunx velite build")` 후 `.velite/projects.json` 존재 검증
+## 시퀀스
 
-### Green
-- `velite.config.ts`:
-  ```ts
-  import { defineConfig, defineCollection } from "velite";
-  import { projectSchema } from "./app/domain/project/project.schema";
-  // ... 3 collections (projects, posts, legal)
-  // mdx: { rehypePlugins: [rehypeSlug, [rehypeShiki, { theme: "github-dark" }]] }
-  ```
-- `content/projects/example-project.mdx` — frontmatter + problem/approach/results 본문 + 코드블록 1개
-- `content/posts/2026-04-shipping-solo.mdx` — frontmatter + 본문 + 코드블록
-- `content/legal/apps/moai/terms.mdx` + `privacy.mdx` — frontmatter (version, effective_date)만, 본문은 placeholder
-- `app/presentation/components/content/MdxRenderer.tsx`, `CodeBlock.tsx`
+```
+1. velite 설치 + `velite.config.ts` 작성 — D1 (Domain Zod 4 ↔ velite Zod 3 internal 충돌) 회피를 위해 `s` 헬퍼로 schema shape mirroring
+2. rehype 플러그인 등록 — `rehype-slug` (헤딩 anchor, A002 1단계) + `@shikijs/rehype` (theme: `github-dark` 단일)
+3. seed 콘텐츠 — `content/projects/example-project.mdx`, `content/posts/2026-04-shipping-solo.mdx`, `content/legal/apps/moai/{terms,privacy}.mdx`
+4. MdxRenderer.tsx — 자체 `evaluateMdxBody` 12 LOC (mdx-bundler 회피)
+5. package.json lifecycle — `predev` / `prebuild` / `prestart` / `pretest` 가 velite build 자동 호출 (stale `.velite/` 회귀 차단)
+6. tsconfig.cloudflare.json 에 `#content` / `#content/*` path alias
+7. wrangler.toml 운영 노트 — `new Function` SSR / CSP unsafe-eval 영향 cross-link
+```
 
-### Refactor
-- velite collection 정의를 `velite.config.ts`에서 분리해서 `velite/collections/{projects,posts,legal}.ts`로 (선택; 1파일 유지가 단순)
-- shiki theme 토큰을 디자인 토큰과 정렬 (옵션)
+## 엣지 케이스 + 구현
 
-## Files to Create / Modify
+## Implementation Notes
 
-### Build / Config
-| Path | Responsibility |
-|------|---------------|
-| `/Users/tkstart/Desktop/project/tkstar-dev/velite.config.ts` | 3 컬렉션 정의 (Domain schemas import) + rehype plugins |
-| `/Users/tkstart/Desktop/project/tkstar-dev/package.json` | scripts에 `prebuild: "velite build"` 또는 `dev: "velite --watch & vite dev"` 통합. `devDependencies`에 `velite`, `shiki`, `@shikijs/rehype`, `rehype-slug` 추가 |
+- velite 의 Zod 3 internal 과 프로젝트 Zod 4 의 internal 타입 충돌은 schema mirroring 으로 회피. drift 검증은 T008 mapper 에서.
+- shiki theme 은 MVP 단일 `github-dark` — 라이트 모드 별도 처리 안 함 (코드블록은 항상 dark 배경 유지).
+- `predev`/`prebuild`/`prestart`/`pretest` lifecycle 은 stale `.velite/` JSON 으로 인한 silent fail 차단.
+- MdxRenderer.tsx 의 12 LOC `evaluateMdxBody` 는 mdx-bundler 의 `new Function(...)` 의존 회피용. T043 (MdxRenderer Workers V8 eval fix) 에서 `@mdx-js/rollup` + `import.meta.glob` 로 다시 대체됨.
+- seed legal 본문은 placeholder — T015 시점에 정식 본문으로 갱신.
+- 후속 follow-up (deferred from review): Medium #3 `project.schema.ts` date 약한 검증, Medium #4 legal seed placeholder 본문, Low #5 tsconfig include velite.config.ts, Low #7 shiki rehype `as any` 좁히기.
 
-### Content (seed)
-| Path | Responsibility |
-|------|---------------|
-| `/Users/tkstart/Desktop/project/tkstar-dev/content/projects/example-project.mdx` | seed Project (slug, title, summary, date, tags, stack, metrics, featured: true) |
-| `/Users/tkstart/Desktop/project/tkstar-dev/content/posts/2026-04-shipping-solo.mdx` | seed Post (slug, title, lede, date, tags, read) |
-| `/Users/tkstart/Desktop/project/tkstar-dev/content/legal/apps/moai/terms.mdx` | seed AppLegalDoc (terms) |
-| `/Users/tkstart/Desktop/project/tkstar-dev/content/legal/apps/moai/privacy.mdx` | seed AppLegalDoc (privacy) |
+## Change History from previous body
 
-### Presentation — Content Components
-| Path | Responsibility |
-|------|---------------|
-| `/Users/tkstart/Desktop/project/tkstar-dev/app/presentation/components/content/MdxRenderer.tsx` | velite body → React (html string render 또는 useMDXComponent) |
-| `/Users/tkstart/Desktop/project/tkstar-dev/app/presentation/components/content/CodeBlock.tsx` | shiki 출력의 외곽 `<pre className="codeblock">` 컨테이너 |
-| `/Users/tkstart/Desktop/project/tkstar-dev/app/presentation/components/content/__tests__/MdxRenderer.test.tsx` | RTL 1~2 cases |
+- A002 1단계 (rehype-slug) 해소.
+- A006 (velite/shiki 설치) 해소.
+- A007 (검색 인덱스 라이브러리 — 단순 includes/score 채택) 1차 사실 기록.
+- PR: feature/issue-27, Issue #27.
 
-### gitignore (수정)
-| Path | Change |
-|------|--------|
-| `/Users/tkstart/Desktop/project/tkstar-dev/.gitignore` | 이미 T001에서 `.velite/` 추가됨 — no-op 확인 |
+## DoD
 
-## Verification Steps
+- [x] `bunx velite build` 성공 + `.velite/projects.json`, `.velite/posts.json`, `.velite/legal.json` 생성
+- [x] frontmatter Zod 위반 콘텐츠 추가 시 build 실패 확인
+- [x] rehype-slug 가 헤딩 anchor id 생성
+- [x] shiki `github-dark` 코드블록 highlight 동작
+- [x] seed 콘텐츠 3종 (project + post + legal 쌍) 작성
+- [x] MdxRenderer.tsx `evaluateMdxBody` 12 LOC 동작 (mdx-bundler 회피)
+- [x] predev/prebuild/prestart/pretest lifecycle 이 velite build 자동 호출
+- [x] tsconfig.cloudflare.json 에 #content path alias 등록
 
-### 자동
-- `bunx velite build` exit code 0 + `.velite/{projects,posts,legal}.json` 존재 (CI에서 `bun run prebuild` 통해 동작)
-- `bun run test` — `MdxRenderer.test.tsx` Green
-- 의도적으로 `metrics: "broken"` 같은 위반 frontmatter를 추가한 임시 MDX → `velite build` 실패 (수동으로 1회 검증)
+## Open Questions
 
-### 수동
-- VSCode에서 `.velite/projects.json` 열어 seed 데이터가 Domain entity 타입과 호환되는지 시각 확인
-- `wrangler dev`에서 `<MdxRenderer body={veliteProjectBody} />`가 코드블록 + 헤딩 anchor 렌더하는지 sample 페이지(임시)로 확인 (필요 시)
-
-### 측정
-- `.velite/projects.json` size 확인 — 본문 포함되므로 클라이언트 번들에 직접 import하지 않도록 주의
-
-## Dependencies
-- **Depends on**: T006 (Domain 스키마)
-- **Blocks**: T008 (Repository는 `.velite/*.json`을 import하여 Entity 매핑)
-
-## Risks & Mitigations
-- **Risk**: shiki는 WASM 기반이며 Cloudflare Workers 런타임에서 동적 로드가 불가능할 수 있음.
-  - **Mitigation**: shiki는 **빌드 타임에만** 동작 (velite의 mdx 처리 단계). 런타임 Workers에는 shiki bundle이 들어가지 않고 이미 highlighted된 HTML 문자열만 `.velite/*.json`에 저장됨. 따라서 Workers 런타임 영향 없음.
-- **Risk**: rehype-slug가 한국어 헤딩(`## 결과`)에서 anchor를 영어로 변환하여 깨질 수 있음.
-  - **Mitigation**: rehype-slug 기본값은 한글을 그대로 slug에 포함 (`id="결과"`). 깨질 경우 `github-slugger` 옵션 조정.
-
-## References
-- PRD `Tech Stack — Content Pipeline`, `Data Model`
-- PROJECT-STRUCTURE.md `content/ and .velite/` (line 405~)
-- PROJECT-STRUCTURE.md `velite Content Pipeline 노트` (line 240)
-- ROADMAP.md `Phase 2` Task 007, 가정 A002(1단계)/A006 해소
-- [velite docs](https://velite.js.org/)
-- [Shiki](https://shiki.style/), [rehype-slug](https://github.com/rehypejs/rehype-slug)
+모두 해결됨 (No open questions)
 
 ## Change History
-| Date | Changes | Author |
-|------|---------|--------|
-| 2026-04-28 | T007 완료 — velite 0.3.1 + shiki 4.0.2 + @shikijs/rehype 4.0.2 + rehype-slug 6.0.0 도입. D1: Domain Zod 4 ↔ velite Zod 3 internal 충돌 회피를 위해 schema shape 미러링. D2: 자체 `evaluateMdxBody` 12 LOC로 mdx-bundler 회피. D3: predev/prebuild/prestart/pretest lifecycle hooks. D4: `#content` path alias. D5: shiki theme `github-dark` 단일 (MVP). seed 4개 (project 1, post 1, legal 2). Manual verify: `tags: "not-an-array"` 주입 → "Expected array, received string" reject. lint/typecheck/test (44/44) Green. Code review verdict: Approve with minor changes — High #1 (wrangler.toml 운영 노트), Medium #2 (CodeBlock dead code 삭제), Low #6 (`useMDXComponent` → `evaluateMdxBody`), Low #8 (velite script dedupe) 즉시 반영. Medium #3/#4 + Low #5/#7 follow-up 등록. 가정 A002 1단계 + A006 해소. Branch `feature/issue-27-velite-content-pipeline`. Issue #27. | TaekyungHa |
+
+| 날짜 | 변경 | 작성자 |
+| --- | --- | --- |
+| 2026-04-29 | T007 머지 — velite + shiki + seed 콘텐츠 + A002·A006·A007 1차 해소 (PR #27 후속, branch `feature/issue-27-velite-content-pipeline`) | TaekyungHa |
