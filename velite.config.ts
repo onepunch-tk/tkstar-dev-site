@@ -26,24 +26,6 @@ const projects = defineCollection({
 		})),
 });
 
-const posts = defineCollection({
-	name: "Post",
-	pattern: "posts/**/*.mdx",
-	schema: s
-		.object({
-			slug: s.slug("posts"),
-			title: s.string(),
-			lede: s.string(),
-			date: s.isodate(),
-			tags: s.array(s.string()),
-			read: s.number(),
-		})
-		.transform((data, { meta }) => ({
-			...data,
-			toc: extractToc(meta.content ?? ""),
-		})),
-});
-
 const legal = defineCollection({
 	name: "AppLegalDoc",
 	pattern: "legal/apps/**/*.mdx",
@@ -60,11 +42,11 @@ const SEARCH_INDEX_PATH = resolve(process.cwd(), "public/search-index.json");
 export default defineConfig({
 	root: "content",
 	output: { data: ".velite", clean: true },
-	collections: { projects, posts, legal },
+	collections: { projects, legal },
 	complete: async (data) => {
 		const index = buildSearchIndex({
 			projects: data.projects ?? [],
-			posts: data.posts ?? [],
+			posts: [],
 		});
 		mkdirSync(dirname(SEARCH_INDEX_PATH), { recursive: true });
 		writeFileSync(SEARCH_INDEX_PATH, JSON.stringify(index));

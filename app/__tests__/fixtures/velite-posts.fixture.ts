@@ -1,46 +1,53 @@
-// velite raw output shape를 모방한 fixture
-// date desc 정렬 기준: delta(2026-04-26) > charlie(2026-04-25) > bravo(2026-04-24) > alpha(2026-04-23)
-// "react" 태그는 delta에만 포함 → findByTag("react") 검증용
+import type { Post } from "~/domain/post/post.entity";
 
-export const postAlpha = {
+// D1 Post entity fixture (camelCase). createdAt 정렬 기준:
+//   delta(t-1) > charlie(t-2) > bravo(t-3) > alpha(t-4)
+// "react" 태그는 delta 에만 포함 → findByTag("react") 검증용
+
+const T = 1714291200; // base unix epoch (2024-04-28T08:00:00Z)
+
+export const postAlpha: Post = {
 	slug: "alpha",
 	title: "Alpha Post",
-	lede: "Alpha 포스트 요약입니다.",
-	date: "2026-04-23T00:00:00.000Z",
+	summary: "Alpha 포스트 요약입니다.",
+	datePublished: "2026-04-23",
 	tags: ["typescript"],
-	read: 3,
-	body: "",
+	status: "published",
+	createdAt: T - 86400 * 4,
+	updatedAt: T - 86400 * 4,
 };
 
-export const postBravo = {
+export const postBravo: Post = {
 	slug: "bravo",
 	title: "Bravo Post",
-	lede: "Bravo 포스트 요약입니다.",
-	date: "2026-04-24T00:00:00.000Z",
+	summary: "Bravo 포스트 요약입니다.",
+	datePublished: "2026-04-24",
 	tags: ["node"],
-	read: 5,
-	body: "",
+	status: "published",
+	createdAt: T - 86400 * 3,
+	updatedAt: T - 86400 * 3,
 };
 
-export const postCharlie = {
+export const postCharlie: Post = {
 	slug: "charlie",
 	title: "Charlie Post",
-	lede: "Charlie 포스트 요약입니다.",
-	date: "2026-04-25T00:00:00.000Z",
+	summary: "Charlie 포스트 요약입니다.",
+	datePublished: "2026-04-25",
 	tags: ["vitest"],
-	read: 7,
-	body: "",
+	status: "published",
+	createdAt: T - 86400 * 2,
+	updatedAt: T - 86400 * 2,
 };
 
-export const postDelta = {
+export const postDelta: Post = {
 	slug: "delta",
 	title: "Delta Post",
-	lede: "Delta 포스트 요약입니다.",
-	date: "2026-04-26T00:00:00.000Z",
+	summary: "Delta 포스트 요약입니다.",
+	datePublished: "2026-04-26",
 	tags: ["react"],
-	read: 4,
-	body: "",
+	status: "published",
+	createdAt: T - 86400,
+	updatedAt: T - 86400,
 };
 
-// 전체 배열 (velite 출력 순서 — 정렬 전 raw)
-export const fixturePosts = [postAlpha, postBravo, postCharlie, postDelta];
+export const fixturePosts: Post[] = [postAlpha, postBravo, postCharlie, postDelta];

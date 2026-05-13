@@ -22,49 +22,66 @@ vi.mock("../../components/content/mdx-modules", () => ({
 import BlogDetail, { loader } from "../blog.$slug";
 
 // ---------------------------------------------------------------------------
+// 공통 상수
+// ---------------------------------------------------------------------------
+
+const SITE_ORIGIN = "https://tkstar.dev";
+
+// ---------------------------------------------------------------------------
 // Mock 데이터
 // ---------------------------------------------------------------------------
 
-type PostWithBody = {
+type PostFixture = {
 	slug: string;
 	title: string;
-	lede: string;
-	date: string;
+	summary: string | null;
+	datePublished: string | null;
 	tags: string[];
-	read: number;
-	toc?: { slug: string; text: string }[];
+	status: "draft" | "published";
+	createdAt: number;
+	updatedAt: number;
 };
 
-const POST_WITH_TOC: PostWithBody = {
+type DetailFixture = {
+	post: PostFixture;
+	toc: { slug: string; text: string }[];
+	prev: PostFixture | null;
+	next: PostFixture | null;
+};
+
+const POST_BASE: PostFixture = {
 	slug: "test-post",
 	title: "Test Blog Post",
-	lede: "A test lede sentence",
-	date: "2026-05-02",
+	summary: "A test summary sentence",
+	datePublished: "2026-05-02",
 	tags: ["rr7", "cloudflare"],
-	read: 5,
+	status: "published",
+	createdAt: 1714291200,
+	updatedAt: 1714291200,
+};
+
+const DETAIL_WITH_TOC: DetailFixture = {
+	post: POST_BASE,
 	toc: [
 		{ slug: "intro", text: "Introduction" },
 		{ slug: "conclusion", text: "Conclusion" },
 	],
+	prev: null,
+	next: null,
 };
 
-const POST_EMPTY_TOC: PostWithBody = {
-	...POST_WITH_TOC,
-	slug: "no-toc-post",
+const DETAIL_EMPTY_TOC: DetailFixture = {
+	post: { ...POST_BASE, slug: "no-toc-post" },
 	toc: [],
+	prev: null,
+	next: null,
 };
 
 // ---------------------------------------------------------------------------
 // Mock context 팩토리
 // ---------------------------------------------------------------------------
 
-const makeMockContext = (
-	detail: { post: PostWithBody; prev: PostWithBody | null; next: PostWithBody | null } = {
-		post: POST_WITH_TOC,
-		prev: null,
-		next: null,
-	},
-) => {
+const makeMockContext = (detail: DetailFixture = DETAIL_WITH_TOC) => {
 	const getPostDetail = vi.fn().mockResolvedValue(detail);
 	return {
 		context: {
@@ -76,7 +93,10 @@ const makeMockContext = (
 				listPosts: vi.fn(),
 				getPostDetail,
 			},
-			cloudflare: { env: {}, ctx: {} },
+			cloudflare: {
+				env: { SITE_LAUNCHED: "true", SITE_ORIGIN },
+				ctx: {},
+			},
 		},
 		spies: { getPostDetail },
 	};
@@ -100,9 +120,9 @@ describe("Group A — blog.$slug loader", () => {
 
 		// Assert
 		expect(spies.getPostDetail.mock.calls[0][0]).toBe("test-post");
-		// loader 결과에 canonicalUrl 이 포함되어야 한다
+		// loader 결과에 canonicalUrl 이 포함되어야 한다 (origin 은 env.SITE_ORIGIN 기반)
 		expect((result as Record<string, unknown>).canonicalUrl).toBe(
-			"https://example.dev/blog/test-post",
+			"https://tkstar.dev/blog/test-post",
 		);
 	});
 
@@ -134,9 +154,7 @@ describe("Group B — blog.$slug UI", () => {
 				path: "/blog/:slug",
 				Component: BlogDetail,
 				loader: () => ({
-					post: POST_WITH_TOC,
-					prev: null,
-					next: null,
+					...DETAIL_WITH_TOC,
 					canonicalUrl: CANONICAL,
 				}),
 			},
@@ -147,7 +165,7 @@ describe("Group B — blog.$slug UI", () => {
 
 		// Assert
 		await screen.findByTestId("mdx-content");
-		expect(screen.getByText(POST_WITH_TOC.title)).toBeInTheDocument();
+		expect(screen.getByText(DETAIL_WITH_TOC.post.title)).toBeInTheDocument();
 		// ShareTools — X 공유 링크
 		expect(screen.getByRole("link", { name: /share on x/i })).toBeInTheDocument();
 		// PostFooterNav — '모든 글' 링크
@@ -161,9 +179,7 @@ describe("Group B — blog.$slug UI", () => {
 				path: "/blog/:slug",
 				Component: BlogDetail,
 				loader: () => ({
-					post: POST_EMPTY_TOC,
-					prev: null,
-					next: null,
+					...DETAIL_EMPTY_TOC,
 					canonicalUrl: "https://example.dev/blog/no-toc-post",
 				}),
 			},
@@ -175,5 +191,27 @@ describe("Group B — blog.$slug UI", () => {
 		// Assert
 		await screen.findByTestId("mdx-content");
 		expect(screen.queryByTestId("on-this-page-toc")).toBeNull();
+	});
+});
+
+// ---------------------------------------------------------------------------
+// Group C — env.SITE_ORIGIN 기반 origin 고정 (Launch Gate)
+// ---------------------------------------------------------------------------
+
+describe("Group C — env.SITE_ORIGIN 기반 origin 고정", () => {
+	it("env.SITE_ORIGIN 을 canonical origin 으로 사용 — request.url 의 호스트와 무관", async () => {
+		// Arrange
+		const { context } = makeMockContext();
+
+		// Act — 다른 호스트로 요청
+		const result = await loader({
+			context,
+			params: { slug: "test-post" },
+			request: new Request("https://www.tkstar.dev/blog/test-post"),
+		} as never);
+
+		// Assert
+		expect((result as Record<string, unknown>).origin).toBe(SITE_ORIGIN);
+		expect((result as Record<string, unknown>).canonicalUrl).toBe(`${SITE_ORIGIN}/blog/test-post`);
 	});
 });

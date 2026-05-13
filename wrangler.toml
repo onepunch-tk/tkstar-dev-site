@@ -23,11 +23,28 @@ TURNSTILE_SITE_KEY = "1x00000000000000000000AA"
 GOOGLE_SITE_VERIFICATION = ""
 NAVER_SITE_VERIFICATION = ""
 CLOUDFLARE_ANALYTICS_TOKEN = ""
+SITE_LAUNCHED = "false"
+SITE_ORIGIN = "https://tkstar.dev"
 
 [[kv_namespaces]]
 binding = "RATE_LIMIT_KV"
 id = "933b671d6b8846deaad41febd80de8dd"
 preview_id = "c68513cba84e4eeca7b947d1d0ff07f5"
+
+# T027: Post body cache (compiled hast JSON). key=`post:{slug}:body:v{16-char hash}`,
+# 무제한 TTL, 자연 invalidation by content-hash. 머지 후 PR 본문 안내대로
+# `wrangler kv namespace create POST_BODY_CACHE_KV --preview` 결과 ID 로 placeholder 교체 필요.
+# default env 는 단일 preview namespace 만 사용 (id == preview_id) — RATE_LIMIT_KV 가 dev/preview 를
+# 분리한 것과 달리, body cache 는 본인 1명 admin 의 작업 환경 분리 가치가 낮아 하나로 통합.
+[[kv_namespaces]]
+binding = "POST_BODY_CACHE_KV"
+id = "4cbde7c40dbd4662a84e320017d84bd3"
+preview_id = "4cbde7c40dbd4662a84e320017d84bd3"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "tkstar-dev-db-preview"
+database_id = "fb8d15ba-3d83-4dab-a8b8-d701a6f9c4c0"
 
 [env.staging]
 name = "tkstar-dev-staging"
@@ -39,10 +56,21 @@ TURNSTILE_SITE_KEY = "1x00000000000000000000AA"
 GOOGLE_SITE_VERIFICATION = ""
 NAVER_SITE_VERIFICATION = ""
 CLOUDFLARE_ANALYTICS_TOKEN = ""
+SITE_LAUNCHED = "false"
+SITE_ORIGIN = "https://tkstar.dev"
 
 [[env.staging.kv_namespaces]]
 binding = "RATE_LIMIT_KV"
 id = "95b7366f0bf64aab9677eb43174e4b32"
+
+[[env.staging.kv_namespaces]]
+binding = "POST_BODY_CACHE_KV"
+id = "bb649f2413694909bc66801a45ac9dc2"
+
+[[env.staging.d1_databases]]
+binding = "DB"
+database_name = "tkstar-dev-db-preview"
+database_id = "fb8d15ba-3d83-4dab-a8b8-d701a6f9c4c0"
 
 [env.production]
 name = "tkstar-dev-production"
@@ -64,7 +92,19 @@ TURNSTILE_SITE_KEY = "0x4AAAAAADJerjK_6MJH0kCx"
 GOOGLE_SITE_VERIFICATION = "9dqFGGSK_NYqbgfrEb0ZwfEcYTTAtsgpW6XX-FqiXCM"
 NAVER_SITE_VERIFICATION = "0d3e009372cee5a32511420ca566d2b54629b10c"
 CLOUDFLARE_ANALYTICS_TOKEN = "ff5c6565162c478580790bdb4e32bf5c"
+# Launch Gate — launch 시 "true" 로 변경 후 deploy
+SITE_LAUNCHED = "false"
+SITE_ORIGIN = "https://tkstar.dev"
 
 [[env.production.kv_namespaces]]
 binding = "RATE_LIMIT_KV"
 id = "2ec496563f6c43699b493cf2c96304f1"
+
+[[env.production.kv_namespaces]]
+binding = "POST_BODY_CACHE_KV"
+id = "a128819f1701493dbc3bbcfbf006201f"
+
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "tkstar-dev-db"
+database_id = "601604ed-cbd0-4678-b481-f834a9d68f0f"

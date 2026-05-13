@@ -1,3 +1,4 @@
+import { getSiteOrigin } from "~/application/seo/launch-gate";
 import { buildPersonLd } from "~/presentation/lib/jsonld";
 import { buildMeta } from "~/presentation/lib/meta";
 import FeaturedProjectCard from "../components/home/FeaturedProjectCard";
@@ -6,8 +7,9 @@ import RecentPostsList from "../components/home/RecentPostsList";
 import type { Route } from "./+types/_index";
 
 export const loader = async ({ context, request }: Route.LoaderArgs) => {
+	const env = context.cloudflare.env as Env;
 	const url = new URL(request.url);
-	const origin = url.origin;
+	const origin = getSiteOrigin(env);
 	const [featured, posts] = await Promise.all([
 		context.container.getFeaturedProject(),
 		context.container.getRecentPosts(3),

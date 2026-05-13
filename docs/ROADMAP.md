@@ -515,7 +515,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
 > **진입 조건**: Phase 5 완료 (모든 F001~F019 자동 테스트 Green)
 > **완료 조건 (DoD)**: 프로덕션 도메인 `https://tkstar.dev` 접속 시 모든 페이지 정상, OG 미리보기가 SNS에서 정상 노출, Contact Form이 실제 메일 발송, Search Console에서 sitemap 제출 및 indexing 확인.
 
-- [ ] **Task 021: 통합 QA + Lighthouse + Axe 접근성 점검 + 모든 PRD AC 통과 매트릭스**
+- [x] **Task 021: 통합 QA + Lighthouse + Axe 접근성 점검 + 모든 PRD AC 통과 매트릭스** ✅ 2026-05-04 (Issue #74, PR #76)
   - **Must** Read: [tasks/T021-qa-pass-mvp.md](tasks/T021-qa-pass-mvp.md)
   - blockedBy: Task 020
   - Layer: 전 layer (회귀 테스트)
@@ -595,25 +595,30 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
 > **진입 조건**: Phase 6 완료
 > **완료 조건 (DoD)**: 기존 `content/posts/*.mdx` 가 D1 `posts` 테이블로 일회성 이관 완료. `/blog` 와 `/blog/{slug}` 가 D1 SELECT + raw_markdown runtime compile + KV cache 로 SSR 렌더. RSS / sitemap / search index 모두 D1 published 항목만 반영. Workers 번들 사이즈 PoC 결과 사실 기록.
 
-- [ ] **Task 023: Workers 번들 사이즈 PoC + 의존성 합산 측정** - Priority
+- [x] **Task 023: Workers 번들 사이즈 PoC + 의존성 합산 측정** - Priority — Done 2026-05-06 ([report](reports/cms-bundle-poc-2026-05-06.md))
   - **Must** Read: [tasks/T023-workers-bundle-poc.md](tasks/T023-workers-bundle-poc.md)
   - blockedBy: Task 022
-  - blocks: Task 024, Task 027, Task 030, Task 035
+  - blocks: Task 024, Task 027, Task 030, Task 033, Task 034, Task 035
   - Layer: Infrastructure (build-time 측정) + 운영
   - 관련 Feature: F020, F021, F022, F023 (전제)
   - 관련 AC: 없음 (사실 측정)
+  - **결과 요약 (PASS — Free 3 MiB gzip 한계 안)**:
+    - Baseline: 1467.10 KiB gzip / 권장 stack 합산: 1522.48 KiB gzip / 헤드룸: ~1.51 MiB
+    - 카테고리 winner: MDX runtime = `marked` (13.59 KiB) / R2 = Workers binding (0.12 KiB) / JWT = `jose` (10.71 KiB) / ORM = `drizzle-orm/d1` (30.96 KiB)
+    - **shiki 빌드타임 유지 강력 권고** — runtime 시 +1.64 MiB 즉시 한계 초과 위험 확인
+    - Tiptap admin client: v2 = 90.21 KiB gzip / v3 = 115.39 KiB gzip (Workers 한계와 무관, 최종 선택은 T035 한국어 IME PoC 결과로)
   - 검증:
     - 임시 PoC 브랜치에서 [Tiptap (v2 또는 v3 + markdown serializer 후보) + MDX-like compiler 후보(`marked` / `micromark` / `@mdx-js/mdx` — `nodejs_compat` 는 wrangler.toml 에 이미 활성) + shiki 단일 theme(`github-dark`) + `jose` (JWT 검증) + R2 client 후보 (`aws4fetch` / R2 binding-only / `@aws-sdk/client-s3`)] 합산 import만으로 빈 Worker 빌드 → `bunx wrangler deploy --dry-run --outdir dist`로 산출물 측정. **`@aws-sdk/client-s3` 도 측정 대상에 포함** (nodejs_compat 으로 import 가능, 실측 ~500KB 가산 영향 확인 목적)
     - 합산이 Cloudflare Free 3 MiB 이내 → 기본 stack 확정 / 초과 시 (a) `aws4fetch` + R2 binding-only / (b) shiki 제거(syntax highlight 빌드 타임만) / (c) Workers Paid 플랜 ($5/월) 중 결정
     - 측정 보고서를 PR 본문 + `docs/reports/cms-bundle-poc-{date}.md` 에 기록 (각 의존성별 byte 분해)
   - 산출물:
-    - `docs/reports/cms-bundle-poc-{date}.md` (측정 결과 + stack 결정)
-    - 본 task 자체는 코드 머지 X — 측정 후 PoC 브랜치 폐기, 결과 문서만 머지
+    - [docs/reports/cms-bundle-poc-2026-05-06.md](reports/cms-bundle-poc-2026-05-06.md) (baseline + 9 Workers 후보 + 2 admin stack + 권장 stack 합산 + PASS/FAIL 판정 + 권고안)
+    - 본 task 자체는 코드 머지 X — PoC commit 전체 git revert, 결과 문서만 머지
     - 결정된 후보를 후속 task (T024, T027, T030, T035) 의 산출물에 명시
   - 가정 해소: Issue #2 (Workers 번들 사이즈 한계 vs CMS 의존성 합산), A014 일부 (Tiptap 메이저 버전 후보 좁힘), A015 일부 (MDX runtime compiler 후보 좁힘), Issue #1 부분 (R2 SDK 1차 후보 좁힘 — 최종 결정은 T033)
-  - PR 1개 / 브랜치: `chore/cms-bundle-poc`
+  - PR: #88 / 브랜치: `chore/issue-88-cms-bundle-poc`
 
-- [ ] **Task 024: Cloudflare D1 + Drizzle ORM 셋업 + posts schema migration**
+- [x] **Task 024: Cloudflare D1 + Drizzle ORM 셋업 + posts schema migration**
   - **Must** Read: [tasks/T024-d1-drizzle-setup.md](tasks/T024-d1-drizzle-setup.md)
   - blockedBy: Task 023
   - blocks: Task 025, Task 026, Task 038
@@ -622,24 +627,25 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
   - 관련 AC: 없음 (스키마/binding 정합 검증)
   - 사전 단계 (PR 본 작업 전 1회):
     - `bunx wrangler d1 create tkstar-dev-db` (production) → 반환 `database_id` 기록
-    - `bunx wrangler d1 create tkstar-dev-db-preview` (preview) → `preview_database_id` 기록
-    - `wrangler.toml` 에 `[[d1_databases]] binding = "DB"`, `database_name = "tkstar-dev-db"`, `database_id = "..."`, `preview_database_id = "..."` 등록
+    - `bunx wrangler d1 create tkstar-dev-db-preview` (preview — default + staging + miniflare 공유) → `database_id` 기록
+    - `wrangler.toml` 에 D1 binding 3개 등록 — root `[[d1_databases]]` (preview ID) + `[[env.staging.d1_databases]]` (preview ID) + `[[env.production.d1_databases]]` (production ID). Cloudflare Workers named environment 는 bindings 를 상속하지 않으므로 staging 도 명시 필요.
   - 검증:
     - `drizzle.config.ts` 가 D1 dialect 로 동작, `bunx drizzle-kit generate` 가 SQL 마이그레이션 파일 생성
-    - `bunx wrangler d1 migrations apply tkstar-dev-db --local` 로컬 적용 성공 + `--remote` 도 적용 성공
-    - `posts` 테이블의 컬럼이 PRD F021 Data Model 과 1:1 매칭 (`id` PK, `slug` UNIQUE, `title`, `summary`, `raw_markdown`, `tags` JSON, `date_published`, `status` enum check, `created_at`, `updated_at`)
-    - `app/env.d.ts` 의 `interface AppLoadContext` (또는 `Env`) 에 `DB: D1Database` 추가
+    - `bunx wrangler d1 migrations apply tkstar-dev-db-preview --local` 로컬 적용 성공 + `--remote` 적용은 PR 머지 직후 사용자 수동
+    - `posts` 테이블의 컬럼이 PRD F021 Data Model 과 1:1 매칭 (`id` PK, `slug` UNIQUE, `title`, `summary`, `raw_markdown`, `tags` JSON, `date_published`, `status` enum (text + DEFAULT 'draft', application layer enforcement), `created_at`, `updated_at`)
+    - `Cloudflare.Env.DB: D1Database` 가 `wrangler types` postinstall lifecycle 로 자동 발행 (별도 `app/env.d.ts` 수동 편집 불필요 — A021 fact 정정)
   - 산출물:
-    - `package.json` — `drizzle-orm@0.44.x` (Issue #4: A021 결정 결과 따름), `drizzle-kit@0.x` (devDependency)
-    - `drizzle.config.ts` (D1 dialect)
-    - `app/infrastructure/db/schema/posts.ts` — Drizzle schema (`pgTable` 가 아닌 `sqliteTable`)
-    - `migrations/0001_create_posts.sql` (drizzle-kit 생성 산출물)
-    - `wrangler.toml` `[[d1_databases]]` binding `DB`
-    - `app/env.d.ts` `DB: D1Database` 추가
-  - 가정 해소: A021 (Drizzle 버전 pin — 0.44.x stable 채택 또는 v1.0 stable 출시 시 갱신, Issue #4)
-  - PR 1개 / 브랜치: `feature/issue-N-d1-drizzle-setup`
+    - `package.json` — `drizzle-orm@0.45.2` (T023 측정 근거 pin, A021 [FACT]), `drizzle-kit@^0.31.10` (devDependency)
+    - `drizzle.config.ts` (D1 dialect, schema=`./app/infrastructure/db/schema/*`, out=`./migrations`)
+    - `app/infrastructure/db/schema/posts.ts` — Drizzle `sqliteTable` (PRD F021 Data Model 1:1)
+    - `app/infrastructure/db/__tests__/posts.schema.test.ts` — 정적 schema 메타 검증 (13 테스트, getTableConfig 기반)
+    - `migrations/0000_futuristic_human_cannonball.sql` (drizzle-kit 산출 — `CREATE TABLE posts` + UNIQUE INDEX)
+    - `migrations/meta/_journal.json` + `migrations/meta/0000_snapshot.json`
+    - `wrangler.toml` 에 `[[d1_databases]]` 3개 (root preview / staging preview / production)
+  - 가정 해소: A021 [FACT] — `drizzle-orm@0.45.2` pin (T023 worker SSR bundle gzip Δ +30.96 KiB 측정 근거 일치)
+  - PR: #91 / 브랜치: `feature/issue-90-d1-drizzle-setup`
 
-- [ ] **Task 025: Domain Post entity D1 재정의 + D1PostRepository (Infrastructure)**
+- [x] **Task 025: Domain Post entity D1 재정의 + D1PostRepository (Infrastructure)**
   - **Must** Read: [tasks/T025-d1-post-repository.md](tasks/T025-d1-post-repository.md)
   - blockedBy: Task 024
   - blocks: Task 026, Task 027, Task 028
@@ -652,7 +658,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
     - velite Post 컬렉션은 **본 task 에서 비활성화** (`velite.config.ts`의 `posts` collection 제거 또는 주석 처리). `content/posts/*.mdx` 파일 자체는 T026 마이그레이션 후 삭제 예정.
     - Application port (`post-repository.port.ts`) 시그니처 갱신 — `status` 파라미터 추가 (default `published`)
   - 산출물:
-    - `app/domain/post/{post.entity.ts, post.schema.ts}` — `raw_markdown` / `status` 필드 추가, `body` MDX 필드 제거
+    - `app/domain/post/{post.entity.ts, post.schema.ts}` — D1 schema 1:1 (camelCase, `status` enum, `summary`/`datePublished` nullable, `createdAt`/`updatedAt` unix epoch). 메타데이터-only entity — `raw_markdown` 본문은 `findBodyBySlug` 가 별도 fetch (entity 외부)
     - `app/application/content/ports/post-repository.port.ts` — `findAll(status?: 'draft' | 'published' | 'all')` 등 시그니처 갱신
     - `app/infrastructure/db/d1-post.repository.ts` — Drizzle 기반 구현 (`db.select().from(posts).where(...)`)
     - `app/infrastructure/db/mappers/post-row.mapper.ts` — D1 row → Domain Post Entity (`tags` JSON parse, `status` enum 검증)
@@ -660,9 +666,9 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
     - `velite.config.ts` — `posts` collection 제거
     - `app/infrastructure/config/container.ts` — `D1PostRepository` 주입으로 교체
   - 가정 해소: 없음 (T024 의 schema 위에 1:1 매핑)
-  - PR 1개 / 브랜치: `feature/issue-N-d1-post-repository`
+  - PR: #TBD / 브랜치: `feature/issue-92-d1-post-repository`
 
-- [ ] **Task 026: 기존 MDX → D1 일회성 마이그레이션 스크립트**
+- [x] **Task 026: 기존 MDX → D1 일회성 마이그레이션 스크립트**
   - **Must** Read: [tasks/T026-mdx-to-d1-migration.md](tasks/T026-mdx-to-d1-migration.md)
   - blockedBy: Task 024, Task 025
   - blocks: Task 028
@@ -679,10 +685,10 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
     - `scripts/migrate-posts-to-d1.ts` (Bun 실행, `--dry-run` 플래그)
     - `scripts/__tests__/migrate-posts-to-d1.test.ts` (gray-matter 파싱 + INSERT 쿼리 빌드 단위 테스트)
     - `content/posts/` 삭제 (마이그레이션 완료 후 별도 commit)
-    - `docs/reports/post-migration-{date}.md` — 이관 결과 (이관 건수, 실패 건수, 롤백 절차)
-  - PR 1개 / 브랜치: `chore/migrate-posts-to-d1`
+    - `scripts/seeds/posts-initial.sql` — 1회 실행 산출 (T028 머지 + production /blog UI 검증 완료 후 별도 PR 로 제거 예정 — 본 PR 범위 外)
+  - PR: #TBD / 브랜치: `chore/issue-94-migrate-posts-to-d1`
 
-- [ ] **Task 027: MDX runtime compiler 결정 + 구현 + KV cache (post body)**
+- [x] **Task 027: MDX runtime compiler 결정 + 구현 + KV cache (post body)**
   - **Must** Read: [tasks/T027-mdx-runtime-compiler-kv-cache.md](tasks/T027-mdx-runtime-compiler-kv-cache.md)
   - blockedBy: Task 023, Task 025
   - blocks: Task 028
@@ -1097,7 +1103,7 @@ tkstarDev는 다음 핵심 가치를 단일 도메인에서 달성한다:
 | A018 | F022 project_meta 컬럼 (cover_image_url 외 featured 등) | F022 구현 PR | Task 038 (`slug` PK + `cover_image_url` + `cover_alt` 만 채택, `featured` 는 velite frontmatter 유지) | Phase 7.4 |
 | A019 | F023 Cloudflare Access 팀 도메인 (Free 플랜 충분성) | F023 구현 PR | Task 029 (Free 50 seats 1명 사용 채택 + 팀 subdomain 발급) | Phase 7.2 |
 | A020 | F020 search-index.json 저장 위치 (R2 vs KV) | F020 구현 PR | Task 039 (`build-search-index.service` 산출물 storage 결정) | Phase 7.4 |
-| A021 | Drizzle ORM 버전 pin (0.44.x stable vs v1.0 stable 출시) | F021 구현 PR | Task 024 (D1 셋업 시 0.44.x stable 채택, v1.0 stable 출시 시 갱신) | Phase 7.1 |
+| A021 | Drizzle ORM 버전 pin (0.44.x stable vs v1.0 stable 출시) | F021 구현 PR | [FACT] Task 024 — `drizzle-orm@0.45.2` pin (T023 worker SSR bundle gzip Δ +30.96 KiB 측정 근거 일치) | Phase 7.1 |
 
 > **운용 규칙**: 각 phase 완료 시점에 본 표를 점검하여 해당 phase가 게이트인 항목이 모두 [FACT]로 전환됐는지 확인하고 PRD 본문을 업데이트한다. A011/A012는 MVP 범위 외이므로 본 ROADMAP의 Phase 6 종료 후 Phase 7 시작 전 별도 issue로 트래킹한다. A014~A021은 Phase 7 진입 후 sub-phase 별로 단계적 해소.
 
@@ -1170,7 +1176,7 @@ Phase 7.4 (Project Meta+Search Index):
 - [ ] Phase 5: SEO / OG / Indexing (Task 018~020)
 - [ ] Phase 6: Polish & Deploy (Task 021, **021.5**, 022)
 - [ ] Phase 7: CMS 인프라 — D1 + Drizzle + R2 + Cloudflare Access (Task 023~040)
-  - Phase 7.1 Read Path First (Task 023~028, 6 tasks)
+  - Phase 7.1 Read Path First (Task 023~028, 6 tasks) — Task 023 ✅ Done 2026-05-06
   - Phase 7.2 Auth + Admin Foundation (Task 029~032, 4 tasks)
   - Phase 7.3 Admin Editor + Media (Task 033~037, 5 tasks)
   - Phase 7.4 Project Meta + Search Index (Task 038~040, 3 tasks)
@@ -1194,4 +1200,4 @@ Phase 7.4 (Project Meta+Search Index):
 > - A014 (Tiptap v2/v3 결정): T023 후보 좁힘 + T035 한국어 IME PoC (iOS Safari) 후 최종 결정
 > - A015 (MDX runtime compiler): T023 후보 좁힘 + T027 KV cache 통합 시 최종 결정
 > - A019 (Cloudflare Access 팀 도메인): T029 에서 Free 50 seats 1명 사용 채택 + 팀 subdomain 발급
-> - A021 (Drizzle 버전 pin) 신규: T024 에서 0.44.x stable 채택 (Issue #4 — prd-validator Suggestion #2)
+> - A021 (Drizzle 버전 pin) [FACT] (2026-05-06): T024 에서 `drizzle-orm@0.45.2` pin 결정 — T023 측정 근거 (gzip Δ +30.96 KiB, Cloudflare Free 한계 안)

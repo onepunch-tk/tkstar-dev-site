@@ -1,3 +1,4 @@
+import { getSiteOrigin } from "~/application/seo/launch-gate";
 import { buildBreadcrumbListLd, buildPersonLd } from "~/presentation/lib/jsonld";
 import { buildMeta } from "~/presentation/lib/meta";
 import AboutHeader from "../components/about/AboutHeader";
@@ -7,9 +8,10 @@ import EducationCard from "../components/about/EducationCard";
 import StackCards from "../components/about/StackCards";
 import type { Route } from "./+types/about";
 
-export const loader = ({ request }: Route.LoaderArgs) => {
+export const loader = ({ context, request }: Route.LoaderArgs) => {
+	const env = context.cloudflare.env as Env;
 	const url = new URL(request.url);
-	const origin = url.origin;
+	const origin = getSiteOrigin(env);
 	return {
 		origin,
 		canonicalUrl: `${origin}${url.pathname}`,
@@ -28,12 +30,12 @@ export const meta: Route.MetaFunction = ({ data }) => {
 		}),
 		{ "script:ld+json": buildPersonLd({ origin: data.origin }) },
 		{
-			"script:ld+json": 				buildBreadcrumbListLd({
-					items: [
-						{ name: "Home", url: `${data.origin}/` },
-						{ name: "About", url: data.canonicalUrl },
-					],
-				}),
+			"script:ld+json": buildBreadcrumbListLd({
+				items: [
+					{ name: "Home", url: `${data.origin}/` },
+					{ name: "About", url: data.canonicalUrl },
+				],
+			}),
 		},
 	];
 };

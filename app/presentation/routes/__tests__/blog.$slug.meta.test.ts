@@ -8,14 +8,17 @@ const isLd = (m: MetaDescriptor): m is LdScript => "script:ld+json" in m;
 const post = {
 	slug: "my-post",
 	title: "My Post",
-	lede: "post lede",
-	date: "2026-04-15",
+	summary: "post summary",
+	datePublished: "2026-04-15",
 	tags: ["typescript"] as string[],
-	read: 5,
+	status: "published" as const,
+	createdAt: 1714291200,
+	updatedAt: 1714291200,
 };
 
 const data = {
 	post,
+	toc: [] as { slug: string; text: string }[],
 	prev: null,
 	next: null,
 	origin: "https://tkstar.dev",
@@ -39,11 +42,11 @@ describe("blog.$slug meta export", () => {
 		);
 	});
 
-	it("description 메타태그에 post.lede 를 사용한다", () => {
+	it("description 메타태그에 post.summary 를 사용한다", () => {
 		const result = callMeta();
 		expect(result).toEqual(
 			expect.arrayContaining([
-				expect.objectContaining({ name: "description", content: "post lede" }),
+				expect.objectContaining({ name: "description", content: "post summary" }),
 			]),
 		);
 	});
@@ -99,11 +102,9 @@ describe("blog.$slug meta export", () => {
 	it("BlogPosting JSON-LD 에 올바른 필드를 포함한다", () => {
 		const result = callMeta();
 		const ldScripts = (result as MetaDescriptor[]).filter(isLd);
-		const ld = ldScripts
-			.map((s) => s["script:ld+json"])
-			.find((o) => o["@type"] === "BlogPosting");
+		const ld = ldScripts.map((s) => s["script:ld+json"]).find((o) => o["@type"] === "BlogPosting");
 		expect(ld?.headline).toBe("My Post");
-		expect(ld?.description).toBe("post lede");
+		expect(ld?.description).toBe("post summary");
 		expect(ld?.datePublished).toBe("2026-04-15");
 		expect(ld?.image).toBe("https://tkstar.dev/og/blog/my-post.png");
 		expect(ld?.mainEntityOfPage).toBe("https://tkstar.dev/blog/my-post");

@@ -6,30 +6,42 @@ import type { Post } from "../../../domain/post/post.entity";
 
 import BlogIndex, { loader } from "../blog._index";
 
+// ---------------------------------------------------------------------------
+// 공통 상수
+// ---------------------------------------------------------------------------
+
+const SITE_ORIGIN = "https://tkstar.dev";
+
 const mockPosts: Post[] = [
 	{
 		slug: "alpha",
 		title: "Alpha Post",
-		lede: "alpha lede",
-		date: "2026-04-28",
+		summary: "alpha summary",
+		datePublished: "2026-04-28",
 		tags: ["solo", "ops"],
-		read: 3,
+		status: "published",
+		createdAt: 1714291200,
+		updatedAt: 1714291200,
 	},
 	{
 		slug: "beta",
 		title: "Beta Post",
-		lede: "beta lede",
-		date: "2026-04-20",
+		summary: "beta summary",
+		datePublished: "2026-04-20",
 		tags: ["solo"],
-		read: 5,
+		status: "published",
+		createdAt: 1713600000,
+		updatedAt: 1713600000,
 	},
 	{
 		slug: "gamma",
 		title: "Gamma Post",
-		lede: "gamma lede",
-		date: "2026-04-10",
+		summary: "gamma summary",
+		datePublished: "2026-04-10",
 		tags: ["ops"],
-		read: 2,
+		status: "published",
+		createdAt: 1712736000,
+		updatedAt: 1712736000,
 	},
 ];
 
@@ -50,7 +62,10 @@ const makeMockContext = (filtered: Post[] = mockPosts, all: Post[] = mockPosts) 
 				getRecentPosts: vi.fn(),
 				buildRssFeed: vi.fn(),
 			},
-			cloudflare: { env: {}, ctx: {} },
+			cloudflare: {
+				env: { SITE_LAUNCHED: "true", SITE_ORIGIN },
+				ctx: {},
+			},
 		},
 		spies: { listPosts },
 	};
@@ -168,5 +183,27 @@ describe("Group B — blog._index UI", () => {
 			.getAllByRole("heading", { level: 1 })
 			.filter((el) => /\$\s*ls -la blog\//.test(el.textContent ?? ""));
 		expect(headers).toHaveLength(1);
+	});
+});
+
+// ---------------------------------------------------------------------------
+// Group C — env.SITE_ORIGIN 기반 origin 고정 (Launch Gate)
+// ---------------------------------------------------------------------------
+
+describe("Group C — env.SITE_ORIGIN 기반 origin 고정", () => {
+	it("env.SITE_ORIGIN 을 canonical origin 으로 사용 — request.url 의 호스트와 무관", async () => {
+		// Arrange
+		const { context } = makeMockContext();
+
+		// Act — 다른 호스트로 요청
+		const result = await loader({
+			context,
+			params: {},
+			request: new Request("https://www.tkstar.dev/blog"),
+		} as never);
+
+		// Assert
+		expect(result.origin).toBe(SITE_ORIGIN);
+		expect(result.canonicalUrl).toBe(`${SITE_ORIGIN}/blog`);
 	});
 });

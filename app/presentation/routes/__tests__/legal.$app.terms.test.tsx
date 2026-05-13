@@ -4,6 +4,12 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { AppLegalDoc } from "../../../domain/legal/app-legal-doc.entity";
 
+// ---------------------------------------------------------------------------
+// 공통 상수
+// ---------------------------------------------------------------------------
+
+const SITE_ORIGIN = "https://tkstar.dev";
+
 // build-time MDX 모듈 맵을 mock — 실제 콘텐츠 파일과 무관하게 testid 매칭 컴포넌트 반환
 vi.mock("../../components/content/mdx-modules", () => ({
 	legalTermsModules: new Proxy(
@@ -48,7 +54,10 @@ const makeMockContext = (doc: AppLegalDoc | null) => {
 				getRecentPosts: vi.fn(),
 				buildRssFeed: vi.fn(),
 			},
-			cloudflare: { env: {}, ctx: {} },
+			cloudflare: {
+				env: { SITE_LAUNCHED: "true", SITE_ORIGIN },
+				ctx: {},
+			},
 		},
 		spies: { findAppDoc },
 	};
@@ -128,5 +137,29 @@ describe("Group B — legal.$app.terms 컴포넌트", () => {
 		expect(screen.getByText(/1\.0\.0/)).toBeInTheDocument();
 		expect(screen.getByText("시행 2026-04-28")).toBeInTheDocument();
 		expect(screen.getByTestId("mdx-content")).toBeInTheDocument();
+	});
+});
+
+// ---------------------------------------------------------------------------
+// Group C — env.SITE_ORIGIN 기반 origin 고정 (Launch Gate)
+// ---------------------------------------------------------------------------
+
+describe("Group C — env.SITE_ORIGIN 기반 origin 고정", () => {
+	it("env.SITE_ORIGIN 을 canonical origin 으로 사용 — request.url 의 호스트와 무관", async () => {
+		// Arrange
+		const { context } = makeMockContext(moaiTerms);
+
+		// Act — 다른 호스트로 요청
+		const result = await loader({
+			context,
+			params: { app: "moai" },
+			request: new Request("https://www.tkstar.dev/legal/moai/terms"),
+		} as never);
+
+		// Assert
+		expect((result as Record<string, unknown>).origin).toBe(SITE_ORIGIN);
+		expect((result as Record<string, unknown>).canonicalUrl).toBe(
+			`${SITE_ORIGIN}/legal/moai/terms`,
+		);
 	});
 });

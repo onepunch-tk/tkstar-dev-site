@@ -7,7 +7,23 @@ vi.mock("../../lib/print", () => ({
 	triggerPrint: vi.fn(),
 }));
 
-import About from "../about";
+import About, { loader } from "../about";
+
+// ---------------------------------------------------------------------------
+// 공통 상수 / 팩토리
+// ---------------------------------------------------------------------------
+
+const SITE_ORIGIN = "https://tkstar.dev";
+
+const makeMockContext = () => ({
+	context: {
+		container: {},
+		cloudflare: {
+			env: { SITE_LAUNCHED: "true", SITE_ORIGIN },
+			ctx: {},
+		},
+	},
+});
 
 describe("About route", () => {
 	const renderAbout = () =>
@@ -68,5 +84,27 @@ describe("About route", () => {
 
 		// Assert
 		expect(screen.getByRole("heading", { name: /수상|award/i, level: 2 })).toBeInTheDocument();
+	});
+});
+
+// ---------------------------------------------------------------------------
+// env.SITE_ORIGIN 기반 origin 고정 (Launch Gate)
+// ---------------------------------------------------------------------------
+
+describe("About loader — env.SITE_ORIGIN 기반 origin 고정", () => {
+	it("env.SITE_ORIGIN 을 canonical origin 으로 사용 — request.url 의 호스트와 무관", () => {
+		// Arrange
+		const { context } = makeMockContext();
+
+		// Act — 다른 호스트로 요청
+		const result = loader({
+			context,
+			params: {},
+			request: new Request("https://www.tkstar.dev/about"),
+		} as never);
+
+		// Assert
+		expect(result.origin).toBe(SITE_ORIGIN);
+		expect(result.canonicalUrl).toBe(`${SITE_ORIGIN}/about`);
 	});
 });

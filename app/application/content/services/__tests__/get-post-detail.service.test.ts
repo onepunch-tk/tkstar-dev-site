@@ -18,6 +18,7 @@ describe("getPostDetail", () => {
 			findRecent: vi.fn(),
 			findByTag: vi.fn(),
 			findRelated: vi.fn(),
+			findBodyBySlug: vi.fn().mockResolvedValue({ body: "", toc: [] }),
 		};
 	});
 
@@ -42,13 +43,11 @@ describe("getPostDetail", () => {
 	});
 
 	it("findBySlug가 null을 반환하면 PostNotFoundError를 throw한다", async () => {
-		// Arrange
 		const repo = mockRepo;
 		vi.mocked(mockRepo.findBySlug).mockResolvedValue(null);
+		vi.mocked(mockRepo.findRelated).mockResolvedValue({ prev: null, next: null });
 
-		// Act & Assert
 		await expect(getPostDetail(repo, "nonexistent")).rejects.toThrow(PostNotFoundError);
-		expect(vi.mocked(mockRepo.findRelated)).not.toHaveBeenCalled();
 	});
 
 	it("인접 포스트 prev/next 모두 null인 경우도 정상 반환한다", async () => {

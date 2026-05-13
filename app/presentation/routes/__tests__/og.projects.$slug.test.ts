@@ -2,6 +2,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { loader } from "../og.projects.$slug[.png]";
 
+// ---------------------------------------------------------------------------
+// 공통 상수
+// ---------------------------------------------------------------------------
+
+const SITE_ORIGIN = "https://tkstar.dev";
+
 const fakePng = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 const fakeFallback = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0xff, 0xff]);
 
@@ -17,7 +23,10 @@ const makeContext = (overrides?: {
 				renderProjectOg,
 				loadFallbackOg,
 			},
-			cloudflare: { env: {}, ctx: {} },
+			cloudflare: {
+				env: { SITE_LAUNCHED: "true", SITE_ORIGIN },
+				ctx: {},
+			},
 		},
 		spies: { renderProjectOg, loadFallbackOg },
 	};
@@ -42,7 +51,7 @@ describe("og.projects.$slug loader", () => {
 			params: { slug: "alpha" },
 		} as never);
 
-		expect(spies.renderProjectOg).toHaveBeenCalledWith("alpha", "https://example.com");
+		expect(spies.renderProjectOg).toHaveBeenCalledWith("alpha", SITE_ORIGIN);
 		expect(res.status).toBe(200);
 		expect(res.headers.get("Content-Type")).toMatch(/^image\/png/);
 		expect(res.headers.get("Cache-Control")).toBe("public, max-age=31536000, immutable");
@@ -61,7 +70,7 @@ describe("og.projects.$slug loader", () => {
 			params: { slug: "missing" },
 		} as never);
 
-		expect(spies.renderProjectOg).toHaveBeenCalledWith("missing", "https://example.com");
+		expect(spies.renderProjectOg).toHaveBeenCalledWith("missing", SITE_ORIGIN);
 		expect(spies.loadFallbackOg).toHaveBeenCalledTimes(1);
 		expect(res.status).toBe(200);
 		expect(res.headers.get("Content-Type")).toMatch(/^image\/png/);
@@ -97,5 +106,20 @@ describe("og.projects.$slug loader", () => {
 		expect(spies.renderProjectOg).not.toHaveBeenCalled();
 		expect(spies.loadFallbackOg).toHaveBeenCalledTimes(1);
 		expect(res.status).toBe(200);
+	});
+
+	it("env.SITE_ORIGIN 을 renderProjectOg 의 origin 인자로 사용 — request.url 의 호스트와 무관", async () => {
+		// Arrange
+		const { context, spies } = makeContext();
+
+		// Act — 다른 호스트로 요청
+		await loader({
+			context,
+			request: new Request("https://www.tkstar.dev/og/projects/alpha.png"),
+			params: { slug: "alpha" },
+		} as never);
+
+		// Assert
+		expect(spies.renderProjectOg).toHaveBeenCalledWith("alpha", SITE_ORIGIN);
 	});
 });

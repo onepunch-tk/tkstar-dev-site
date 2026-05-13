@@ -220,6 +220,7 @@ app/application/
 │   └── services/
 │       └── build-rss-feed.service.ts    # F012
 └── seo/
+    ├── launch-gate.ts                   # SITE_LAUNCHED / SITE_ORIGIN env helper (#99)
     └── services/
         └── build-sitemap.service.ts     # F018
 ```
@@ -234,7 +235,9 @@ app/application/
 
 **Contains**:
 - **config/** — DI 컨테이너 (Composition Root) — Workers 부팅 시 모든 의존성 조립. **수제 Plain object/Map 방식** (의존성 그래프 작아 라이브러리 도입 미사용)
-- **content/** — velite read-side 어댑터 (`.velite/` 산출물을 Domain 엔티티로 매핑) — `*.repository.ts` 구현체
+- **content/** — velite read-side 어댑터 (`.velite/` 산출물을 Domain 엔티티로 매핑) — `*.repository.ts` 구현체. T027 부터 D1 Post 본문 markdown → hast 변환자 (`markdown-compiler.ts`) 도 동거 (Application port 의 Infrastructure 구현)
+- **db/** — Cloudflare D1 (edge SQLite) + Drizzle ORM 스키마/마이그레이션. F021 (Post) / F022 (MediaAsset metadata) / F021.5 (ProjectMeta cover) 의 데이터 정본. 본 task (T024) 시점에는 schema + binding + migration 토대만 — Repository 구현은 T025 에서 추가
+- **cache/** — Cloudflare KV 어댑터 (Application cache port 의 Infrastructure 구현). T027 — `kv-post-body-cache.ts` (`POST_BODY_CACHE_KV` binding)
 - **email/** — Resend + React Email 통합
 - **captcha/** — Cloudflare Turnstile 서버 검증
 - **og/** — Satori standalone + Workers Asset Binding으로 폰트/yoga.wasm 로드
@@ -252,10 +255,26 @@ app/infrastructure/
 │   └── __tests__/
 ├── content/
 │   ├── velite-project.repository.ts  # implements project-repository.port — `.velite/projects` 매핑
-│   ├── velite-post.repository.ts
 │   ├── velite-legal.repository.ts
+│   ├── markdown-compiler.ts          # T027 — unified + remark-parse + remark-gfm + remark-rehype → hast Root
 │   ├── mappers/                      # velite raw output → Domain Entity (`*.mapper.ts`)
 │   └── __tests__/
+│   # NOTE: velite-post.repository.ts / mappers/post.mapper.ts 는 T025 에서 폐기
+│   #       (Post 정본은 D1 으로 단방향 이관 — `app/infrastructure/db/d1-post.repository.ts` 참조)
+├── cache/
+│   ├── kv-post-body-cache.ts         # T027 — implements post-body-cache.port (env.POST_BODY_CACHE_KV)
+│   └── __tests__/
+├── db/
+│   ├── d1-post.repository.ts         # T025 — implements post-repository.port (Drizzle BaseSQLiteDatabase)
+│   ├── mappers/
+│   │   ├── post-row.mapper.ts        # T025 — D1 row → Domain Post (snake → camel + JSON.parse(tags))
+│   │   └── extract-toc.ts            # T025 — markdown ## heading → [{slug, text}] (github-slugger)
+│   ├── schema/
+│   │   └── posts.ts                  # F021 — Drizzle sqliteTable (PRD F021 Data Model 1:1)
+│   └── __tests__/
+│       ├── _helpers/in-memory-d1.ts  # T025 — better-sqlite3 + drizzle in-memory + migrations 적용
+│       ├── d1-post.repository.test.ts # T025 — 18 tests (status filter, findBodyBySlug, findRelated)
+│       └── posts.schema.test.ts      # 정적 schema 메타 검증 (getTableConfig 기반)
 ├── email/
 │   ├── resend-email-sender.ts        # implements email-sender.port (env.RESEND_API_KEY)
 │   ├── templates/                    # React Email 템플릿 (자동응답 메일)
@@ -588,6 +607,9 @@ app/
 ├── infrastructure/
 │   ├── config/.gitkeep
 │   ├── content/.gitkeep
+│   ├── db/                            # T024 — D1 + Drizzle (schema/migrations)
+│   │   ├── schema/
+│   │   └── __tests__/
 │   ├── email/.gitkeep
 │   ├── captcha/.gitkeep
 │   ├── og/.gitkeep
@@ -683,6 +705,7 @@ Infrastructure (infrastructure/)  ← workers/app.ts (Composition Root) wires ev
 | F013 Cloudflare Web Analytics | Presentation 스니펫 | `root.tsx` |
 | F016 Cmd+K Command Palette | Application 빌드 서비스 + Presentation(UI) | `application/search/services/build-search-index.service.ts` (→ `public/search-index.json`) + `presentation/components/palette/CommandPalette.tsx` (lazy fetch) |
 | F018 SEO sitemap/robots/JSON-LD | Application + Resource Route + Presentation meta | `application/seo/services/build-sitemap.service.ts` + `presentation/routes/{sitemap,robots}[.*].tsx` + 페이지별 `meta` export |
+| Launch Gate (#99) | Application helper + Workers entry + Presentation 분기 | `application/seo/launch-gate.ts` (`isLaunched`/`getSiteOrigin`) + `workers/app.ts` host 301 + `root.tsx` 조건부 noindex + `robots.txt`/`sitemap.xml` 분기 |
 | F019 검색엔진 인증 | Presentation 환경변수 조건부 렌더 | `root.tsx`의 `<head>` (`GOOGLE_SITE_VERIFICATION` / `NAVER_SITE_VERIFICATION` env) |
 | Contact (F008/F009) | Application 유스케이스 + Infrastructure 어댑터 2종 | `application/contact/services/submit-contact-form.service.ts` + `infrastructure/email/resend-email-sender.ts` + `infrastructure/captcha/turnstile-verifier.ts` |
 | Contact rate-limit (F009 보강) | Application Port + Infrastructure 구현 | `application/contact/ports/rate-limiter.port.ts` + `infrastructure/ratelimit/kv-rate-limiter.ts` (env.RATE_LIMIT_KV) |

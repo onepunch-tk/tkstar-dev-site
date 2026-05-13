@@ -6,6 +6,12 @@ import type { Post } from "../../../domain/post/post.entity";
 import IndexRoute, { loader } from "../_index";
 
 // ---------------------------------------------------------------------------
+// 공통 상수
+// ---------------------------------------------------------------------------
+
+const SITE_ORIGIN = "https://tkstar.dev";
+
+// ---------------------------------------------------------------------------
 // 테스트 픽스처
 // ---------------------------------------------------------------------------
 
@@ -21,10 +27,38 @@ const mockFeatured: Project = {
 	cover: undefined,
 };
 
+const T = 1714291200;
 const mockPosts: Post[] = [
-	{ slug: "p1", title: "글 1", lede: "lede 1", date: "2026-04-01", tags: [], read: 5 },
-	{ slug: "p2", title: "글 2", lede: "lede 2", date: "2026-03-20", tags: [], read: 8 },
-	{ slug: "p3", title: "글 3", lede: "lede 3", date: "2026-03-05", tags: [], read: 12 },
+	{
+		slug: "p1",
+		title: "글 1",
+		summary: "summary 1",
+		datePublished: "2026-04-01",
+		tags: [],
+		status: "published",
+		createdAt: T,
+		updatedAt: T,
+	},
+	{
+		slug: "p2",
+		title: "글 2",
+		summary: "summary 2",
+		datePublished: "2026-03-20",
+		tags: [],
+		status: "published",
+		createdAt: T - 86400 * 12,
+		updatedAt: T - 86400 * 12,
+	},
+	{
+		slug: "p3",
+		title: "글 3",
+		summary: "summary 3",
+		datePublished: "2026-03-05",
+		tags: [],
+		status: "published",
+		createdAt: T - 86400 * 27,
+		updatedAt: T - 86400 * 27,
+	},
 ];
 
 // ---------------------------------------------------------------------------
@@ -46,7 +80,10 @@ const makeMockContext = (overrides: Partial<{ featured: Project | null; posts: P
 				listPosts: vi.fn(),
 				getPostDetail: vi.fn(),
 			},
-			cloudflare: { env: {}, ctx: {} },
+			cloudflare: {
+				env: { SITE_LAUNCHED: "true", SITE_ORIGIN },
+				ctx: {},
+			},
 		},
 		spies: { getFeaturedProject, getRecentPosts },
 	};
@@ -210,5 +247,27 @@ describe("Group C — featured null conditional", () => {
 		expect(screen.queryByText("Realtime Whiteboard")).not.toBeInTheDocument();
 		// posts는 여전히 렌더
 		expect(screen.getAllByTestId("post-row")).toHaveLength(3);
+	});
+});
+
+// ---------------------------------------------------------------------------
+// Group D — env.SITE_ORIGIN 기반 origin 고정 (Launch Gate)
+// ---------------------------------------------------------------------------
+
+describe("Group D — env.SITE_ORIGIN 기반 origin 고정", () => {
+	it("env.SITE_ORIGIN 을 canonical origin 으로 사용 — request.url 의 호스트와 무관", async () => {
+		// Arrange
+		const { context } = makeMockContext();
+
+		// Act — 다른 호스트로 요청
+		const result = await loader({
+			context,
+			params: {},
+			request: new Request("https://www.tkstar.dev/"),
+		} as never);
+
+		// Assert
+		expect(result.origin).toBe(SITE_ORIGIN);
+		expect(result.canonicalUrl).toBe(`${SITE_ORIGIN}/`);
 	});
 });

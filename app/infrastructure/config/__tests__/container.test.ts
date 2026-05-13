@@ -4,6 +4,52 @@ vi.mock("~/infrastructure/og/satori-og-renderer", () => ({
 	createSatoriOgRenderer: vi.fn(() => ({ render: vi.fn() })),
 }));
 
+const T = 1714291200;
+const mockPostsD1 = [
+	{
+		slug: "post-1",
+		title: "Post 1",
+		summary: "Post 1 요약",
+		datePublished: "2026-04-20",
+		tags: ["x"],
+		status: "published" as const,
+		createdAt: T - 86400,
+		updatedAt: T - 86400,
+	},
+	{
+		slug: "post-2",
+		title: "Post 2",
+		summary: "Post 2 요약",
+		datePublished: "2026-04-21",
+		tags: ["y"],
+		status: "published" as const,
+		createdAt: T,
+		updatedAt: T,
+	},
+];
+
+vi.mock("drizzle-orm/d1", () => ({ drizzle: vi.fn(() => ({})) }));
+
+vi.mock("~/infrastructure/db/d1-post.repository", () => ({
+	createD1PostRepository: vi.fn(() => {
+		const sortedDesc = [...mockPostsD1].sort((a, b) => b.createdAt - a.createdAt);
+		return {
+			findAll: vi.fn().mockResolvedValue(sortedDesc),
+			findBySlug: vi.fn(async (slug: string) => sortedDesc.find((p) => p.slug === slug) ?? null),
+			findRecent: vi.fn(async (n: number) => sortedDesc.slice(0, n)),
+			findByTag: vi.fn(async (tag: string) => sortedDesc.filter((p) => p.tags.includes(tag))),
+			findRelated: vi.fn(async (slug: string) => {
+				const idx = sortedDesc.findIndex((p) => p.slug === slug);
+				return {
+					prev: idx > 0 ? sortedDesc[idx - 1] : null,
+					next: idx < sortedDesc.length - 1 ? sortedDesc[idx + 1] : null,
+				};
+			}),
+			findBodyBySlug: vi.fn().mockResolvedValue({ body: "", toc: [] }),
+		};
+	}),
+}));
+
 vi.mock("#content", () => ({
 	projects: [
 		{
