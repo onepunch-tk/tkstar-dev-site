@@ -89,6 +89,14 @@ describe("seedPosts", () => {
 		expect(rows).toHaveLength(1);
 		expect(rows[0].title).toBe("갱신된 제목");
 		expect(rows[0].updated_at).toBe(NOW_SECOND);
+		// created_at 은 INSERT 시점값 유지 — SET 절에 포함되면 안 됨
+		expect(rows[0].created_at).toBe(NOW_FIRST);
+	});
+
+	it("seeds 빈 배열 → inserted=0, DB 변경 없음", async () => {
+		await expect(seedPosts(db, [])).resolves.toEqual({ inserted: 0 });
+		const rows = await db.select().from(posts);
+		expect(rows).toHaveLength(0);
 	});
 
 	it("tags 배열 → JSON 직렬화 후 저장 (문자열 정확히 일치 + JSON.parse 복원)", async () => {

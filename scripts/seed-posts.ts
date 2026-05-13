@@ -41,6 +41,7 @@ export const seedPosts = async (
 		raw_markdown: s.raw_markdown,
 		tags: JSON.stringify(s.tags),
 		date_published: s.date_published,
+		// seed 데이터는 항상 공개 콘텐츠 — schema default 'draft' 는 admin write 경로용
 		status: s.status ?? "published",
 		created_at: now,
 		updated_at: now,
@@ -101,6 +102,11 @@ const main = async (): Promise<void> => {
 	const targetFlag = target === "local" ? "--local" : "--remote";
 	const now = Math.floor(Date.now() / 1000);
 
+	// IMPORTANT: 본 raw-SQL 의 컬럼 목록 + SET 절은 seedPosts() (line 30-66) 의
+	// Drizzle .onConflictDoUpdate() 와 column-identical 해야 함. schema 변경
+	// (e.g., body_mdx 추가) 시 두 곳 동시 갱신 필요. test (seed-posts.test.ts)
+	// 는 Drizzle path 만 검증 — 본 wrangler path 의 drift 는 catch 못 함.
+	// 본 스크립트는 T032 머지 후 폐기 예정이라 drift 위험은 그때까지만 한정.
 	const escapeSql = (s: string): string => s.replace(/'/g, "''");
 	const lit = (v: string | null): string => (v === null ? "NULL" : `'${escapeSql(v)}'`);
 	const rowSql = HARDCODED_SEEDS.map(
