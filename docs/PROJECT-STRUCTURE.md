@@ -220,6 +220,7 @@ app/application/
 │   └── services/
 │       └── build-rss-feed.service.ts    # F012
 └── seo/
+    ├── launch-gate.ts                   # SITE_LAUNCHED / SITE_ORIGIN env helper (#99)
     └── services/
         └── build-sitemap.service.ts     # F018
 ```
@@ -704,6 +705,7 @@ Infrastructure (infrastructure/)  ← workers/app.ts (Composition Root) wires ev
 | F013 Cloudflare Web Analytics | Presentation 스니펫 | `root.tsx` |
 | F016 Cmd+K Command Palette | Application 빌드 서비스 + Presentation(UI) | `application/search/services/build-search-index.service.ts` (→ `public/search-index.json`) + `presentation/components/palette/CommandPalette.tsx` (lazy fetch) |
 | F018 SEO sitemap/robots/JSON-LD | Application + Resource Route + Presentation meta | `application/seo/services/build-sitemap.service.ts` + `presentation/routes/{sitemap,robots}[.*].tsx` + 페이지별 `meta` export |
+| Launch Gate (#99) | Application helper + Workers entry + Presentation 분기 | `application/seo/launch-gate.ts` (`isLaunched`/`getSiteOrigin`) + `workers/app.ts` host 301 + `root.tsx` 조건부 noindex + `robots.txt`/`sitemap.xml` 분기 |
 | F019 검색엔진 인증 | Presentation 환경변수 조건부 렌더 | `root.tsx`의 `<head>` (`GOOGLE_SITE_VERIFICATION` / `NAVER_SITE_VERIFICATION` env) |
 | Contact (F008/F009) | Application 유스케이스 + Infrastructure 어댑터 2종 | `application/contact/services/submit-contact-form.service.ts` + `infrastructure/email/resend-email-sender.ts` + `infrastructure/captcha/turnstile-verifier.ts` |
 | Contact rate-limit (F009 보강) | Application Port + Infrastructure 구현 | `application/contact/ports/rate-limiter.port.ts` + `infrastructure/ratelimit/kv-rate-limiter.ts` (env.RATE_LIMIT_KV) |
