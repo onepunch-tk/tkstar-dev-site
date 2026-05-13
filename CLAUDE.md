@@ -148,8 +148,9 @@
 
 Launch 절차:
 1. `wrangler.toml [env.production.vars] SITE_LAUNCHED = "true"` 로 변경
-2. `bunx wrangler deploy --env production`
-3. Search Console "URL 검사" → 색인 요청
+2. `bun run typecheck` — wrangler types 가 literal 을 재narrow (helper 가 `LaunchEnv: string` 으로 받고 있어 코드는 안 깨지지만, 새 literal 반영)
+3. `bunx wrangler deploy --env production`
+4. Search Console "URL 검사" → 색인 요청
 
 ## Commands
 
